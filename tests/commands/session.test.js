@@ -30,7 +30,7 @@ describe('Session Commands', () => {
   let mockSessionManager;
   let mockLogger;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockSessionManager = {
       validateSession: vi.fn(),
       hasSession: vi.fn(),

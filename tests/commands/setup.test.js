@@ -27,7 +27,7 @@ describe('Setup Commands', () => {
   let mockSessionManager;
   let mockLogger;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockSessionManager = {
       captureSession: vi.fn(),
       validateSession: vi.fn(),
