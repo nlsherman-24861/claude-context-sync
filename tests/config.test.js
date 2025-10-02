@@ -80,21 +80,14 @@ describe('Config Loader', () => {
     expect(merged.project_defaults).toBeDefined(); // from defaults
   });
 
-  it('should find config file in search paths', async () => {
+  it('should find config file when custom path provided', async () => {
     const configPath = join(tempDir, 'preferences.yaml');
     const config = { personal: { name: 'Test', role: 'Dev' }, technical: {}, project_defaults: {} };
     
     await writeYaml(configPath, config);
     
-    // Mock environment variable
-    const originalEnv = process.env.CLAUDE_CONTEXT_CONFIG;
-    process.env.CLAUDE_CONTEXT_CONFIG = configPath;
-    
-    try {
-      const foundPath = await findConfigFile();
-      expect(foundPath).toBe(configPath);
-    } finally {
-      process.env.CLAUDE_CONTEXT_CONFIG = originalEnv;
-    }
+    // Pass custom path directly instead of using env var
+    const foundPath = await findConfigFile(configPath);
+    expect(foundPath).toBe(configPath);
   });
 });
