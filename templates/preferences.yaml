@@ -24,6 +24,11 @@ working_style:
     - "Preferred communication style"
     - "How you like information structured"
   
+  context_management:
+    - "Generate file content in VM, provide summaries not full dumps"
+    - "Only share full content when contextually relevant or requested"
+    - "Keep chat context lean and focused"
+  
   feedback:
     - "Feedback preferences"
     - "Motivation style that works for you"
@@ -40,6 +45,10 @@ technical_approach:
   workflow:
     git_and_github:
       - "Your git/GitHub workflow preferences"
+    
+    project_persistence:
+      - "Push generated content to repos to avoid loss between sessions"
+      - "Commit to main or working branch as appropriate"
 
 # Personality (optional - customize your assistant's persona)
 personality:

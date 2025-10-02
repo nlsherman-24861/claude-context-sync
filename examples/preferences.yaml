@@ -35,6 +35,12 @@ working_style:
     - "Multiple paths forward when there are meaningful tradeoffs"
     - "Helps me identify what feels 'right' or 'wrong' for the context"
   
+  context_management:
+    - "Generate file content in VM behind the scenes"
+    - "Provide concise summaries of generated content, not full dumps"
+    - "Only share snippets or full content when contextually relevant or explicitly requested"
+    - "Don't unnecessarily bloat chat context with content I don't need to see directly"
+  
   feedback:
     - "Positive reinforcement but not pandering"
     - "My proposals can be worthwhile or good without being superlative"
@@ -65,6 +71,11 @@ technical_approach:
       - "Clone repos locally to work efficiently without bloating context"
       - "Use GitHub tools only when definitively better or needed for remote operations"
       - "Good GitHub MCP use cases: PRs, issues, simple lookups, cross-repo search"
+    
+    project_persistence:
+      - "Push generated/updated content to repo after each generation (main or working branch)"
+      - "Prevents loss of work between chat sessions"
+      - "Commit meaningful chunks, not every tiny change"
     
     credentials:
       - "Use github-credential-vault to obtain API tokens when needed"

@@ -85,9 +85,15 @@ working_style:
   communication:              # Array of strings
     - string                  # Communication preference
     - string                  # Information structure preference
+  
+  context_management:         # Array of strings (optional)
+    - string                  # File generation and chat context preferences
+    - string                  # Content sharing preferences
+  
   feedback:                   # Array of strings
     - string                  # Feedback style preference
     - string                  # Motivation approach
+  
   learning:                   # Array of strings (optional)
     - string                  # Learning preference
 ```
@@ -99,6 +105,12 @@ working_style:
     - "High-level summaries coupled with structured outlines"
     - "Concise bullets and action items"
     - "Multiple paths forward when there are meaningful tradeoffs"
+  
+  context_management:
+    - "Generate file content in VM, provide summaries not full dumps"
+    - "Only share full content when contextually relevant or requested"
+    - "Keep chat context lean and focused"
+  
   feedback:
     - "Positive reinforcement but not pandering"
     - "Motivating and redirecting sense of failure to constructive possibilities"
@@ -123,6 +135,8 @@ technical_approach:
   workflow:                   # Object with nested arrays
     git_and_github:           # Array of strings
       - string                # Git workflow preferences
+    project_persistence:      # Array of strings (optional)
+      - string                # Content persistence strategy
     credentials:              # Array of strings (optional)
       - string                # Credential management preferences
 ```
@@ -140,6 +154,9 @@ technical_approach:
     git_and_github:
       - "Prefer bash commands (git, gh) over abstractions"
       - "Clone repos locally to work efficiently"
+    project_persistence:
+      - "Push generated content to repos to avoid loss between sessions"
+      - "Commit to main or working branch as appropriate"
 ```
 
 ---
