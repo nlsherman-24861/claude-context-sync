@@ -228,7 +228,7 @@ describe('ClaudeMdFormatTransformer', () => {
       const transformer = new ClaudeMdFormatTransformer({});
       const output = await transformer.transform();
 
-      expect(output).toBe('# Claude Code Preferences');
+      expect(output).toBe('# Claude Code Preferences\n');
     });
   });
 

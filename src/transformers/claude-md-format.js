@@ -61,7 +61,13 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
       }
     }
 
-    return output.trim();
+    // Clean up: trim trailing spaces from each line, remove multiple blank lines, ensure single final newline
+    return output
+      .split('\n')
+      .map(line => line.trimEnd())
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim() + '\n';
   }
 
   _formatProfessionalBackground(background) {
@@ -255,10 +261,41 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
     for (const [key, value] of Object.entries(technical)) {
       if (Array.isArray(value)) {
         section += `### ${this._formatSectionTitle(key)}\n\n`;
-        value.forEach(item => {
-          section += `- ${item}\n`;
+
+        // Check if content has structured indentation
+        const hasIndentation = value.some(item => {
+          const trimmed = item.trim();
+          return trimmed && item.startsWith('  ') && !item.startsWith('- ');
         });
-        section += '\n';
+
+        if (hasIndentation) {
+          // Format as nested markdown lists preserving structure
+          value.forEach(item => {
+            const trimmed = item.trim();
+            if (!trimmed) {
+              // Skip completely empty lines
+              return;
+            }
+
+            // Count leading spaces to determine nesting level
+            const leadingSpaces = item.search(/\S/);
+            if (leadingSpaces === -1) return; // Empty line
+
+            // Convert indentation to markdown nesting (2 spaces per level)
+            const indent = '  '.repeat(Math.floor(leadingSpaces / 2));
+            section += `${indent}- ${trimmed}\n`;
+          });
+          section += '\n';
+        } else {
+          // Format as simple list
+          value.forEach(item => {
+            const trimmed = item.trim();
+            if (trimmed) {
+              section += `- ${trimmed}\n`;
+            }
+          });
+          section += '\n';
+        }
       } else if (typeof value === 'string') {
         section += `- **${this._formatSectionTitle(key)}**: ${value}\n`;
       }
@@ -284,10 +321,41 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
         
         if (Array.isArray(propValue)) {
           section += `### ${this._formatSectionTitle(propKey)}\n\n`;
-          propValue.forEach(item => {
-            section += `- ${item}\n`;
+
+          // Check if content has structured indentation
+          const hasIndentation = propValue.some(item => {
+            const trimmed = item.trim();
+            return trimmed && item.startsWith('  ') && !item.startsWith('- ');
           });
-          section += '\n';
+
+          if (hasIndentation) {
+            // Format as nested markdown lists preserving structure
+            propValue.forEach(item => {
+              const trimmed = item.trim();
+              if (!trimmed) {
+                // Skip completely empty lines
+                return;
+              }
+
+              // Count leading spaces to determine nesting level
+              const leadingSpaces = item.search(/\S/);
+              if (leadingSpaces === -1) return; // Empty line
+
+              // Convert indentation to markdown nesting (2 spaces per level)
+              const indent = '  '.repeat(Math.floor(leadingSpaces / 2));
+              section += `${indent}- ${trimmed}\n`;
+            });
+            section += '\n';
+          } else {
+            // Format as simple list
+            propValue.forEach(item => {
+              const trimmed = item.trim();
+              if (trimmed) {
+                section += `- ${trimmed}\n`;
+              }
+            });
+            section += '\n';
+          }
         } else if (typeof propValue === 'string') {
           section += `- **${this._formatSectionTitle(propKey)}**: ${propValue}\n`;
         } else if (typeof propValue === 'object' && propValue !== null) {
@@ -297,7 +365,11 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
             if (Array.isArray(nestedValue)) {
               section += `#### ${this._formatSectionTitle(nestedKey)}\n\n`;
               nestedValue.forEach(item => {
-                section += `- ${item}\n`;
+                // Trim trailing spaces and skip empty lines
+                const trimmed = item.trim();
+                if (trimmed) {
+                  section += `- ${trimmed}\n`;
+                }
               });
               section += '\n';
             }
