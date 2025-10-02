@@ -266,10 +266,12 @@ User preferences
       const filePath = join(testDir, 'test.md');
       writeFileSync(filePath, '# V1', 'utf-8');
 
-      // Create multiple backups
+      // Create multiple backups with small delays to ensure unique timestamps
       await fileSync.createBackup(filePath);
+      await new Promise(resolve => setTimeout(resolve, 10));
       writeFileSync(filePath, '# V2', 'utf-8');
       await fileSync.createBackup(filePath);
+      await new Promise(resolve => setTimeout(resolve, 10));
       writeFileSync(filePath, '# V3', 'utf-8');
       await fileSync.createBackup(filePath);
 
