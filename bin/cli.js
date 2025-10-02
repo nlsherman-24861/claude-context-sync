@@ -1,192 +1,152 @@
 #!/usr/bin/env node
 
-import { program } from 'commander';
-import { fileURLToPath } from 'url';
+/**
+ * Claude Context Sync - CLI Entry Point
+ * 
+ * Synchronize your Claude preferences across chat, code, and projects
+ */
+
+import { Command } from 'commander';
 import { dirname, join } from 'path';
 import { readFileSync } from 'fs';
 import { setVerbose, info, success, error, printError } from '../src/utils/logger.js';
 import { loadConfig, getDefaultConfigPath } from '../src/config/index.js';
 import { validateBasicStructure } from '../src/parsers/yaml-parser.js';
 import { exportCmd, showAvailableFormats } from '../src/commands/export.js';
+import { installWrappers, uninstallWrappers, listWrappers } from '../src/wrappers/installer.js';
+import { addUnifiedAliases, showUnifiedExamples } from '../src/wrappers/aliases.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Read package.json for version
+const __dirname = dirname(new URL(import.meta.url).pathname);
 const packageJson = JSON.parse(
-  readFileSync(join(__dirname, '..', 'package.json'), 'utf-8')
+  readFileSync(join(__dirname, '../package.json'), 'utf-8')
 );
+
+const program = new Command();
 
 program
   .name('claude-context-sync')
   .description('Sync your Claude preferences across chat, code, and projects')
   .version(packageJson.version)
-  .option('-v, --verbose', 'enable verbose logging')
-  .option('-d, --dry-run', 'show what would be done without making changes')
-  .option('-c, --config <path>', 'specify config file path');
-
-// Global options handler
-program.hook('preAction', (thisCommand) => {
-  const options = thisCommand.opts();
-  if (options.verbose) {
-    setVerbose(true);
-  }
-});
-
-// Command groups
-program
-  .command('init')
-  .description('Initialize configuration and create template preferences')
-  .action(async (options) => {
-    try {
-      info('Initializing claude-context-sync configuration...');
-      success(`Template will be created at: ${getDefaultConfigPath()}`);
-      info('Init command - full implementation pending');
-    } catch (err) {
-      printError(err);
-      process.exit(1);
+  .option('-v, --verbose', 'Enable verbose logging')
+  .option('-c, --config <path>', 'Path to preferences.yaml')
+  .hook('preAction', (thisCommand) => {
+    const opts = thisCommand.opts();
+    if (opts.verbose) {
+      setVerbose(true);
     }
   });
 
-program
-  .command('setup')
-  .description('Setup browser automation and verify access')
-  .option('--authenticate', 'capture new authentication session')
-  .option('--refresh-session', 'refresh existing session')
-  .option('--browser', 'setup browser environment')
-  .action(async (options) => {
-    try {
-      if (options.authenticate) {
-        const { setupAuthenticate } = await import('../src/commands/setup.js');
-        await setupAuthenticate();
-      } else if (options.refreshSession) {
-        const { setupRefreshSession } = await import('../src/commands/setup.js');
-        await setupRefreshSession();
-      } else if (options.browser) {
-        const { setupBrowser } = await import('../src/commands/setup.js');
-        await setupBrowser();
-      } else {
-        info('Setup browser automation and session management');
-        info('Available options:');
-        info('  --authenticate     Capture new session (opens browser)');
-        info('  --refresh-session  Update existing session');
-        info('  --browser         Setup browser environment');
-      }
-    } catch (err) {
-      printError(err);
-      process.exit(1);
-    }
-  });
-
-program
-  .command('sync')
-  .description('Sync preferences across all Claude interfaces')
-  .action(async (options) => {
-    try {
-      info('Syncing preferences...');
-      info('Sync command - full implementation pending');
-    } catch (err) {
-      printError(err);
-      process.exit(1);
-    }
-  });
-
-program
-  .command('export')
-  .description('Export preferences to various formats')
-  .requiredOption('-f, --format <format>', 'output format (chat, claude-md)')
-  .option('-o, --output <file>', 'output file (defaults to stdout)')
-  .option('-s, --section <name>', 'export specific section only')
-  .action(async (options) => {
-    try {
-      const globalOptions = program.opts();
-      const exportOptions = {
-        ...options,
-        configPath: globalOptions.config
-      };
-      
-      await exportCmd(exportOptions);
-    } catch (err) {
-      printError(err);
-      process.exit(1);
-    }
-  });
-
-program
-  .command('formats')
-  .description('Show available export formats')
-  .action(() => {
-    showAvailableFormats();
-  });
-
-program
-  .command('diff')
-  .description('Show differences between local and remote preferences')
-  .action(async (options) => {
-    try {
-      info('Checking for differences...');
-      info('Diff command - full implementation pending');
-    } catch (err) {
-      printError(err);
-      process.exit(1);
-    }
-  });
-
+// Validate command
 program
   .command('validate')
-  .description('Validate preferences file structure')
-  .action(async (options) => {
+  .description('Validate preferences.yaml configuration')
+  .action(async () => {
     try {
-      const globalOptions = program.opts();
-      const configPath = globalOptions.config;
+      const opts = program.opts();
+      const configPath = opts.config || getDefaultConfigPath();
       
-      info('Validating preferences file...');
-      
+      info(`Validating config: ${configPath}`);
       const { config, path } = await loadConfig(configPath);
-      const validation = validateBasicStructure(config);
       
-      if (validation.valid) {
-        success(`Configuration is valid: ${path}`);
-      } else {
-        error('Configuration validation failed:');
+      const validation = validateBasicStructure(config);
+      if (!validation.valid) {
+        error('Validation failed:');
         validation.errors.forEach(err => error(`  - ${err}`));
         process.exit(1);
       }
-    } catch (err) {
-      printError(err);
+      
+      success('Configuration is valid!');
+      info(`  Loaded from: ${path}`);
+    } catch (e) {
+      printError(e);
+      process.exit(1);
+    }
+  });
+
+// Export command
+program
+  .command('export')
+  .description('Export preferences to different formats')
+  .argument('[format]', 'Output format (claude-md, chat, etc.)')
+  .option('-o, --output <file>', 'Write to file instead of stdout')
+  .option('--list-formats', 'List available export formats')
+  .action(async (format, options) => {
+    if (options.listFormats) {
+      showAvailableFormats();
+      return;
+    }
+
+    if (!format) {
+      error('Format required. Use --list-formats to see available formats.');
+      process.exit(1);
+    }
+
+    try {
+      await exportCmd(format, {
+        config: program.opts().config,
+        output: options.output
+      });
+    } catch (e) {
+      printError(e);
+      process.exit(1);
+    }
+  });
+
+// Wrapper installation commands
+program
+  .command('install-wrappers')
+  .description('Install cross-platform wrapper scripts')
+  .option('--shell <type>', 'Shell type (bash, powershell, cmd, all)')
+  .option('--global', 'Install system-wide (requires permissions)')
+  .option('--aliases', 'Add unified command aliases')
+  .action(async (options) => {
+    try {
+      await installWrappers(options);
+      
+      if (options.aliases) {
+        await addUnifiedAliases(options.shell || 'all');
+      }
+      
+      success('Wrappers installed successfully!');
+      info('Run sync-claude --help to get started');
+    } catch (e) {
+      printError(e);
       process.exit(1);
     }
   });
 
 program
-  .command('session')
-  .description('Manage authentication sessions')
-  .option('--check', 'validate current session')
-  .option('--info', 'show session metadata')
-  .option('--clear', 'remove current session')
+  .command('uninstall-wrappers')
+  .description('Uninstall wrapper scripts')
+  .option('--shell <type>', 'Shell type (bash, powershell, cmd, all)')
+  .option('--global', 'Uninstall from system-wide location')
   .action(async (options) => {
     try {
-      if (options.check) {
-        const { sessionCheck } = await import('../src/commands/session.js');
-        await sessionCheck();
-      } else if (options.info) {
-        const { sessionInfo } = await import('../src/commands/session.js');
-        await sessionInfo();
-      } else if (options.clear) {
-        const { sessionClear } = await import('../src/commands/session.js');
-        await sessionClear();
-      } else {
-        info('Manage authentication sessions');
-        info('Available options:');
-        info('  --check   Validate current session');
-        info('  --info    Show session metadata');
-        info('  --clear   Remove current session');
-      }
-    } catch (err) {
-      printError(err);
+      await uninstallWrappers(options);
+      success('Wrappers uninstalled successfully');
+    } catch (e) {
+      printError(e);
       process.exit(1);
     }
   });
 
-// Parse command line arguments
+program
+  .command('list-wrappers')
+  .description('List installed wrapper scripts')
+  .action(async () => {
+    try {
+      await listWrappers();
+    } catch (e) {
+      printError(e);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('wrapper-examples')
+  .description('Show examples of unified wrapper commands')
+  .action(() => {
+    showUnifiedExamples();
+  });
+
 program.parse();
