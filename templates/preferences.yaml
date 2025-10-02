@@ -55,6 +55,13 @@ technical_approach:
   workflow:
     git_and_github:
       - "Your git/GitHub workflow preferences"
+      
+      # CRITICAL - Repository Safety
+      - "ALWAYS verify my GitHub username before ANY repo operations"
+      - "NEVER assume repo ownership - if only a repo name is provided, FIRST confirm ownership"
+      - "ONLY work with repos under my account - refuse operations on repos that don't belong to me"
+      - "If ANY ambiguity about repo ownership exists, ASK before proceeding"
+      - "Safe workflow example: gh api user --jq '.login' → verify match → proceed"
     
     github_issue_management:
       - "When creating or updating GitHub issues:"
