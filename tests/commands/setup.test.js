@@ -18,14 +18,10 @@ vi.mock('../../src/utils/logger.js', () => ({
   error: vi.fn()
 }));
 
-// Mock process.exit to prevent actual exits in tests
-const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-  throw new Error('process.exit called');
-});
-
 describe('Setup Commands', () => {
   let mockSessionManager;
   let mockLogger;
+  let mockExit;
 
   beforeEach(async () => {
     mockSessionManager = {
@@ -38,12 +34,17 @@ describe('Setup Commands', () => {
     SessionManager.mockReturnValue(mockSessionManager);
 
     mockLogger = vi.mocked(await import('../../src/utils/logger.js'));
-    
+
     vi.clearAllMocks();
+
+    // Mock process.exit to prevent actual exits in tests
+    mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+      throw new Error('process.exit called');
+    });
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('setupAuthenticate', () => {

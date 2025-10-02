@@ -1,52 +1,51 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { sessionCheck, sessionInfo, sessionClear } from '../../src/commands/session.js';
+import * as logger from '../../src/utils/logger.js';
 
 // Mock the SessionManager
 vi.mock('../../src/browser/session-manager.js', () => ({
   SessionManager: vi.fn(() => ({
     validateSession: vi.fn(),
     hasSession: vi.fn(),
-    getSessionInfo: vi.fn()
+    getSessionInfo: vi.fn(),
+    clearSession: vi.fn()
   }))
 }));
 
 // Mock the logger
-vi.mock('../../src/utils/logger.js', () => ({
-  info: vi.fn(),
-  success: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn()
-}));
+vi.mock('../../src/utils/logger.js');
 
-// Mock console.log to capture session info output
-const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-// Mock process.exit to prevent actual exits in tests
-const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-  throw new Error('process.exit called');
-});
+// Import after mocking
+import { sessionCheck, sessionInfo, sessionClear } from '../../src/commands/session.js';
 
 describe('Session Commands', () => {
   let mockSessionManager;
-  let mockLogger;
+  let mockConsoleLog;
+  let mockExit;
 
   beforeEach(async () => {
     mockSessionManager = {
       validateSession: vi.fn(),
       hasSession: vi.fn(),
-      getSessionInfo: vi.fn()
+      getSessionInfo: vi.fn(),
+      clearSession: vi.fn()
     };
 
     const { SessionManager } = vi.mocked(await import('../../src/browser/session-manager.js'));
     SessionManager.mockReturnValue(mockSessionManager);
 
-    mockLogger = vi.mocked(await import('../../src/utils/logger.js'));
-    
     vi.clearAllMocks();
+
+    // Mock console.log to capture session info output
+    mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    // Mock process.exit to prevent actual exits in tests
+    mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
+      throw new Error('process.exit called');
+    });
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('sessionCheck', () => {
@@ -60,10 +59,10 @@ describe('Session Commands', () => {
 
       await sessionCheck();
 
-      expect(mockLogger.success).toHaveBeenCalledWith('Session is valid!');
-      expect(mockLogger.info).toHaveBeenCalledWith('Captured: 2025-10-01T10:00:00.000Z');
-      expect(mockLogger.info).toHaveBeenCalledWith('Last validated: 2025-10-02T15:00:00.000Z');
-      expect(mockLogger.info).toHaveBeenCalledWith('Age: 1 days');
+      expect(logger.success).toHaveBeenCalledWith('Session is valid!');
+      expect(logger.info).toHaveBeenCalledWith('Captured: 2025-10-01T10:00:00.000Z');
+      expect(logger.info).toHaveBeenCalledWith('Last validated: 2025-10-02T15:00:00.000Z');
+      expect(logger.info).toHaveBeenCalledWith('Age: 1 days');
     });
 
     it('should warn about old sessions', async () => {
@@ -76,8 +75,8 @@ describe('Session Commands', () => {
 
       await sessionCheck();
 
-      expect(mockLogger.success).toHaveBeenCalledWith('Session is valid!');
-      expect(mockLogger.warn).toHaveBeenCalledWith('Session is getting old. Consider refreshing soon.');
+      expect(logger.success).toHaveBeenCalledWith('Session is valid!');
+      expect(logger.warn).toHaveBeenCalledWith('Session is getting old. Consider refreshing soon.');
     });
 
     it('should handle invalid session and exit', async () => {
@@ -88,8 +87,8 @@ describe('Session Commands', () => {
 
       await expect(sessionCheck()).rejects.toThrow('process.exit called');
 
-      expect(mockLogger.error).toHaveBeenCalledWith('Session invalid: Session expired');
-      expect(mockLogger.info).toHaveBeenCalledWith('To fix this, run: claude-context-sync setup --refresh-session');
+      expect(logger.error).toHaveBeenCalledWith('Session invalid: Session expired');
+      expect(logger.info).toHaveBeenCalledWith('To fix this, run: claude-context-sync setup --refresh-session');
       expect(mockExit).toHaveBeenCalledWith(1);
     });
 
@@ -98,8 +97,8 @@ describe('Session Commands', () => {
 
       await expect(sessionCheck()).rejects.toThrow('process.exit called');
 
-      expect(mockLogger.error).toHaveBeenCalledWith('Session check failed: No session found');
-      expect(mockLogger.info).toHaveBeenCalledWith('To create a session, run: claude-context-sync setup --authenticate');
+      expect(logger.error).toHaveBeenCalledWith('Session check failed: No session found');
+      expect(logger.info).toHaveBeenCalledWith('To create a session, run: claude-context-sync setup --authenticate');
       expect(mockExit).toHaveBeenCalledWith(1);
     });
   });
@@ -123,7 +122,7 @@ describe('Session Commands', () => {
       expect(mockConsoleLog).toHaveBeenCalledWith('  Age: 1 days');
       expect(mockConsoleLog).toHaveBeenCalledWith('  Cookies: 5');
       expect(mockConsoleLog).toHaveBeenCalledWith('  Origins: 2');
-      expect(mockLogger.success).toHaveBeenCalledWith('  Status: Session is fresh');
+      expect(logger.success).toHaveBeenCalledWith('  Status: Session is fresh');
     });
 
     it('should warn about old sessions', async () => {
@@ -138,22 +137,22 @@ describe('Session Commands', () => {
 
       await sessionInfo();
 
-      expect(mockLogger.warn).toHaveBeenCalledWith('  Status: Session is old, consider refreshing');
+      expect(logger.warn).toHaveBeenCalledWith('  Status: Session is old, consider refreshing');
     });
 
     it('should show aging status for moderately old sessions', async () => {
       mockSessionManager.hasSession.mockResolvedValue(true);
       mockSessionManager.getSessionInfo.mockResolvedValue({
-        capturedAt: '2025-09-25T10:00:00.000Z',
+        capturedAt: '2025-09-24T10:00:00.000Z',
         lastValidated: '2025-10-02T15:00:00.000Z',
-        ageInDays: 7,
+        ageInDays: 8,
         cookieCount: 3,
         originsCount: 1
       });
 
       await sessionInfo();
 
-      expect(mockLogger.info).toHaveBeenCalledWith('  Status: Session is aging but still good');
+      expect(logger.info).toHaveBeenCalledWith('  Status: Session is aging but still good');
     });
 
     it('should handle no session found', async () => {
@@ -161,8 +160,8 @@ describe('Session Commands', () => {
 
       await sessionInfo();
 
-      expect(mockLogger.warn).toHaveBeenCalledWith('No session found.');
-      expect(mockLogger.info).toHaveBeenCalledWith('To create a session, run: claude-context-sync setup --authenticate');
+      expect(logger.warn).toHaveBeenCalledWith('No session found.');
+      expect(logger.info).toHaveBeenCalledWith('To create a session, run: claude-context-sync setup --authenticate');
       expect(mockSessionManager.getSessionInfo).not.toHaveBeenCalled();
     });
 
@@ -172,7 +171,7 @@ describe('Session Commands', () => {
 
       await expect(sessionInfo()).rejects.toThrow('process.exit called');
 
-      expect(mockLogger.error).toHaveBeenCalledWith('Failed to load session info: File corrupted');
+      expect(logger.error).toHaveBeenCalledWith('Failed to load session info: File corrupted');
       expect(mockExit).toHaveBeenCalledWith(1);
     });
   });
@@ -183,8 +182,8 @@ describe('Session Commands', () => {
 
       await sessionClear();
 
-      expect(mockLogger.warn).toHaveBeenCalledWith('Session clearing not yet implemented.');
-      expect(mockLogger.info).toHaveBeenCalledWith('Manual removal: rm ~/.config/claude/session.json');
+      expect(logger.warn).toHaveBeenCalledWith('Session clearing not yet implemented.');
+      expect(logger.info).toHaveBeenCalledWith('Manual removal: rm ~/.config/claude/session.json');
     });
 
     it('should handle no session to clear', async () => {
@@ -192,7 +191,7 @@ describe('Session Commands', () => {
 
       await sessionClear();
 
-      expect(mockLogger.info).toHaveBeenCalledWith('No session to clear.');
+      expect(logger.info).toHaveBeenCalledWith('No session to clear.');
     });
 
     it('should handle clear operation failure', async () => {
@@ -200,7 +199,7 @@ describe('Session Commands', () => {
 
       await expect(sessionClear()).rejects.toThrow('process.exit called');
 
-      expect(mockLogger.error).toHaveBeenCalledWith('Failed to clear session: Access denied');
+      expect(logger.error).toHaveBeenCalledWith('Failed to clear session: Access denied');
       expect(mockExit).toHaveBeenCalledWith(1);
     });
   });
