@@ -7,6 +7,7 @@ import { readFileSync } from 'fs';
 import { setVerbose, info, success, error, printError } from '../src/utils/logger.js';
 import { loadConfig, getDefaultConfigPath } from '../src/config/index.js';
 import { validateBasicStructure } from '../src/parsers/yaml-parser.js';
+import { exportCmd, showAvailableFormats } from '../src/commands/export.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -76,14 +77,29 @@ program
 program
   .command('export')
   .description('Export preferences to various formats')
+  .requiredOption('-f, --format <format>', 'output format (chat, claude-md)')
+  .option('-o, --output <file>', 'output file (defaults to stdout)')
+  .option('-s, --section <name>', 'export specific section only')
   .action(async (options) => {
     try {
-      info('Exporting preferences...');
-      info('Export command - full implementation pending');
+      const globalOptions = program.opts();
+      const exportOptions = {
+        ...options,
+        configPath: globalOptions.config
+      };
+      
+      await exportCmd(exportOptions);
     } catch (err) {
       printError(err);
       process.exit(1);
     }
+  });
+
+program
+  .command('formats')
+  .description('Show available export formats')
+  .action(() => {
+    showAvailableFormats();
   });
 
 program
