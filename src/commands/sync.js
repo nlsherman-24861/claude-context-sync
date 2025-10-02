@@ -2,6 +2,58 @@ import { info, success, error, warn } from '../utils/logger.js';
 import { loadConfig } from '../config/index.js';
 import { createTransformer } from '../transformers/index.js';
 import { FileSync } from '../sync/file-sync.js';
+import { PreferenceUpdater } from '../browser/preference-updater.js';
+
+/**
+ * Sync preferences to Claude Chat via headless browser
+ */
+export async function syncChat(options = {}) {
+  const { dryRun = false, verbose = false } = options;
+
+  try {
+    info('Loading preferences...');
+    const { config } = await loadConfig();
+
+    info('Transforming to chat format...');
+    const transformer = createTransformer('chat', config);
+    const content = await transformer.transform();
+
+    if (verbose) {
+      console.log('\n--- Transformed Content Preview ---');
+      console.log(content.substring(0, 500) + '...');
+      console.log('--- End Preview ---\n');
+    }
+
+    const updater = new PreferenceUpdater();
+
+    if (!dryRun) {
+      info('Updating Claude Chat preferences...');
+    }
+
+    const result = await updater.updatePreferences(content, {
+      dryRun,
+      verbose,
+    });
+
+    if (result.dryRun) {
+      info('Dry run complete - no changes made');
+    } else {
+      success('Claude Chat preferences updated successfully!');
+    }
+
+    return result;
+  } catch (e) {
+    error(`Sync to Claude Chat failed: ${e.message}`);
+
+    if (e.message.includes('Session invalid')) {
+      info('Try: claude-context-sync setup --refresh-session');
+    } else if (e.message.includes('Could not locate')) {
+      info('The Claude UI may have changed. Please report this issue.');
+    }
+
+    throw e;
+  }
+}
 
 /**
  * Sync preferences to global CLAUDE.md
@@ -94,16 +146,25 @@ export async function syncProject(options = {}) {
  * Sync preferences to all targets
  */
 export async function syncAll(options = {}) {
-  info('Syncing to all targets...\n');
+  info('Syncing to all targets......\n');
 
   const results = {
     global: null,
     errors: []
   };
 
+    // Sync Claude Chat
+  try {
+    info('1/2: Syncing Claude Chat preferences...');
+    results.chat = await syncChat(options);
+  } catch (e) {
+    results.errors.push({ target: 'chat', error: e.message });
+    warn(`Failed to sync Claude Chat: ${e.message}`);
+  }
+
   // Sync global CLAUDE.md
   try {
-    info('Syncing global CLAUDE.md...');
+    info('2/2: Syncing global CLAUDE.md...');
     results.global = await syncGlobal(options);
   } catch (e) {
     results.errors.push({ target: 'global', error: e.message });

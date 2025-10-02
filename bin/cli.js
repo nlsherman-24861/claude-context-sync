@@ -96,15 +96,18 @@ program
 program
   .command('sync')
   .description('Sync preferences to CLAUDE.md files')
-  .option('--target <target>', 'Target: global, project, or all', 'all')
+  .option('--target <target>', 'Target: chat, global, project, or all', 'all')
   .option('--path <path>', 'Project path (required for project target)')
   .option('--dry-run', 'Show what would be done without making changes')
   .option('--no-backup', 'Skip creating backups')
   .option('--no-merge', 'Overwrite instead of merging (project only)')
   .action(async (options) => {
     try {
-      const { syncGlobal, syncProject, syncAll } = await import('../src/commands/sync.js');
+      const { syncChat, syncGlobal, syncProject, syncAll } = await import('../src/commands/sync.js');
 
+      if (options.target === 'chat') {
+        await syncChat(options);
+      } else
       if (options.target === 'global') {
         await syncGlobal(options);
       } else if (options.target === 'project') {
@@ -112,7 +115,7 @@ program
       } else if (options.target === 'all') {
         await syncAll(options);
       } else {
-        error('Invalid target. Use: global, project, or all');
+        error('Invalid target. Use: chat, global, project, or all');
         process.exit(1);
       }
     } catch (e) {
