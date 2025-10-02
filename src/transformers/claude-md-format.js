@@ -48,6 +48,19 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
       output += this._formatLegacyTechnical(sections.technical);
     }
 
+    // Handle any unknown/custom sections
+    const knownSections = new Set([
+      'professional_background', 'personal_interests', 'working_style', 
+      'technical_approach', 'project_conventions', 'personality', 
+      'personal', 'technical'
+    ]);
+
+    for (const [key, value] of Object.entries(sections)) {
+      if (!knownSections.has(key)) {
+        output += this._formatGenericSection(key, value);
+      }
+    }
+
     return output.trim();
   }
 
@@ -157,23 +170,24 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
 
     if (technical.workflow) {
       section += '### Workflow\n\n';
-      this._formatWorkflowSection(technical.workflow, section);
+      section += this._formatWorkflowSection(technical.workflow);
     }
 
     return section;
   }
 
-  _formatWorkflowSection(workflow, section) {
+  _formatWorkflowSection(workflow) {
+    let workflowContent = '';
     for (const [key, value] of Object.entries(workflow)) {
       if (Array.isArray(value)) {
-        section += `#### ${this._formatSectionTitle(key)}\n\n`;
+        workflowContent += `#### ${this._formatSectionTitle(key)}\n\n`;
         value.forEach(item => {
-          section += `- ${item}\n`;
+          workflowContent += `- ${item}\n`;
         });
-        section += '\n';
+        workflowContent += '\n';
       }
     }
-    return section;
+    return workflowContent;
   }
 
   _formatProjectConventions(conventions) {
@@ -251,6 +265,48 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
     }
 
     return section + '\n';
+  }
+
+  /**
+   * Format a generic/unknown section
+   * @private
+   */
+  _formatGenericSection(key, value) {
+    let section = `## ${this._formatSectionTitle(key)}\n\n`;
+    
+    if (typeof value === 'string') {
+      section += `${value}\n\n`;
+    } else if (typeof value === 'object' && value !== null) {
+      // Handle objects with properties
+      for (const [propKey, propValue] of Object.entries(value)) {
+        // Skip scope metadata
+        if (propKey === '_scope') continue;
+        
+        if (Array.isArray(propValue)) {
+          section += `### ${this._formatSectionTitle(propKey)}\n\n`;
+          propValue.forEach(item => {
+            section += `- ${item}\n`;
+          });
+          section += '\n';
+        } else if (typeof propValue === 'string') {
+          section += `- **${this._formatSectionTitle(propKey)}**: ${propValue}\n`;
+        } else if (typeof propValue === 'object' && propValue !== null) {
+          // Handle nested objects (like workflow)
+          section += `### ${this._formatSectionTitle(propKey)}\n\n`;
+          for (const [nestedKey, nestedValue] of Object.entries(propValue)) {
+            if (Array.isArray(nestedValue)) {
+              section += `#### ${this._formatSectionTitle(nestedKey)}\n\n`;
+              nestedValue.forEach(item => {
+                section += `- ${item}\n`;
+              });
+              section += '\n';
+            }
+          }
+        }
+      }
+    }
+    
+    return section;
   }
 
   /**
