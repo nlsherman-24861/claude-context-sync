@@ -1,0 +1,85 @@
+# Claude Context Sync - Sample Preferences File
+# Copy this to ~/.config/claude/preferences.yaml and customize
+
+personal:
+  # Your name and role
+  name: "Your Name"
+  role: "Your Role (e.g., Senior Software Engineer, Product Manager)"
+  
+  # Experience level: junior, mid, senior, staff, principal
+  experience_level: "senior"
+  
+  # Communication preferences
+  communication_style: "direct and technical"
+  
+  # Areas of expertise
+  expertise_areas:
+    - "Web Development"
+    - "System Architecture"
+    - "DevOps"
+  
+  # Learning goals
+  learning_goals:
+    - "AI/ML integration"
+    - "Performance optimization"
+  
+  # Working style preferences
+  working_style:
+    collaboration: "async-first with structured meetings"
+    code_review: "thorough with constructive feedback"
+    documentation: "comprehensive for complex systems"
+    testing: "test-driven development"
+
+technical:
+  # Preferred programming languages (in order of preference)
+  preferred_languages:
+    - "JavaScript/TypeScript"
+    - "Python"
+    - "Go"
+  
+  # Frameworks and libraries you use
+  frameworks:
+    - "React"
+    - "Node.js"
+    - "Express"
+    - "FastAPI"
+  
+  # Development tools
+  tools:
+    - "VS Code"
+    - "Git"
+    - "Docker"
+    - "Kubernetes"
+  
+  # Platforms and environments
+  platforms:
+    - "AWS"
+    - "Linux"
+    - "macOS"
+
+project_defaults:
+  # Git workflow preference
+  git_workflow: "feature-branch with PR reviews"
+  
+  # Code style preferences
+  code_style: "consistent with team standards, prefer modern ES6+"
+  
+  # Testing approach
+  testing_approach: "unit + integration tests, TDD when beneficial"
+  
+  # Documentation level
+  documentation_level: "README + inline comments for complex logic"
+
+# Claude interface synchronization settings
+claude_interfaces:
+  chat:
+    enabled: true
+    sync_frequency: "manual"  # manual, daily, weekly
+  
+  code:
+    enabled: true
+    sync_frequency: "manual"
+  
+  projects:
+    enabled: false
+    sync_frequency: "manual"
