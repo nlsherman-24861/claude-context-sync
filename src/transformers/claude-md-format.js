@@ -305,8 +305,8 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
         }
       }
     }
-    
-    return section;
+
+    return section + '\n';
   }
 
   /**
