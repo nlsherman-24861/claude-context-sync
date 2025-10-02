@@ -9,15 +9,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, '..');
 
 describe('Preferences Validation', () => {
-  describe('Example preferences', () => {
-    it('should validate examples/preferences.yaml', () => {
+  describe('Default preferences', () => {
+    it('should validate default-preferences.yaml', () => {
       const content = readFileSync(
-        join(projectRoot, 'examples', 'preferences.yaml'),
+        join(projectRoot, 'default-preferences.yaml'),
         'utf-8'
       );
       const config = parse(content);
       const validation = validateBasicStructure(config);
-      
+
       expect(validation.valid).toBe(true);
       if (!validation.valid) {
         console.error('Validation errors:', validation.errors);

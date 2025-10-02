@@ -1,10 +1,15 @@
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { homedir } from 'os';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const projectRoot = join(__dirname, '..', '..');
 
 export const DEFAULT_CONFIG_PATHS = [
   process.env.CLAUDE_CONTEXT_CONFIG,
   join(homedir(), '.config', 'claude', 'preferences.yaml'),
   join(homedir(), '.claude', 'preferences.yaml'),
+  join(projectRoot, 'default-preferences.yaml'),
 ].filter(Boolean);
 
 export const DEFAULT_CONFIG = {
