@@ -152,6 +152,43 @@ program
     }
   });
 
+// Repository sync commands
+program
+  .command('discover')
+  .description('Discover repositories with .claude-sync markers')
+  .option('--scan <paths...>', 'Paths to scan for repositories')
+  .action(async (options) => {
+    try {
+      const { discoverRepos } = await import('../src/commands/sync-repos.js');
+      await discoverRepos({ scan: options.scan || [], verbose: program.opts().verbose });
+    } catch (e) {
+      printError(e);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('sync-repos')
+  .description('Sync configurator updates across repositories')
+  .option('--path <paths...>', 'Specific repository paths to sync')
+  .option('--scan <paths...>', 'Paths to scan for repositories')
+  .option('--dry-run', 'Preview changes without applying them')
+  .option('--interactive', 'Prompt for each repository')
+  .option('--auto', 'Only sync repos with auto_update: true')
+  .option('--force', 'Sync even if there are uncommitted changes')
+  .action(async (options) => {
+    try {
+      const { syncReposCmd } = await import('../src/commands/sync-repos.js');
+      await syncReposCmd({
+        ...options,
+        verbose: program.opts().verbose
+      });
+    } catch (e) {
+      printError(e);
+      process.exit(1);
+    }
+  });
+
 // Wrapper installation commands
 program
   .command('install-wrappers')

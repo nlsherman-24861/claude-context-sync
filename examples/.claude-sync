@@ -1,0 +1,26 @@
+# Claude Context Sync - Repository Marker File
+#
+# Place this file in the root of repositories you want to auto-sync
+# when the configurator tool updates.
+
+# Enable sync for this repository
+sync: true
+
+# Auto-update without prompting (false = interactive mode)
+auto_update: false
+
+# Which configurator tool to use
+# Options: claude-actions-setup, setup-claude-integration
+configurator: claude-actions-setup
+
+# Version constraints (optional)
+# version: ">=1.0.0"
+
+# Preserve manual customizations (recommended)
+preserve_overrides: true
+
+# Create PR instead of direct commit (recommended)
+create_pr: true
+
+# Branch name for PRs
+branch_name: chore/update-claude-config
