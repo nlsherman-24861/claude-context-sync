@@ -217,7 +217,7 @@ describe('ClaudeMdFormatTransformer', () => {
       const transformer = new ClaudeMdFormatTransformer(preferences);
       const output = await transformer.transform();
 
-      expect(output).toMatch(/^# Working with \[Your Name\]/);
+      expect(output).toMatch(/^# Claude Code Preferences/);
       expect(output).toContain('## Professional Background');
       expect(output).toContain('## Working Style');
       expect(output).toContain('### Communication Preferences');
@@ -228,7 +228,7 @@ describe('ClaudeMdFormatTransformer', () => {
       const transformer = new ClaudeMdFormatTransformer({});
       const output = await transformer.transform();
 
-      expect(output).toBe('# Working with [Your Name]');
+      expect(output).toBe('# Claude Code Preferences');
     });
   });
 

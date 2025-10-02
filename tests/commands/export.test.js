@@ -86,7 +86,7 @@ describe('Export Command', () => {
 
         await exportCmd(options);
 
-        expect(fs.writeText).toHaveBeenCalledWith('/tmp/test.md', expect.stringContaining('# Working with'));
+        expect(fs.writeText).toHaveBeenCalledWith('/tmp/test.md', expect.stringContaining('# Claude Code Preferences'));
         expect(logger.success).toHaveBeenCalledWith('Exported to /tmp/test.md');
       });
 

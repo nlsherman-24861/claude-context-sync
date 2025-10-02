@@ -7,7 +7,7 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
   async transform() {
     const sections = this.filterByScope(['chat', 'global']);
     
-    let output = '# Working with [Your Name]\n\n';
+    let output = '# Claude Code Preferences\n\n';
 
     // Professional background
     if (sections.professional_background) {

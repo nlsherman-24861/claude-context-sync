@@ -80,7 +80,7 @@ describe('Export Integration Tests', () => {
       const output = await transformer.transform();
       
       // Verify structured markdown
-      expect(output).toContain('# Working with [Your Name]');
+      expect(output).toContain('# Claude Code Preferences');
       expect(output).toContain('## Professional Background');
       expect(output).toContain('## Personal Interests');
       expect(output).toContain('## Working Style');
@@ -118,7 +118,7 @@ describe('Export Integration Tests', () => {
       expect(validation.valid).toBe(true);
       
       const output = await transformer.transform();
-      expect(output).toContain('# Working with [Your Name]');
+      expect(output).toContain('# Claude Code Preferences');
       expect(output).toContain('## Working Style');
       expect(output).toContain('- Basic communication preference');
     });
