@@ -92,6 +92,66 @@ program
     }
   });
 
+// Sync commands
+program
+  .command('sync')
+  .description('Sync preferences to CLAUDE.md files')
+  .option('--target <target>', 'Target: global, project, or all', 'all')
+  .option('--path <path>', 'Project path (required for project target)')
+  .option('--dry-run', 'Show what would be done without making changes')
+  .option('--no-backup', 'Skip creating backups')
+  .option('--no-merge', 'Overwrite instead of merging (project only)')
+  .action(async (options) => {
+    try {
+      const { syncGlobal, syncProject, syncAll } = await import('../src/commands/sync.js');
+
+      if (options.target === 'global') {
+        await syncGlobal(options);
+      } else if (options.target === 'project') {
+        await syncProject(options);
+      } else if (options.target === 'all') {
+        await syncAll(options);
+      } else {
+        error('Invalid target. Use: global, project, or all');
+        process.exit(1);
+      }
+    } catch (e) {
+      printError(e);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('backups')
+  .description('List available backups')
+  .option('--target <target>', 'Target: global or project', 'global')
+  .option('--path <path>', 'Project path (required for project target)')
+  .action(async (options) => {
+    try {
+      const { listBackups } = await import('../src/commands/sync.js');
+      await listBackups(options);
+    } catch (e) {
+      printError(e);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('restore')
+  .description('Restore from backup')
+  .requiredOption('--backup <path>', 'Path to backup file')
+  .option('--target <target>', 'Target: global or project', 'global')
+  .option('--path <path>', 'Project path (required for project target)')
+  .action(async (options) => {
+    try {
+      const { restoreBackup } = await import('../src/commands/sync.js');
+      await restoreBackup(options);
+    } catch (e) {
+      printError(e);
+      process.exit(1);
+    }
+  });
+
 // Wrapper installation commands
 program
   .command('install-wrappers')
