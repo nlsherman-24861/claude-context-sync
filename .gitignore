@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Session files (contain auth tokens)
+.playwright-session/
+
+# Test artifacts
+coverage/
+.vitest/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.log
+*.tmp
+.tmp/
+
+# Build artifacts
+dist/
+build/
+
+# Environment files (may contain secrets)
+.env
+.env.local
+.env.*.local
+
+# Backup and patch files
+*.bak
+*.original
+*.patch
