@@ -139,6 +139,9 @@ technical_approach:
       - string                # Content persistence strategy
     credentials:              # Array of strings (optional)
       - string                # Credential management preferences
+    mcp_and_environment_selection: # Array of strings (optional)
+      - string                # Context disambiguation and tool selection rules
+      - string                # Environment decision heuristics
 ```
 
 **Example**:
@@ -157,6 +160,11 @@ technical_approach:
     project_persistence:
       - "Push generated content to repos to avoid loss between sessions"
       - "Commit to main or working branch as appropriate"
+    mcp_and_environment_selection:
+      - "User's 'my/mine' → User's Machine (MCP tools)"
+      - "User's 'you/your' → VM Space (bash_tool)"
+      - "For config files: Filesystem MCP first, then CLI MCP"
+      - "For code work: Clone to VM, use bash_tool"
 ```
 
 ---
