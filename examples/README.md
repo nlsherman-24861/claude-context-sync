@@ -5,7 +5,9 @@ This directory contains example files and templates to help you get started with
 ## Files
 
 ### `preferences.yaml`
+
 **Full working example** based on a real user's preferences. Shows:
+
 - Complete YAML structure
 - All supported sections
 - Detailed, realistic entries
@@ -14,9 +16,11 @@ This directory contains example files and templates to help you get started with
 Use this to understand what's possible and see a real-world configuration.
 
 ### `CLAUDE.md`
+
 **Example template** for claude-code projects. Shows the typical structure for a project's `.github/CLAUDE.md` or global `~/.config/claudecode/CLAUDE.md`.
 
 Key sections:
+
 - Developer background (references canonical preferences)
 - Project overview
 - Architecture notes
@@ -24,9 +28,11 @@ Key sections:
 - Key areas and gotchas
 
 ### `chat_bootstrap.md`
+
 **Example template** for Claude Projects. This is the file you'd save in a Claude Project to provide project-specific context that augments your global chat preferences.
 
 Focuses on:
+
 - Project-specific context
 - Current sprint/focus areas
 - Domain knowledge
@@ -35,6 +41,7 @@ Focuses on:
 ## Templates Directory
 
 ### `../templates/preferences.yaml`
+
 **Minimal starting template** with placeholder text. Use this when creating your own preferences file from scratch:
 
 ```bash
@@ -45,6 +52,7 @@ cp templates/preferences.yaml ~/.config/claude/preferences.yaml
 ## Usage Patterns
 
 ### 1. First Time Setup
+
 ```bash
 # Copy template and customize
 mkdir -p ~/.config/claude
@@ -53,6 +61,7 @@ code ~/.config/claude/preferences.yaml
 ```
 
 ### 2. Creating a Project CLAUDE.md
+
 ```bash
 # Copy example to your project
 cp examples/CLAUDE.md ~/my-project/.github/CLAUDE.md
@@ -60,6 +69,7 @@ cp examples/CLAUDE.md ~/my-project/.github/CLAUDE.md
 ```
 
 ### 3. Creating a Claude Project Bootstrap
+
 ```bash
 # Copy to your project
 cp examples/chat_bootstrap.md ~/my-project/chat_bootstrap.md
@@ -70,6 +80,7 @@ cp examples/chat_bootstrap.md ~/my-project/chat_bootstrap.md
 ## Customization Tips
 
 ### Scope Your Content
+
 Different contexts need different information:
 
 - **Chat Preferences**: Personal, conversational, relationship-oriented
@@ -78,6 +89,7 @@ Different contexts need different information:
 - **Bootstrap Files**: Project context, current sprint, domain knowledge
 
 ### Keep It DRY
+
 The whole point of claude-context-sync is to avoid duplication:
 
 1. **Canonical source**: `~/.config/claude/preferences.yaml`
@@ -85,6 +97,7 @@ The whole point of claude-context-sync is to avoid duplication:
 3. **Project overlays**: Minimal, project-specific additions
 
 ### Version Control
+
 - **DO** version control your canonical `preferences.yaml` (in a private repo)
 - **DO** version control project CLAUDE.md files
 - **DO** version control bootstrap files in project repos
@@ -93,6 +106,7 @@ The whole point of claude-context-sync is to avoid duplication:
 ## Evolution
 
 These examples will evolve as:
+
 - New features are added to claude-context-sync
 - Best practices emerge
 - Community feedback shapes conventions

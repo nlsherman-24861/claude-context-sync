@@ -7,6 +7,7 @@ Tired of maintaining duplicate context in Claude Chat preferences, global CLAUDE
 ## The Problem
 
 You interact with Claude through multiple interfaces:
+
 - **Claude Chat** (claude.ai) - web/mobile chat with preferences field
 - **Claude Code** (CLI) - global `~/.config/claudecode/CLAUDE.md`
 - **Project-specific** - `.github/CLAUDE.md` in each repository
@@ -32,26 +33,31 @@ claude-context-sync sync --all
 ## Features
 
 ### 🎯 Single Source of Truth
+
 - Maintain preferences in structured YAML format
 - Define scope for each preference (chat, global, project)
 - Version control your preferences like code
 
 ### 🤖 Automated Sync
+
 - **Claude Chat**: Headless browser automation (Playwright)
 - **Global CLAUDE.md**: Direct file updates
 - **Project CLAUDE.md**: Intelligent overlay on auto-detected context
 
 ### 🔒 Secure Session Management
+
 - One-time browser authentication capture
 - Reusable session tokens stored locally
 - Works in headless/CI environments after initial setup
 
 ### 🚀 CI/CD Ready
+
 - Fully headless operation
 - GitHub Actions integration
 - Automatic sync on preference changes
 
 ### 🎨 Format Optimization
+
 - Chat format: Natural prose for conversational AI
 - CLAUDE.md format: Structured markdown for code tools
 - Project format: Minimal overlay on project-specific context
@@ -81,15 +87,18 @@ claude-context-sync sync --target project --path ~/my-repo
 ## Installation
 
 ### Prerequisites
+
 - Node.js 18+
 - npm or pnpm
 
 ### Global Install
+
 ```bash
 npm install -g claude-context-sync
 ```
 
 ### Local Development
+
 ```bash
 git clone https://github.com/nlsherman-24861/claude-context-sync.git
 cd claude-context-sync
@@ -152,6 +161,7 @@ personality:
 ### Scope Rules
 
 Each section can be tagged with target scopes:
+
 - `chat`: Appears in Claude Chat preferences (natural prose)
 - `global`: Appears in global CLAUDE.md (structured)
 - `project`: Appears in project CLAUDE.md (minimal overlay)
@@ -159,6 +169,7 @@ Each section can be tagged with target scopes:
 ## Commands
 
 ### `init`
+
 Initialize configuration structure and create template preferences file.
 
 ```bash
@@ -166,6 +177,7 @@ claude-context-sync init
 ```
 
 ### `setup --authenticate`
+
 Capture authenticated browser session (one-time setup, requires GUI).
 
 ```bash
@@ -175,6 +187,7 @@ claude-context-sync setup --authenticate
 This opens a browser window, lets you log in to Claude, and saves the session for future headless use.
 
 ### `sync`
+
 Synchronize preferences to target(s).
 
 ```bash
@@ -195,6 +208,7 @@ claude-context-sync sync --target chat --dry-run
 ```
 
 ### `export`
+
 Export preferences in specific format without syncing.
 
 ```bash
@@ -209,6 +223,7 @@ claude-context-sync export --format chat > chat-preferences.txt
 ```
 
 ### `diff`
+
 Show differences between canonical preferences and current targets.
 
 ```bash
@@ -220,6 +235,7 @@ claude-context-sync diff --target global
 ```
 
 ### `validate`
+
 Validate preferences YAML syntax and structure.
 
 ```bash
@@ -277,6 +293,7 @@ claude-context-sync sync --target project --path ~/my-repo
 ```
 
 The tool will intelligently merge:
+
 - **Auto-detected context** (tech stack, build commands, etc.)
 - **Your preferences** (working style, communication, etc.)
 
@@ -347,12 +364,14 @@ claude-context-sync session --info
 ## Troubleshooting
 
 ### Session Expired
+
 ```bash
 # Error: Session invalid or expired
 claude-context-sync setup --refresh-session
 ```
 
 ### Sync Failed
+
 ```bash
 # Check what would happen without executing
 claude-context-sync sync --target chat --dry-run
@@ -362,6 +381,7 @@ claude-context-sync sync --target chat --verbose
 ```
 
 ### Playwright Issues
+
 ```bash
 # Reinstall browsers
 npx playwright install --with-deps chromium
@@ -371,6 +391,7 @@ claude-context-sync test --browser
 ```
 
 ### Validation Errors
+
 ```bash
 # Check YAML syntax
 claude-context-sync validate --verbose
@@ -394,6 +415,7 @@ claude-context-sync validate --verbose
 ## Contributing
 
 Contributions welcome! Areas of interest:
+
 - Additional format outputs
 - Alternative authentication methods
 - Session persistence strategies

@@ -55,6 +55,7 @@ claude-context-sync sync-repos --path ~/project1 --path ~/project2
 The `.claude-sync` marker file supports YAML or JSON format:
 
 **YAML (recommended):**
+
 ```yaml
 # Enable sync for this repository
 sync: true
@@ -79,6 +80,7 @@ branch_name: chore/update-claude-config
 ```
 
 **JSON:**
+
 ```json
 {
   "sync": true,
@@ -120,6 +122,7 @@ claude-context-sync discover --scan ~/projects --verbose
 ```
 
 **Output:**
+
 ```
 Found 3 repository(ies) with .claude-sync markers:
 

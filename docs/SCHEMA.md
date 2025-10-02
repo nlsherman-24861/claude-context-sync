@@ -5,6 +5,7 @@ This document describes the structure and semantics of the `preferences.yaml` fi
 ## Overview
 
 The preferences file is a YAML document with a specific structure designed to capture:
+
 - Your professional background and experience
 - Personal interests that inform engagement
 - Working style and communication preferences
@@ -19,6 +20,7 @@ Current version: `1.0.0`
 ## Top-Level Sections
 
 ### `professional_background`
+
 **Scope**: chat, global  
 **Required**: Recommended
 
@@ -34,6 +36,7 @@ professional_background:
 ```
 
 **Example**:
+
 ```yaml
 professional_background:
   experience: "15-20 years practical software engineering"
@@ -46,6 +49,7 @@ professional_background:
 ---
 
 ### `personal_interests`
+
 **Scope**: chat, global  
 **Required**: Optional
 
@@ -62,6 +66,7 @@ personal_interests:
 ```
 
 **Example**:
+
 ```yaml
 personal_interests:
   primary:
@@ -75,6 +80,7 @@ personal_interests:
 ---
 
 ### `working_style`
+
 **Scope**: chat, global, project  
 **Required**: Highly recommended
 
@@ -99,6 +105,7 @@ working_style:
 ```
 
 **Example**:
+
 ```yaml
 working_style:
   communication:
@@ -119,6 +126,7 @@ working_style:
 ---
 
 ### `technical_approach`
+
 **Scope**: global, project  
 **Required**: Recommended for development work
 
@@ -145,6 +153,7 @@ technical_approach:
 ```
 
 **Example**:
+
 ```yaml
 technical_approach:
   philosophy:
@@ -170,6 +179,7 @@ technical_approach:
 ---
 
 ### `personality`
+
 **Scope**: chat, global  
 **Required**: Optional
 
@@ -185,6 +195,7 @@ personality:
 ```
 
 **Example**:
+
 ```yaml
 personality:
   construct_name: "JAX"
@@ -198,6 +209,7 @@ personality:
 ---
 
 ### `project_conventions`
+
 **Scope**: global, project  
 **Required**: Optional
 
@@ -212,6 +224,7 @@ project_conventions:
 ```
 
 **Example**:
+
 ```yaml
 project_conventions:
   documentation:
@@ -229,16 +242,19 @@ project_conventions:
 Each section can target different Claude interfaces. The tool will intelligently compile preferences based on scope:
 
 ### `chat`
+
 **Target**: Claude Chat preferences field (claude.ai)  
 **Format**: Natural prose, conversational  
 **Typical content**: Personal background, interests, working style, personality
 
 ### `global`
+
 **Target**: `~/.config/claudecode/CLAUDE.md` (claude-code global config)  
 **Format**: Structured markdown  
 **Typical content**: Technical approach, coding style, workflow preferences
 
 ### `project`
+
 **Target**: `.github/CLAUDE.md` in specific repositories  
 **Format**: Structured markdown (minimal overlay on project-specific content)  
 **Typical content**: Relevant working style points, technical conventions
@@ -250,9 +266,11 @@ Each section can target different Claude interfaces. The tool will intelligently
 ## Format Transformers
 
 ### Chat Format
+
 Transforms YAML into natural prose suitable for Claude Chat:
 
 **Input**:
+
 ```yaml
 working_style:
   communication:
@@ -261,17 +279,20 @@ working_style:
 ```
 
 **Output**:
+
 ```text
 For working style and communication, I prefer high-level summaries with 
 structured outlines, and concise bullets for action items.
 ```
 
 ### CLAUDE.md Format
+
 Transforms YAML into structured markdown:
 
 **Input**: (same as above)
 
 **Output**:
+
 ```markdown
 ## Working Style
 
@@ -325,12 +346,14 @@ Transforms YAML into structured markdown:
 ## Migration from Other Formats
 
 ### From Claude Chat Preferences (Prose)
+
 1. Identify key themes in your prose
 2. Map to schema sections
 3. Convert narrative statements to bullet points
 4. Test export to verify transformation quality
 
 ### From Existing CLAUDE.md Files
+
 1. Extract personal preferences (not project-specific)
 2. Map technical sections to `technical_approach`
 3. Map communication sections to `working_style`
@@ -341,6 +364,7 @@ Transforms YAML into structured markdown:
 ## Future Extensions
 
 Planned schema additions:
+
 - `scope_overrides`: Explicit per-section scope control
 - `profiles`: Multiple preference sets for different contexts
 - `templates`: Reusable preference snippets

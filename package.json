@@ -8,12 +8,15 @@
     "claude-context-sync": "./bin/cli.js"
   },
   "scripts": {
-    "test": "vitest",
+    "test": "npm run lint:all && vitest",
     "test:coverage": "vitest --coverage",
     "lint": "eslint src/ bin/",
     "format": "prettier --write \"src/**/*.js\" \"bin/**/*.js\"",
     "build": "echo 'No build step needed for now'",
-    "dev": "node bin/cli.js"
+    "dev": "node bin/cli.js",
+    "lint:md": "markdownlint \"**/*.md\" --ignore node_modules",
+    "lint:md:fix": "markdownlint \"**/*.md\" --ignore node_modules --fix",
+    "lint:all": "npm run lint && npm run lint:md"
   },
   "keywords": [
     "claude",
@@ -31,18 +34,19 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "yaml": "^2.3.4",
-    "commander": "^11.1.0",
     "chalk": "^5.3.0",
-    "ora": "^7.0.1",
+    "commander": "^11.1.0",
     "inquirer": "^9.2.12",
-    "playwright": "^1.40.0"
+    "ora": "^7.0.1",
+    "playwright": "^1.40.0",
+    "yaml": "^2.3.4"
   },
   "devDependencies": {
-    "vitest": "^1.0.4",
     "@vitest/coverage-v8": "^1.0.4",
     "eslint": "^8.55.0",
-    "prettier": "^3.1.1"
+    "markdownlint-cli": "^0.45.0",
+    "prettier": "^3.1.1",
+    "vitest": "^1.0.4"
   },
   "repository": {
     "type": "git",

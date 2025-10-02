@@ -13,12 +13,14 @@ This document outlines the phased implementation approach for `claude-context-sy
 ## Implementation Phases
 
 ### Phase 1: Core Infrastructure
+
 **Issue**: [#1](https://github.com/nlsherman-24861/claude-context-sync/issues/1)  
 **Status**: Open  
 **Complexity**: Medium  
 **Estimated Effort**: 1-2 days
 
 **Deliverables**:
+
 - CLI scaffolding with Commander.js
 - Configuration management (YAML)
 - File system utilities
@@ -30,12 +32,14 @@ This document outlines the phased implementation approach for `claude-context-sy
 ---
 
 ### Phase 2: Format Transformers
+
 **Issue**: [#2](https://github.com/nlsherman-24861/claude-context-sync/issues/2)  
 **Status**: Open  
 **Complexity**: Medium  
 **Estimated Effort**: 2-3 days
 
 **Deliverables**:
+
 - Base transformer interface
 - Chat format transformer (natural prose)
 - CLAUDE.md format transformer (structured markdown)
@@ -47,12 +51,14 @@ This document outlines the phased implementation approach for `claude-context-sy
 ---
 
 ### Phase 3: Playwright Session Management
+
 **Issue**: [#3](https://github.com/nlsherman-24861/claude-context-sync/issues/3)  
 **Status**: Open  
 **Complexity**: Medium-High  
 **Estimated Effort**: 2-3 days
 
 **Deliverables**:
+
 - Headed browser session capture
 - Session persistence to JSON
 - Session validation logic
@@ -64,12 +70,14 @@ This document outlines the phased implementation approach for `claude-context-sy
 ---
 
 ### Phase 4: Headless Browser Automation
+
 **Issue**: [#4](https://github.com/nlsherman-24861/claude-context-sync/issues/4)  
 **Status**: Open  
 **Complexity**: High  
 **Estimated Effort**: 3-4 days
 
 **Deliverables**:
+
 - Headless preference update automation
 - Flexible selector strategies
 - Sync command for chat target
@@ -81,12 +89,14 @@ This document outlines the phased implementation approach for `claude-context-sy
 ---
 
 ### Phase 5: File Sync Operations
+
 **Issue**: [#5](https://github.com/nlsherman-24861/claude-context-sync/issues/5)  
 **Status**: Open  
 **Complexity**: Medium  
 **Estimated Effort**: 2-3 days
 
 **Deliverables**:
+
 - Global CLAUDE.md sync
 - Project CLAUDE.md sync with merging
 - Backup management
@@ -114,18 +124,21 @@ Phase 1 (Core Infrastructure)
 ```
 
 **Parallel Work Opportunities**:
+
 - After Phase 1: Can work on Phase 2 and Phase 3 simultaneously
 - After Phases 2-3: Can work on Phases 4-5 simultaneously
 
 ## Success Criteria
 
 ### Minimum Viable Product (MVP)
+
 - [ ] Can edit `preferences.yaml`
 - [ ] Can export to chat format
 - [ ] Can sync to Claude Chat (headless)
 - [ ] Can sync to global CLAUDE.md
 
 ### Full Feature Set
+
 - [ ] All MVP criteria
 - [ ] Can sync to project CLAUDE.md (with merge)
 - [ ] Session management (capture, validate, refresh)
@@ -137,6 +150,7 @@ Phase 1 (Core Infrastructure)
 ## Risk Areas
 
 ### High Risk
+
 - **Playwright Selectors**: Claude Chat UI will change, breaking selectors
   - *Mitigation*: Fallback selector strategies, clear error messages
   
@@ -144,6 +158,7 @@ Phase 1 (Core Infrastructure)
   - *Mitigation*: Auto-validation before sync, clear refresh instructions
 
 ### Medium Risk
+
 - **Content Merging**: Complex logic to preserve project content
   - *Mitigation*: Comprehensive tests, backup before merge
   
@@ -151,22 +166,26 @@ Phase 1 (Core Infrastructure)
   - *Mitigation*: Use `path.join()`, test on multiple platforms
 
 ### Low Risk
+
 - **YAML Parsing**: Well-established library
 - **File Operations**: Standard Node.js APIs
 
 ## Testing Strategy
 
 ### Unit Tests (Per Phase)
+
 - Individual functions and classes
 - Mock external dependencies
 - Fast, comprehensive coverage
 
 ### Integration Tests
+
 - End-to-end workflows
 - Real file operations (temp directories)
 - Session capture (manual, one-time)
 
 ### Manual Testing Checklist
+
 - [ ] Initial setup flow (auth capture)
 - [ ] Dry run mode (all targets)
 - [ ] Real sync (all targets)
@@ -176,6 +195,7 @@ Phase 1 (Core Infrastructure)
 ## Documentation Plan
 
 ### User Documentation
+
 - [ ] README with quick start
 - [ ] Configuration guide (YAML schema)
 - [ ] Command reference
@@ -183,6 +203,7 @@ Phase 1 (Core Infrastructure)
 - [ ] GitHub Actions integration guide
 
 ### Developer Documentation
+
 - [ ] Architecture overview
 - [ ] Adding new format transformers
 - [ ] Selector update guide (when UI changes)
@@ -191,6 +212,7 @@ Phase 1 (Core Infrastructure)
 ## Future Enhancements (Post-MVP)
 
 ### Phase 6+: Polish and Extensions
+
 - Interactive `init` wizard with prompts
 - Diff engine (show changes before sync)
 - Multiple preference profiles
@@ -203,6 +225,7 @@ Phase 1 (Core Infrastructure)
 ## Getting Started
 
 ### For Development
+
 ```bash
 # Clone and install
 git clone https://github.com/nlsherman-24861/claude-context-sync.git
@@ -214,6 +237,7 @@ npm install
 ```
 
 ### For Tracking Progress
+
 - Issues: https://github.com/nlsherman-24861/claude-context-sync/issues
 - Milestones: (Create per phase)
 - Projects: (Optional - Kanban board)

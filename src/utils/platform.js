@@ -1,7 +1,5 @@
 import { platform, homedir } from 'os';
 import { join, sep } from 'path';
-import { promises as fs } from 'fs';
-import { fileExists } from './fs.js';
 
 /**
  * Cross-platform utilities for path handling and shell detection

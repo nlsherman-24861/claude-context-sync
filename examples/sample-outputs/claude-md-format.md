@@ -41,10 +41,10 @@
 - Only share snippets or full content when contextually relevant or explicitly requested
 - Don't unnecessarily bloat chat context with content I don't need to see directly
 - When asked to 'do semantic context review' or 'compact the context':
--   1. Identify core topics, decisions, and outcomes from conversation
--   2. Create structured summary preserving essential context
--   3. Note open threads, action items, or unresolved questions
--   4. Suggest what can safely be pruned from active context
+- 1. Identify core topics, decisions, and outcomes from conversation
+- 2. Create structured summary preserving essential context
+- 3. Note open threads, action items, or unresolved questions
+- 4. Suggest what can safely be pruned from active context
 - If conversation approaches context limits (~70-80%), proactively suggest compaction
 - Preserve: current task context, recent decisions, code/configs, open threads
 - Summarize: resolved issues, exploratory discussions, background information
@@ -89,10 +89,10 @@
 #### Github Issue Management
 
 - When creating or updating GitHub issues:
--   1. Review what the issue depends on (blocked by what)
--   2. Identify what will depend on this issue (blocks what)
--   3. Add 'Blocks: #X' and 'Blocked by: #Y' in issue body when relevant
--   4. Update relationship tracking issues when dependencies change
+- 1. Review what the issue depends on (blocked by what)
+- 2. Identify what will depend on this issue (blocks what)
+- 3. Add 'Blocks: #X' and 'Blocked by: #Y' in issue body when relevant
+- 4. Update relationship tracking issues when dependencies change
 - Use GitHub's task list feature or document in issue body
 - Consider the full project dependency graph when planning work
 
