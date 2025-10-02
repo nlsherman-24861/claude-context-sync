@@ -112,7 +112,7 @@ describe('Export Command', () => {
         await exportCmd(options);
 
         const output = console.log.mock.calls[0][0];
-        expect(output).toContain('High-level summaries');
+        expect(output).toContain('high-level summaries'); // Formatter lowercases first letter
         expect(output).not.toContain('15 years software engineering'); // From professional_background
       });
 

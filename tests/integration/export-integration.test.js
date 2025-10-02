@@ -56,7 +56,7 @@ describe('Export Integration Tests', () => {
       
       // Transform
       const output = await transformer.transform();
-      
+
       // Verify output quality
       expect(output).toContain('15-20 years practical software engineering');
       expect(output).toContain('Sci-fi and Psychology');
@@ -65,7 +65,7 @@ describe('Export Integration Tests', () => {
       
       // Verify natural prose format
       expect(output).not.toContain('##'); // No markdown headers
-      expect(output).not.toContain('- '); // No bullet points
+      expect(output).not.toMatch(/^\s*- /m); // No bullet points at line start
       expect(output).toMatch(/\. /); // Contains proper sentences
     });
 
@@ -156,7 +156,7 @@ describe('Export Integration Tests', () => {
 
       expect(output).toContain('Chat only content');
       expect(output).toContain('Chat and global content');
-      expect(output).toContain('All scopes communication'); // working_style includes chat
+      expect(output).toContain('all scopes communication'); // working_style includes chat (lowercase from formatter)
       
       expect(output).not.toContain('Global only content');
       expect(output).not.toContain('Project only content');

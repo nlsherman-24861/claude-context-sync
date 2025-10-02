@@ -64,8 +64,8 @@ describe('SessionManager', () => {
 
   describe('constructor', () => {
     it('should initialize with correct paths', () => {
-      expect(sessionManager.configDir).toMatch(/\.config\/claude$/);
-      expect(sessionManager.sessionPath).toMatch(/\.config\/claude\/session\.json$/);
+      expect(sessionManager.configDir).toMatch(/\.config[/\\]claude$/);
+      expect(sessionManager.sessionPath).toMatch(/\.config[/\\]claude[/\\]session\.json$/);
     });
   });
 
