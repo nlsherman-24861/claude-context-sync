@@ -51,10 +51,27 @@ program
 program
   .command('setup')
   .description('Setup browser automation and verify access')
+  .option('--authenticate', 'capture new authentication session')
+  .option('--refresh-session', 'refresh existing session')
+  .option('--browser', 'setup browser environment')
   .action(async (options) => {
     try {
-      info('Setting up browser automation...');
-      info('Setup command - full implementation pending');
+      if (options.authenticate) {
+        const { setupAuthenticate } = await import('../src/commands/setup.js');
+        await setupAuthenticate();
+      } else if (options.refreshSession) {
+        const { setupRefreshSession } = await import('../src/commands/setup.js');
+        await setupRefreshSession();
+      } else if (options.browser) {
+        const { setupBrowser } = await import('../src/commands/setup.js');
+        await setupBrowser();
+      } else {
+        info('Setup browser automation and session management');
+        info('Available options:');
+        info('  --authenticate     Capture new session (opens browser)');
+        info('  --refresh-session  Update existing session');
+        info('  --browser         Setup browser environment');
+      }
     } catch (err) {
       printError(err);
       process.exit(1);
@@ -143,11 +160,28 @@ program
 
 program
   .command('session')
-  .description('Manage sync sessions and history')
+  .description('Manage authentication sessions')
+  .option('--check', 'validate current session')
+  .option('--info', 'show session metadata')
+  .option('--clear', 'remove current session')
   .action(async (options) => {
     try {
-      info('Managing sync sessions...');
-      info('Session command - full implementation pending');
+      if (options.check) {
+        const { sessionCheck } = await import('../src/commands/session.js');
+        await sessionCheck();
+      } else if (options.info) {
+        const { sessionInfo } = await import('../src/commands/session.js');
+        await sessionInfo();
+      } else if (options.clear) {
+        const { sessionClear } = await import('../src/commands/session.js');
+        await sessionClear();
+      } else {
+        info('Manage authentication sessions');
+        info('Available options:');
+        info('  --check   Validate current session');
+        info('  --info    Show session metadata');
+        info('  --clear   Remove current session');
+      }
     } catch (err) {
       printError(err);
       process.exit(1);

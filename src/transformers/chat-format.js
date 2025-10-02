@@ -34,6 +34,21 @@ export class ChatFormatTransformer extends BaseTransformer {
       output += this._formatLegacyPersonal(sections.personal);
     }
 
+    // Handle any unknown/custom sections generically
+    const knownSections = new Set([
+      'professional_background',
+      'personal_interests',
+      'working_style',
+      'personality',
+      'personal'
+    ]);
+
+    for (const [key, value] of Object.entries(sections)) {
+      if (!knownSections.has(key) && typeof value === 'object' && value !== null) {
+        output += this._formatGenericSection(value);
+      }
+    }
+
     return output.trim();
   }
 
@@ -143,7 +158,7 @@ export class ChatFormatTransformer extends BaseTransformer {
       return '';
     }
 
-    let processedItems = options.lowercase 
+    let processedItems = options.lowercase
       ? items.map(item => item.charAt(0).toLowerCase() + item.slice(1))
       : items;
 
@@ -155,6 +170,30 @@ export class ChatFormatTransformer extends BaseTransformer {
       const lastItem = processedItems.pop();
       return `${processedItems.join(', ')}, and ${lastItem}`;
     }
+  }
+
+  /**
+   * Format generic/unknown sections as natural prose
+   * @private
+   */
+  _formatGenericSection(section) {
+    let text = '';
+
+    for (const [key, value] of Object.entries(section)) {
+      // Skip internal fields
+      if (key.startsWith('_')) continue;
+
+      if (typeof value === 'string') {
+        text += `${value} `;
+      } else if (Array.isArray(value)) {
+        text += `${this._formatList(value)}. `;
+      } else if (typeof value === 'object' && value !== null) {
+        // Recursively handle nested objects
+        text += this._formatGenericSection(value);
+      }
+    }
+
+    return text ? text + '\n\n' : '';
   }
 
   validate() {

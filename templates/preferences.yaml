@@ -75,6 +75,24 @@ technical_approach:
       - "Push generated content to repos to avoid loss between sessions"
       - "Commit to main or working branch as appropriate"
 
+    string_handling_and_paths:
+      - "CRITICAL - String Escaping:"
+      - "  Always be careful about proper escaping in strings, especially:"
+      - "  - YAML strings with special characters (quotes, backslashes, colons)"
+      - "  - Regular expressions (escape special regex chars)"
+      - "  - Shell commands (quote arguments with spaces)"
+      - "  - JSON strings (escape quotes and backslashes)"
+      - "  Broken escaping causes subtle bugs - verify escaping is correct"
+      - ""
+      - "CRITICAL - Cross-Platform File Paths:"
+      - "  When dealing with file paths, ALWAYS handle both formats:"
+      - "  - Windows: C:\\Users\\name\\file.txt (backslashes, drive letters)"
+      - "  - Unix/Mac: /home/name/file.txt (forward slashes, no drive)"
+      - "  - Use path.sep or path.normalize() for cross-platform compatibility"
+      - "  - In regex: use [/\\\\] or [\\\\/] to match both separators"
+      - "  - Test path logic on both Windows and Unix-like systems"
+      - "  - Never assume forward slashes will work on Windows"
+
 # Personality (optional - customize your assistant's persona)
 personality:
   construct_name: "JAX"  # Or your preferred name
