@@ -74,3 +74,38 @@ export async function writeText(path, content) {
     throw new Error(`Failed to write file ${path}: ${error.message}`);
   }
 }
+
+export async function readJson(path) {
+  try {
+    const content = await fs.readFile(path, 'utf-8');
+    return JSON.parse(content);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`File not found: ${path}`);
+    }
+    throw new Error(`Failed to read JSON file ${path}: ${error.message}`);
+  }
+}
+
+export async function writeJson(path, data) {
+  try {
+    // Ensure directory exists
+    const dir = dirname(path);
+    await ensureDir(dir);
+    
+    const jsonContent = JSON.stringify(data, null, 2);
+    await fs.writeFile(path, jsonContent, 'utf-8');
+    return true;
+  } catch (error) {
+    throw new Error(`Failed to write JSON file ${path}: ${error.message}`);
+  }
+}
+
+export async function chmod(path, mode) {
+  try {
+    await fs.chmod(path, mode);
+    return true;
+  } catch (error) {
+    throw new Error(`Failed to set permissions on ${path}: ${error.message}`);
+  }
+}
