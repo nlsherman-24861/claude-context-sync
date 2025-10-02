@@ -23,3 +23,17 @@ Thumbs.db
 *.log
 *.tmp
 .tmp/
+
+# Build artifacts
+dist/
+build/
+
+# Environment files (may contain secrets)
+.env
+.env.local
+.env.*.local
+
+# Backup and patch files
+*.bak
+*.original
+*.patch
