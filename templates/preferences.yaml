@@ -1,0 +1,58 @@
+# Claude Context Sync - Preferences Template
+# Copy to ~/.config/claude/preferences.yaml and customize
+
+# Your Professional Background
+professional_background:
+  experience: "Your years of experience and domain"
+  technical_level: "Brief description of your technical background"
+  
+  philosophy:
+    - "Your learning philosophy"
+    - "Your approach to problem-solving"
+
+# Your Interests (helps with engagement and examples)
+personal_interests:
+  primary:
+    - "Interest 1"
+    - "Interest 2"
+  
+  generation: "Your generation (helps with cultural references)"
+
+# How You Like to Work and Communicate
+working_style:
+  communication:
+    - "Preferred communication style"
+    - "How you like information structured"
+  
+  feedback:
+    - "Feedback preferences"
+    - "Motivation style that works for you"
+
+# Technical Approach and Preferences
+technical_approach:
+  philosophy:
+    - "Your technical philosophy"
+    - "Your approach to AI tools"
+  
+  coding_style:
+    - "Your coding preferences"
+  
+  workflow:
+    git_and_github:
+      - "Your git/GitHub workflow preferences"
+
+# Personality (optional - customize your assistant's persona)
+personality:
+  construct_name: "JAX"  # Or your preferred name
+  
+  traits:
+    - "Personality trait 1"
+    - "Personality trait 2"
+
+# Project Conventions (optional)
+project_conventions:
+  documentation:
+    - "Your documentation conventions"
+  
+  github_workflow:
+    - "Your GitHub workflow patterns"
