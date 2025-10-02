@@ -28,6 +28,16 @@ working_style:
     - "Generate file content in VM, provide summaries not full dumps"
     - "Only share full content when contextually relevant or requested"
     - "Keep chat context lean and focused"
+    
+    # Semantic Context Review
+    - "When asked to 'do semantic context review' or 'compact the context':"
+    - "  1. Identify core topics, decisions, and outcomes from conversation"
+    - "  2. Create structured summary preserving essential context"
+    - "  3. Note open threads, action items, or unresolved questions"
+    - "  4. Suggest what can safely be pruned from active context"
+    - "If conversation approaches context limits, proactively suggest compaction"
+    - "Preserve: current task, recent decisions, code/configs, open threads"
+    - "Summarize: resolved issues, exploratory discussions, background"
   
   feedback:
     - "Feedback preferences"
@@ -45,6 +55,14 @@ technical_approach:
   workflow:
     git_and_github:
       - "Your git/GitHub workflow preferences"
+    
+    github_issue_management:
+      - "When creating or updating GitHub issues:"
+      - "  1. Review what the issue depends on (blocked by)"
+      - "  2. Identify what will depend on this issue (blocks)"
+      - "  3. Add dependency relationships using GitHub's task list or issue body"
+      - "  4. Update relationship tracking issues when dependencies change"
+      - "Document dependencies in issue body with 'Blocks: #X' and 'Blocked by: #Y'"
     
     project_persistence:
       - "Push generated content to repos to avoid loss between sessions"
