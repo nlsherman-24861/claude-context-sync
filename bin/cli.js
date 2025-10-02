@@ -9,6 +9,7 @@
 import { Command } from 'commander';
 import { dirname, join } from 'path';
 import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
 import { setVerbose, info, success, error, printError } from '../src/utils/logger.js';
 import { loadConfig, getDefaultConfigPath } from '../src/config/index.js';
 import { validateBasicStructure } from '../src/parsers/yaml-parser.js';
@@ -16,11 +17,11 @@ import { exportCmd, showAvailableFormats } from '../src/commands/export.js';
 import { installWrappers, uninstallWrappers, listWrappers } from '../src/wrappers/installer.js';
 import { addUnifiedAliases, showUnifiedExamples } from '../src/wrappers/aliases.js';
 
-const __dirname = dirname(new URL(import.meta.url).pathname);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const packageJson = JSON.parse(
   readFileSync(join(__dirname, '../package.json'), 'utf-8')
 );
-
 const program = new Command();
 
 program
