@@ -1,0 +1,269 @@
+name: Claude Code
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [opened, assigned, labeled]
+  pull_request_review:
+    types: [submitted]
+  workflow_dispatch:
+    inputs:
+      label_trigger_message:
+        description: 'Custom message when claude-task label is added'
+        required: false
+        default: '@claude Please help with this issue. Review the description and either:\n- Ask clarifying questions if needed\n- Propose an implementation plan\n- Start working on the implementation\n\nFollow the acceptance criteria and guidelines in the issue description.'
+
+jobs:
+  claude:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      # First, check if we should run based on trigger type and @claude mentions
+      - name: Check if Claude should be triggered
+        id: should_run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Helper function to check @claude outside code blocks
+            function hasClaudeMentionOutsideCode(text) {
+              if (!text) return false;
+              if (!text.includes('@claude')) return false;
+              
+              let cleaned = text;
+              // Remove code blocks
+              cleaned = cleaned.replace(/```[\s\S]*?```/g, '');
+              // Remove inline code
+              cleaned = cleaned.replace(/`[^`]*`/g, '');
+              // Remove HTML code/pre tags
+              cleaned = cleaned.replace(/<code>[\s\S]*?<\/code>/gi, '');
+              cleaned = cleaned.replace(/<pre>[\s\S]*?<\/pre>/gi, '');
+              
+              return cleaned.includes('@claude');
+            }
+
+            const { eventName, payload } = context;
+            let shouldRun = false;
+
+            // Check label-based trigger
+            if (eventName === 'issues' && payload.action === 'labeled') {
+              shouldRun = payload.label.name === 'claude-task';
+              console.log(`Label trigger: ${shouldRun}`);
+            }
+            // Check comment-based triggers
+            else if (eventName === 'issue_comment') {
+              // Skip comments from github-actions bot to avoid infinite loops
+              const isBot = payload.comment.user.login === 'github-actions[bot]' ||
+                           payload.comment.user.type === 'Bot';
+              if (isBot) {
+                console.log('Skipping: Comment from bot');
+                shouldRun = false;
+              } else {
+                shouldRun = hasClaudeMentionOutsideCode(payload.comment.body);
+                console.log(`Issue comment trigger: ${shouldRun}`);
+              }
+            }
+            else if (eventName === 'pull_request_review_comment') {
+              // Skip comments from github-actions bot to avoid infinite loops
+              const isBot = payload.comment.user.login === 'github-actions[bot]' ||
+                           payload.comment.user.type === 'Bot';
+              if (isBot) {
+                console.log('Skipping: Comment from bot');
+                shouldRun = false;
+              } else {
+                shouldRun = hasClaudeMentionOutsideCode(payload.comment.body);
+                console.log(`PR review comment trigger: ${shouldRun}`);
+              }
+            }
+            else if (eventName === 'pull_request_review') {
+              shouldRun = hasClaudeMentionOutsideCode(payload.review.body);
+              console.log(`PR review trigger: ${shouldRun}`);
+            }
+            // Check issue body/title (only on opened)
+            else if (eventName === 'issues' && payload.action === 'opened') {
+              const titleMention = hasClaudeMentionOutsideCode(payload.issue.title);
+              const bodyMention = hasClaudeMentionOutsideCode(payload.issue.body);
+              shouldRun = titleMention || bodyMention;
+              console.log(`Issue opened trigger: ${shouldRun}`);
+            }
+
+            console.log(`Final decision: ${shouldRun ? 'RUN' : 'SKIP'}`);
+            return shouldRun;
+          result-encoding: string
+
+      - name: Checkout repository
+        if: steps.should_run.outputs.result == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # Add comment when triggered by label (so Claude knows what to do)
+      - name: Add initial comment for label trigger
+        if: steps.should_run.outputs.result == 'true' && github.event_name == 'issues' && github.event.action == 'labeled'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = '${{ github.event.inputs.label_trigger_message }}' || 
+              '@claude Please help with this issue. Review the description and either:\n- Ask clarifying questions if needed\n- Propose an implementation plan\n- Start working on the implementation\n\nFollow the acceptance criteria and guidelines in the issue description.';
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: message
+            });
+
+      - name: Run Claude Code
+        if: steps.should_run.outputs.result == 'true'
+        id: claude
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          additional_permissions: |
+            actions: read
+          
+          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4.1)
+          # model: "claude-opus-4-1-20250805"
+          
+          # Optional: Customize the trigger phrase (default: @claude)
+          # trigger_phrase: "/claude"
+          
+          # Optional: Trigger when specific user is assigned to an issue
+          # assignee_trigger: "claude-bot"
+          
+          # Optional: Allow Claude to run specific commands
+          # allowed_tools: "Bash(npm install),Bash(npm run build),Bash(npm run test:*),Bash(npm run lint:*)"
+          
+          # Optional: Add custom instructions for Claude to customize its behavior for your project
+          # custom_instructions: |
+          #   Follow our coding standards
+          #   Ensure all new code has tests
+          #   Use TypeScript for new files
+
+      # Auto-apply label when triggered by @claude mention (but not when triggered by label itself)
+      - name: Apply claude-task label
+        if: |
+          steps.should_run.outputs.result == 'true' &&
+          steps.claude.outcome == 'success' &&
+          (github.event_name == 'issue_comment' ||
+           (github.event_name == 'issues' && github.event.action == 'opened')) &&
+          !contains(github.event.issue.labels.*.name, 'claude-task')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['claude-task']
+            });
+
+      # Auto-create PR if Claude created a branch with commits
+      - name: Create Pull Request
+        if: steps.should_run.outputs.result == 'true' && steps.claude.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issueNumber = context.issue.number;
+
+            // Get all branches to find Claude's branch for this issue
+            const { data: branches } = await github.rest.repos.listBranches({
+              owner,
+              repo,
+              per_page: 100
+            });
+
+            // Look for branch matching pattern: claude/issue-{number}-*
+            const claudeBranch = branches.find(b =>
+              b.name.startsWith(`claude/issue-${issueNumber}-`)
+            );
+
+            if (!claudeBranch) {
+              console.log('No Claude branch found for this issue');
+              return;
+            }
+
+            console.log(`Found Claude branch: ${claudeBranch.name}`);
+
+            // Check if PR already exists for this branch
+            const { data: existingPRs } = await github.rest.pulls.list({
+              owner,
+              repo,
+              head: `${owner}:${claudeBranch.name}`,
+              state: 'open'
+            });
+
+            if (existingPRs.length > 0) {
+              console.log(`PR already exists: #${existingPRs[0].number}`);
+              return;
+            }
+
+            // Get issue details for PR context
+            const { data: issue } = await github.rest.issues.get({
+              owner,
+              repo,
+              issue_number: issueNumber
+            });
+
+            // Get commits on the branch to build PR body
+            const { data: commits } = await github.rest.repos.compareCommits({
+              owner,
+              repo,
+              base: context.ref.replace('refs/heads/', ''),
+              head: claudeBranch.name
+            });
+
+            if (commits.commits.length === 0) {
+              console.log('No commits found on Claude branch');
+              return;
+            }
+
+            // Build PR body with commit details
+            let prBody = `Automated changes by Claude Code in response to #${issueNumber}\n\n`;
+            prBody += `## Changes\n\n`;
+
+            commits.commits.forEach(commit => {
+              const message = commit.commit.message.split('\n')[0];
+              prBody += `- ${message}\n`;
+            });
+
+            prBody += `\n## Context\n\n`;
+            prBody += `**Original Issue:** #${issueNumber}\n`;
+            prBody += `**Issue Title:** ${issue.title}\n\n`;
+
+            if (commits.files) {
+              prBody += `**Files Changed:** ${commits.files.length}\n`;
+              prBody += `**Additions:** +${commits.total_additions} | **Deletions:** -${commits.total_deletions}\n\n`;
+            }
+
+            prBody += `---\n\n`;
+            prBody += `🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\n`;
+            prBody += `Fixes #${issueNumber}`;
+
+            // Create the PR
+            const { data: pr } = await github.rest.pulls.create({
+              owner,
+              repo,
+              title: issue.title,
+              head: claudeBranch.name,
+              base: context.ref.replace('refs/heads/', ''),
+              body: prBody
+            });
+
+            console.log(`Created PR #${pr.number}: ${pr.html_url}`);
+
+            // Add comment to issue with PR link
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: issueNumber,
+              body: `✅ Pull request created: #${pr.number}`
+            });
