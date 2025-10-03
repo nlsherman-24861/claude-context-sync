@@ -13,6 +13,10 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
     if (sections.professional_background) {
       output += this._formatProfessionalBackground(sections.professional_background);
     }
+    // Creative pursuits
+    if (sections.creative_pursuits) {
+      output += this._formatCreativePursuits(sections.creative_pursuits);
+    }
 
     // Personal interests
     if (sections.personal_interests) {
@@ -50,7 +54,7 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
 
     // Handle any unknown/custom sections
     const knownSections = new Set([
-      'professional_background', 'personal_interests', 'working_style', 
+      'creative_pursuits', 'professional_background', 'personal_interests', 'working_style', 
       'technical_approach', 'project_conventions', 'personality', 
       'personal', 'technical'
     ]);
@@ -90,6 +94,63 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
 
     return section + '\n';
   }
+n
+  _formatCreativePursuits(pursuits) {
+    let section = '## Creative Pursuits\n\n';
+    
+    if (pursuits.music) {
+      section += '### Music\n\n';
+      
+      if (pursuits.music.artist_alias) {
+        section += `**Artist Alias**: ${pursuits.music.artist_alias}\n\n`;
+      }
+      
+      if (pursuits.music.passion) {
+        section += `${pursuits.music.passion}\n\n`;
+      }
+      
+      if (pursuits.music.background && Array.isArray(pursuits.music.background)) {
+        section += '**Background**:\n\n';
+        pursuits.music.background.forEach(item => {
+          section += `- ${item}\n`;
+        });
+        section += '\n';
+      }
+      
+      if (pursuits.music.active_work) {
+        const work = pursuits.music.active_work;
+        section += '**Active Work**:\n\n';
+        
+        if (work.role) {
+          section += `- **Role**: ${work.role}\n`;
+        }
+        
+        if (work.genres && Array.isArray(work.genres)) {
+          section += '- **Genres**: ' + work.genres.join(', ') + '\n';
+        }
+        
+        if (work.approach && Array.isArray(work.approach)) {
+          section += '\n**Approach**:\n\n';
+          work.approach.forEach(item => {
+            section += `- ${item}\n`;
+          });
+        }
+        
+        section += '\n';
+      }
+      
+      if (pursuits.music.engagement_patterns && Array.isArray(pursuits.music.engagement_patterns)) {
+        section += '**Engagement Patterns**:\n\n';
+        pursuits.music.engagement_patterns.forEach(item => {
+          section += `- ${item}\n`;
+        });
+        section += '\n';
+      }
+    }
+    
+    return section;
+  }
+
 
   _formatPersonalInterests(interests) {
     let section = '## Personal Interests\n\n';

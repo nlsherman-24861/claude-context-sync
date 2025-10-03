@@ -13,6 +13,10 @@ export class ChatFormatTransformer extends BaseTransformer {
     if (sections.professional_background) {
       output += this._formatProfessionalBackground(sections.professional_background);
     }
+    // Creative pursuits
+    if (sections.creative_pursuits) {
+      output += this._formatCreativePursuits(sections.creative_pursuits);
+    }
 
     // Personal interests
     if (sections.personal_interests) {
@@ -46,7 +50,7 @@ export class ChatFormatTransformer extends BaseTransformer {
 
     // Handle any unknown/custom sections generically
     const knownSections = new Set([
-      'professional_background',
+      'creative_pursuits', 'professional_background',
       'personal_interests',
       'working_style',
       'personality',
@@ -82,6 +86,50 @@ export class ChatFormatTransformer extends BaseTransformer {
 
     return text + '\n\n';
   }
+n
+  _formatCreativePursuits(pursuits) {
+    let text = '';
+    
+    if (pursuits.music) {
+      const music = pursuits.music;
+      
+      if (music.artist_alias) {
+        text += `I make music under the artist alias "${music.artist_alias}". `;
+      }
+      
+      if (music.passion) {
+        text += `${music.passion}. `;
+      }
+      
+      if (music.background && Array.isArray(music.background)) {
+        text += music.background.join('. ') + '. ';
+      }
+      
+      if (music.active_work) {
+        const work = music.active_work;
+        
+        if (work.role) {
+          text += `I'm actively working as a ${work.role}. `;
+        }
+        
+        if (work.genres && Array.isArray(work.genres)) {
+          text += `My work spans ${this._formatList(work.genres)}. `;
+        }
+        
+        if (work.approach && Array.isArray(work.approach)) {
+          text += work.approach.join('. ') + '. ';
+        }
+      }
+      
+      if (music.engagement_patterns && Array.isArray(music.engagement_patterns)) {
+        text += 'I regularly engage in discussions about music including: ';
+        text += this._formatList(music.engagement_patterns) + '. ';
+      }
+    }
+    
+    return text + '\n\n';
+  }
+
 
   _formatPersonalInterests(interests) {
     let text = '';

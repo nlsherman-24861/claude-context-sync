@@ -156,34 +156,22 @@ claude-context-sync backups --target global
 claude-context-sync restore --target global --backup 1
 ```
 
-### `setup` & `session` (Chat Sync - Experimental)
+### Claude Chat Sync (Disabled)
+
+**Automated Claude Chat sync via Playwright/session capture is disabled** due to complexity and reliability issues.
+
+**Recommended workflow** for updating Claude Chat preferences:
 
 ```bash
-# Interactive setup wizard for Claude Chat sync
-npm run setup:chat
-# or
-claude-context-sync setup --authenticate
-
-# Check session status
-npm run session:check
-# or
-claude-context-sync session --check
-
-# View session info
-claude-context-sync session --info
-
-# Sync to Claude Chat (requires valid session)
-npm run sync:chat
-# or
-claude-context-sync sync --target chat
-```
-
-**Note**: Due to Claude Chat rate limiting, you may need to use the manual export:
-
-```bash
-# Export chat format and paste manually
+# Export preferences in chat format
 claude-context-sync export chat
+
+# Copy the output and paste into claude.ai Custom Instructions
 ```
+
+If you attempt to run `sync --target chat`, you'll see a message explaining the manual workflow.
+
+**Setup commands** (`setup`, `session`) are kept for reference but not recommended for use.
 
 ## Agent Collaboration with GitHub Actions
 

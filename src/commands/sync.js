@@ -8,52 +8,23 @@ import { PreferenceUpdater } from '../browser/preference-updater.js';
  * Sync preferences to Claude Chat via headless browser
  */
 export async function syncChat(options = {}) {
-  const { dryRun = false, verbose = false } = options;
-
-  try {
-    info('Loading preferences...');
-    const { config } = await loadConfig();
-
-    info('Transforming to chat format...');
-    const transformer = createTransformer('chat', config);
-    const content = await transformer.transform();
-
-    if (verbose) {
-      console.log('\n--- Transformed Content Preview ---');
-      console.log(content.substring(0, 500) + '...');
-      console.log('--- End Preview ---\n');
-    }
-
-    const updater = new PreferenceUpdater();
-
-    if (!dryRun) {
-      info('Updating Claude Chat preferences...');
-    }
-
-    const result = await updater.updatePreferences(content, {
-      dryRun,
-      verbose,
-    });
-
-    if (result.dryRun) {
-      info('Dry run complete - no changes made');
-    } else {
-      success('Claude Chat preferences updated successfully!');
-    }
-
-    return result;
-  } catch (e) {
-    error(`Sync to Claude Chat failed: ${e.message}`);
-
-    if (e.message.includes('Session invalid')) {
-      info('Try: claude-context-sync setup --refresh-session');
-    } else if (e.message.includes('Could not locate')) {
-      info('The Claude UI may have changed. Please report this issue.');
-    }
-
-    throw e;
-  }
+  warn('Claude Chat automated sync is disabled');
+  info('');
+  info('Reason: Automated sync via Playwright/session capture is overly complex');
+  info('and error-prone. Manual export/paste workflow is more reliable.');
+  info('');
+  info('To sync Claude Chat preferences:');
+  info('  1. Run: claude-context-sync export chat');
+  info('  2. Copy the output');
+  info('  3. Paste into claude.ai Custom Instructions');
+  info('');
+  
+  return {
+    disabled: true,
+    message: 'Claude Chat automated sync is disabled. Use manual export workflow.'
+  };
 }
+
 
 /**
  * Sync preferences to global CLAUDE.md
