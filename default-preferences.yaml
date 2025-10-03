@@ -295,6 +295,201 @@ technical:
       - Always use absolute paths, properly escaped for the URL/command format
       - Check EDITOR environment variable first if user has explicit editor
         preference
+  python_setup:
+    guidance: Suggest and help with Python setup if not available or misconfigured
+    installation_methods:
+      windows:
+        recommended_for_beginners:
+          method: Microsoft Store
+          command: Search "Python" in Microsoft Store
+          benefits:
+            - No admin access required
+            - Automatic updates
+            - Automatic PATH configuration
+            - Simple installation process
+        recommended_for_developers:
+          method: WinGet
+          command: winget install Python.Python.3.12
+          benefits:
+            - Command-line automation
+            - Version-specific installation
+            - Consistent with other dev tool management
+          important: Must close and reopen terminal after installation
+        advanced_users:
+          method: python.org installer
+          when_to_use: Need to modify Python files, use DLLs directly, or specific
+            version requirements
+          caution: Avoid mixing installation methods (pick one and stick with it)
+        new_option_2025:
+          method: Python Install Manager
+          install: winget install 9NQ7512CXL7T or via Microsoft Store
+          benefits: Addresses historic PATH configuration issues
+      macos:
+        recommended:
+          method: Homebrew
+          command: brew install python3
+          benefits:
+            - Easy updates (brew upgrade python3)
+            - Packages stay current
+            - Integrates with other dev tools
+        alternative:
+          method: python.org installer
+          when_to_use: Avoid Homebrew or need specific version
+      linux:
+        recommended:
+          method: System package manager
+          examples:
+            - "Ubuntu/Debian: sudo apt install python3 python3-pip python3-venv"
+            - "Fedora: sudo dnf install python3 python3-pip"
+            - "Arch: sudo pacman -S python python-pip"
+          benefits: Automatic updates, system integration
+        alternative:
+          method: Containerized runtime (Docker)
+          when_to_use: Avoid package manager conflicts, isolated environments
+    vscode_integration:
+      extension: Install "Python" extension by Microsoft (ms-python.python)
+      common_issues:
+        interpreter_not_found:
+          symptom: VS Code can't find Python interpreter
+          solutions:
+            - "Command Palette (Ctrl+Shift+P): Python: Select Interpreter"
+            - Reload VS Code window after Python installation
+            - Check PATH includes Python installation directory
+        import_not_resolved:
+          symptom: "\"Import could not be resolved\" error"
+          cause: Package not installed in selected environment
+          solutions:
+            - Verify correct interpreter selected
+            - Install package in active environment (pip install <package>)
+            - Check virtual environment is activated
+        extension_activation_failed:
+          symptom: Python extension won't activate
+          solutions:
+            - Uninstall Python and Pylance extensions
+            - "Delete: %USERPROFILE%\\.vscode\\extensions\\ms-python.python*
+              (Windows)"
+            - "Delete: ~/.vscode/extensions/ms-python.python* (Mac/Linux)"
+            - Reinstall official Microsoft Python extension
+            - Remove any unverified Python extensions
+        environment_detection:
+          symptom: VS Code not detecting virtual environments
+          solutions:
+            - Use "Python: Create Environment" command
+            - Ensure .venv or venv folder exists in workspace
+            - Reload VS Code window
+            - "Check python.defaultInterpreterPath setting"
+      troubleshooting_tools:
+        - "Command: \"Python: Run Python Environment Tool (PET) in Terminal\""
+        - "Setting: \"python.useEnvironmentsExtension\": false to disable Python
+          Environments extension if issues"
+        - File issues at github.com/microsoft/vscode-python
+    best_practices:
+      - Use virtual environments for projects (python -m venv .venv)
+      - Keep base Python installation clean
+      - Stick to one installation method per system
+      - Update Python and packages regularly
+      - Use .python-version files for version pinning
+    automation_suggestions:
+      - Offer to install Python if not detected
+      - Suggest installation method based on OS and user level
+      - Provide complete command with explanation
+      - Offer to configure VS Code Python extension if using VS Code
+      - Check for and suggest fixing common PATH issues
+  nodejs_setup:
+    guidance: Suggest and help with Node.js/npm setup if not available
+    installation_methods:
+      windows:
+        recommended:
+          method: Official installer from nodejs.org
+          options: LTS version (Long Term Support) for stability
+          alternative: winget install OpenJS.NodeJS.LTS
+        verification: node --version && npm --version
+      macos:
+        recommended:
+          method: Homebrew
+          command: brew install node
+        alternative: Official installer from nodejs.org or nvm (Node Version
+          Manager)
+      linux:
+        recommended:
+          method: NodeSource repository (official)
+          ubuntu_debian: curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo
+            -E bash - && sudo apt install nodejs
+        alternative: nvm for version management
+    npm_issues:
+      permission_errors:
+        symptom: EACCES errors when installing global packages
+        solution: Use npx instead of global install, or configure npm prefix
+        avoid: Never use sudo with npm
+      version_conflicts:
+        symptom: Package version mismatches
+        solution: Delete node_modules and package-lock.json, run npm install
+    automation_suggestions:
+      - Check for Node.js/npm when project has package.json
+      - Suggest installation if not found
+      - Verify versions meet project requirements
+      - Offer to run npm install for new projects
+  git_setup:
+    guidance: Suggest and help with Git setup if not available
+    installation_methods:
+      windows:
+        recommended:
+          method: Git for Windows (includes Git Bash)
+          url: https://git-scm.com/download/win
+          includes: Git Bash, Git GUI, shell integration
+        alternative: winget install Git.Git
+        git_bash: Included automatically with Git for Windows
+      macos:
+        recommended:
+          method: Homebrew
+          command: brew install git
+        preinstalled: macOS includes git via Xcode Command Line Tools
+      linux:
+        ubuntu_debian: sudo apt install git
+        fedora: sudo dnf install git
+        arch: sudo pacman -S git
+    configuration:
+      required:
+        - git config --global user.name "Your Name"
+        - git config --global user.email "your.email@example.com"
+      recommended:
+        - git config --global init.defaultBranch main
+        - git config --global core.autocrlf (true on Windows, input on Mac/Linux)
+    authentication:
+      prefer: GitHub CLI (gh) for authentication
+      ssh: Offer to help set up SSH keys if needed
+      https: Use credential manager (Git Credential Manager included with Git for
+        Windows)
+    automation_suggestions:
+      - Check for git when working with repositories
+      - Verify git config has user.name and user.email
+      - Suggest GitHub CLI installation for GitHub operations
+      - Offer to help with SSH key setup if using SSH
+      - Check credential helper is configured
+  information_gathering:
+    web_searches:
+      when_to_use:
+        - Uncertain about current best practices or recent changes
+        - Need authoritative documentation for specific tools/versions
+        - Troubleshooting issues that may have known solutions
+        - Verifying recommendations before suggesting to user
+        - Researching platform-specific gotchas or edge cases
+      do_not_ask_permission:
+        - Appropriate to search when uncertain - just do it
+        - User should not need to prompt for web lookups
+        - Proactively verify information accuracy
+        - Better to search than provide outdated guidance
+      search_strategy:
+        - Include year (2025) for current best practices
+        - Prioritize official documentation sources
+        - Look for multiple corroborating sources
+        - Check for recent updates or changes
+        - Note conflicting information and explain tradeoffs
+      transparency:
+        - Mention when information comes from web search
+        - Cite sources when providing technical guidance
+        - Note when practices have changed recently
+        - Flag if information conflicts with previous knowledge
   agent_collaboration:
     github_actions_workflow:
       - Repository uses claude-actions-setup for GitHub Actions integration
