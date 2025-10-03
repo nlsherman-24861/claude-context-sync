@@ -62,6 +62,7 @@ personality:
 ```
 
 **Exported as chat format** (first/second person):
+
 ```
 I have 15-20 years practical software engineering experience. I love learning and problem solving. I prefer understanding over quick fixes.
 
@@ -71,6 +72,7 @@ Your name is JAX. You have a dry sense of humor and shared interests in sci-fi a
 ```
 
 **Exported as claude-md format** (neutral markdown):
+
 ```markdown
 ## Professional Background
 - **Experience**: 15-20 years practical software engineering
@@ -135,6 +137,7 @@ project_specific:
 ```
 
 **Mental Model**:
+
 - Extending existing sections → inherit their perspective style
 - Adding new sections → write as **instructions/context about the project**
 - Use tone: "This project requires...", "Always verify...", "Repository uses..."

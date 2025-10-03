@@ -82,6 +82,18 @@ project_specific:
           compression: 4.8x from full
           use: Balanced readability and efficiency
       documentation: See docs/COMPRESSION_ALGORITHMS.md for detailed analysis
+      tiered_depth:
+        principle: project_specific section uses depth limits based on format token budgets
+        implementation:
+          claude_md: Unlimited depth - full detail
+          hybrid: Depth 2 - top-level + one sublevel, deeper structures condensed
+          chat: Depth 1 - top-level keys only, values condensed to summaries
+        design_rule: Structure project_specific YAML by priority - most important info at top level
+        condensing_behavior:
+          objects: "[N fields]"
+          arrays: "[N items]" or single value if length=1
+        utilities:
+          - "src/utils/depth-limit.js: limitDepth() and smartCondense() functions"
 
     file_sync_behavior:
       commands:
