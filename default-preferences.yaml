@@ -499,6 +499,97 @@ technical:
       - 'Example success indicators: "All tests passed", "PASS", exit code 0'
       - 'Example failure indicators: "FAIL", "Error", "✗", non-zero exit code,
         timeout before completion'
+    test_contract_integrity:
+      principle: Tests define contracts - changing tests to match output is a last resort, not default
+      philosophy:
+        - Tests encode expected behavior and contracts
+        - Failing tests indicate broken contracts, not broken tests
+        - Default response to test failure is fix the code, not fix the test
+        - Changing tests is valid ONLY when intentionally changing contracts
+      when_tests_fail:
+        default_stance:
+          - "FIRST: Assume code broke the contract"
+          - "SECOND: Verify test expectations are correct and still desired"
+          - "THIRD: Fix implementation to honor the contract"
+          - "LAST: Update test only if contract intentionally changed"
+        anti_pattern:
+          - "DON'T: See test fail → immediately update assertion to match output"
+          - "DON'T: Assume test is wrong because code changed"
+          - "DON'T: Change tests without understanding why they're failing"
+          - "DON'T: Blindly update snapshots or expected outputs"
+        correct_approach:
+          - "1. Understand what contract the test is checking"
+          - "2. Determine if that contract should still hold"
+          - "3. If contract is still valid: fix code to pass test"
+          - "4. If contract intentionally changed: update test with explanation"
+      valid_reasons_to_update_tests:
+        intentional_contract_changes:
+          - "Breaking change: explicitly changing API or behavior"
+          - "Enhancement: adding new functionality that changes output format"
+          - "Refactor: same behavior, different implementation (verify equivalence first)"
+          - "Bug fix: test was asserting incorrect behavior"
+        requires:
+          - Clear understanding of what contract changed and why
+          - Explicit decision that change is intentional and desired
+          - Documentation of what changed in commit message
+          - Verification that change doesn't break dependents
+        examples:
+          - "Changed export format from 2 to 3 formats → update test expectations"
+          - "Refactored error messages for clarity → update assertion strings"
+          - "Added new field to API response → update response assertions"
+      invalid_reasons_to_update_tests:
+        shortcuts:
+          - "Test fails after my change → update test to pass"
+          - "Don't understand why test expects X → change it to expect Y"
+          - "Output changed → update assertion to match"
+          - "Snapshot doesn't match → update snapshot without review"
+        these_indicate:
+          - Code broke existing contract (need to fix code)
+          - Misunderstanding of what code should do (need to understand contract)
+          - Regression introduced (need to revert or fix)
+      workflow_when_test_fails:
+        step_1_investigate:
+          - "Read test name and description: what contract is it checking?"
+          - "Look at assertion: what behavior is expected?"
+          - "Understand why that expectation exists"
+        step_2_analyze_failure:
+          - "What changed in the output/behavior?"
+          - "Why did it change? (intended vs unintended)"
+          - "Is the change breaking an important contract?"
+        step_3_decide:
+          option_a_fix_code:
+            when: "Contract should still hold, code violated it"
+            action: "Modify implementation to honor contract"
+            example: "Test expects 2 items, code returns 3 → fix code to return 2"
+          option_b_update_test:
+            when: "Intentionally changing contract, test needs to reflect new reality"
+            action: "Update test with clear explanation of contract change"
+            example: "Added 'hybrid' format, test expects 2 formats → update to expect 3"
+            requires: "Commit message explains contract change"
+        step_4_verify:
+          - Run tests again to confirm fix
+          - Check if other tests affected by same change
+          - Verify no regressions introduced
+      test_maintenance:
+        consistency:
+          - Tests should stay consistent with current contracts
+          - Update tests when contracts change, not when implementations change
+          - Keep test expectations in sync with documented behavior
+        documentation:
+          - Test names should describe what contract they check
+          - Assertions should be clear about what they expect and why
+          - Comments should explain non-obvious contract requirements
+      communication_with_user:
+        when_fixing_code:
+          - "Test failed because [contract]. Fixed code to honor contract."
+        when_updating_test:
+          - "Test failed because we intentionally changed [contract]."
+          - "Updated test to reflect new behavior: [what changed]."
+          - "This is a breaking change to [X]."
+        when_unsure:
+          - "Test is failing. It expects [X] but code produces [Y]."
+          - "Should I: (a) fix code to return [X], or (b) update test to expect [Y]?"
+          - "This depends on whether we want to change [contract]."
   linting_policy:
     principle: All code and documentation should be lint-checked and lint-clean
     scope:
