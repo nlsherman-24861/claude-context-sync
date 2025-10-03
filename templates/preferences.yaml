@@ -1,6 +1,29 @@
+# ============================================================================
 # Claude Context Sync - Preferences Template
+# ============================================================================
 # Copy to ~/.config/claude/preferences.yaml and customize
+#
+# HYBRID MODEL: This file contains two types of information:
+#
+# 1. CLAUDE'S PERSONA (sections marked "CLAUDE'S PERSONA")
+#    - Defines who Claude should be (name, role, personality)
+#    - Example: personal.name = "JAX" → Claude's name is JAX
+#
+# 2. USER CONTEXT & PREFERENCES (sections marked "USER CONTEXT/PREFERENCES")
+#    - YOUR background, interests, and communication preferences
+#    - How YOU want Claude to behave
+#
+# When exported, these become first-person prose. Claude interprets this as:
+#   "I am [persona name], and I'm talking to a user with [this background]
+#    who prefers [these communication styles]"
+#
+# See section comments for which is which. We know it's confusing - there's
+# a GitHub issue to restructure this more clearly!
+#
+# ============================================================================
 
+# === USER CONTEXT: Your Professional Background ===
+# This describes YOU (the human), not Claude
 # Your Professional Background
 professional_background:
   experience: "Your years of experience and domain"

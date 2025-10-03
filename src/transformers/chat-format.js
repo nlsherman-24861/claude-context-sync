@@ -199,16 +199,31 @@ export class ChatFormatTransformer extends BaseTransformer {
   _formatLegacyPersonal(personal) {
     let text = '';
     
-    if (personal.background) {
-      text += `I'm ${personal.background}. `;
+    // Persona framing (if name/role provided)
+    if (personal.name || personal.role) {
+      if (personal.name) {
+        text += `Think of yourself as ${personal.name}`;
+        if (personal.role) {
+          text += `, ${personal.role.toLowerCase()}`;
+        }
+        if (personal.background) {
+          text += ` (${personal.background.toLowerCase()})`;
+        }
+        text += '. ';
+      } else if (personal.role) {
+        text += `Your role: ${personal.role}. `;
+      }
+    } else if (personal.background) {
+      // If no name/role, just output background
+      text += `${personal.background}. `;
     }
 
     if (personal.interests && Array.isArray(personal.interests)) {
-      text += `My interests include ${this._formatList(personal.interests)}. `;
+      text += `Shared interests: ${this._formatList(personal.interests, { lowercase: true })}. `;
     }
 
-    if (personal.name) {
-      text += `My name is ${personal.name}. `;
+    if (personal.generation) {
+      text += `${personal.generation}. `;
     }
 
     return text ? text + '\n\n' : '';
