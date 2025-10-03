@@ -215,12 +215,33 @@ export async function bulkMarkCmd(options = {}) {
     warn('→ DRY RUN MODE - no changes will be made');
   }
 
+  // Load workspace config for additional excludes
+  const workspaceConfig = await loadWorkspaceConfig(reposDir);
+  const excludePatterns = [
+    ...exclude,
+    ...(workspaceConfig?.exclude || [])
+  ];
+
+  if (excludePatterns.length > 0) {
+    info(`→ Exclude patterns: ${excludePatterns.join(', ')}`);
+  }
+
   // List repos from GitHub
   info('→ Fetching repositories from GitHub...');
-  const repos = await listGitHubRepos(user, filter);
+  const allRepos = await listGitHubRepos(user, filter);
 
-  info(`→ Found ${repos.length} repositories`);
+  // Filter out excluded repos
+  const repos = allRepos.filter(repo => !shouldExcludeRepo(repo.name, excludePatterns));
+  const excluded = allRepos.filter(repo => shouldExcludeRepo(repo.name, excludePatterns));
+
+  info(`→ Found ${allRepos.length} repositories (${excluded.length} excluded)`);
   info('');
+
+  if (excluded.length > 0 && dryRun) {
+    info('→ Excluded repositories:');
+    excluded.forEach(repo => info(`  - ${repo.name}`));
+    info('');
+  }
 
   // Ensure repos directory exists
   if (!dryRun) {
@@ -231,7 +252,8 @@ export async function bulkMarkCmd(options = {}) {
     marked: [],
     cloned_and_marked: [],
     skipped: [],
-    failed: []
+    failed: [],
+    excluded: excluded.map(r => r.name)
   };
 
   // Process each repo
@@ -270,6 +292,10 @@ export async function bulkMarkCmd(options = {}) {
 
   if (results.skipped.length > 0) {
     info(`  - Skipped (already marked): ${results.skipped.length}`);
+  }
+
+  if (results.excluded.length > 0) {
+    info(`  - Excluded: ${results.excluded.length}`);
   }
 
   if (results.failed.length > 0) {

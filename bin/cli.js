@@ -190,6 +190,7 @@ program
   .option('--user <username>', 'GitHub username (required for --bulk)')
   .option('--filter <type>', 'Filter repos: private, public, or all', 'private')
   .option('--repos-dir <path>', 'Directory for cloned repos (default: ~/repos)')
+  .option('--exclude <patterns...>', 'Exclude repos matching patterns (supports glob: *, test-*)')
   .option('--dry-run', 'Preview without making changes')
   .option('--force', 'Overwrite existing markers')
   .action(async (path, options) => {
@@ -201,6 +202,7 @@ program
           user: options.user,
           filter: options.filter,
           reposDir: options.reposDir,
+          exclude: options.exclude || [],
           dryRun: options.dryRun,
           force: options.force
         });

@@ -1,0 +1,34 @@
+# Claude Context Sync - Workspace Configuration
+#
+# Place this file as `.claude-sync-workspace` in your repos directory
+# (default: ~/repos) to configure workspace-wide settings for bulk marking.
+#
+# This file is loaded when running `mark --bulk` and allows you to
+# persistently exclude repositories from bulk operations.
+
+# Exclude specific repositories by name or pattern
+# Supports simple glob patterns: * matches any characters
+exclude:
+  # Exclude specific repos
+  - archived-project
+  - legacy-app
+
+  # Exclude patterns - all repos starting with 'test-'
+  - test-*
+
+  # Exclude patterns - all repos ending with '-backup'
+  - "*-backup"
+
+  # Exclude patterns - repos containing 'demo'
+  - "*demo*"
+
+# Examples:
+# - foo: Excludes repo named exactly "foo"
+# - test-*: Excludes all repos starting with "test-"
+# - *-backup: Excludes all repos ending with "-backup"
+# - *temp*: Excludes all repos containing "temp"
+
+# Note: You can also use --exclude flag directly on the command line:
+#   claude-context-sync mark --bulk --user yourname --exclude archived-* temp-*
+#
+# Both workspace config and CLI flags are combined.
