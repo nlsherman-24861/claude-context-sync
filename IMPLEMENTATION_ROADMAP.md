@@ -211,16 +211,30 @@ Phase 1 (Core Infrastructure)
 
 ## Future Enhancements (Post-MVP)
 
-### Phase 6+: Polish and Extensions
+### Phase 6: Polish and UX Improvements
+
+**Realistic Near-Term Extensions**:
 
 - Interactive `init` wizard with prompts
-- Diff engine (show changes before sync)
-- Multiple preference profiles
-- Session encryption
-- TOML/JSON format support
-- Selector auto-discovery (screenshot + vision model)
-- GitHub Actions workflow templates
-- VS Code extension
+- Diff preview before sync operations (show changes)
+- Profile switching (work/personal/project-specific contexts)
+- Improved error messages and troubleshooting guides
+
+### Ideas Worth Exploring (Lower Priority)
+
+**If Pain Points Emerge**:
+
+- Session encryption (if security becomes a concern)
+- Additional format support - TOML/JSON (if requested)
+- GitHub Actions workflow templates (complement to claude-actions-setup)
+
+**Ambitious But Interesting**:
+
+- Selector auto-discovery (screenshot + vision model) - *would solve Playwright brittleness, but major undertaking*
+- VS Code extension - *turns this into a separate product*
+- Automatic preference inference from chat history - *cool but creepy?*
+
+> **Note**: Ideas listed here are not commitments. They represent possible directions if specific use cases emerge. Focus remains on core sync functionality.
 
 ## Getting Started
 

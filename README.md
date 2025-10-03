@@ -37,9 +37,9 @@ Each needs similar-but-different context about you, your working style, and pref
 
 ### 🚧 Roadmap
 
-- [ ] Automated Claude Chat preference updates (headless)
-- [ ] Interactive diff viewer
-- [ ] Profile management (multiple personas)
+- [ ] Improve Claude Chat sync workflow (exploring alternatives to manual paste)
+- [ ] Diff preview before sync operations
+- [ ] Profile switching (work/personal contexts)
 
 ## Quick Start
 
