@@ -114,6 +114,101 @@ working_style:
       - Avoid unnecessary verbosity in responses
       - Use structured formats (bullets, tables) over prose
       - Link to files/docs rather than repeating content
+    session_continuity:
+      trigger_conditions:
+        - Context window approaching capacity (by available metrics)
+        - Complex multi-step work in progress
+        - Significant state to preserve for continuation
+        - User indicates session may need to be resumed later
+      state_preservation_required:
+        current_status:
+          - Summary of work completed so far
+          - What was accomplished in this session
+          - Key decisions made and rationale
+          - Files modified/created with descriptions
+        in_progress_work:
+          - Current task being worked on
+          - Specific step in the process
+          - Blockers or issues encountered
+          - Partial implementations or drafts
+        pending_tasks:
+          - Todo list items not yet started
+          - Todo list items in progress
+          - Dependencies between tasks
+          - Priority order for remaining work
+        context_for_next_session:
+          - Technical context needed to resume
+          - File paths and locations of key code
+          - Commands or tools being used
+          - Environment setup or configuration details
+      preservation_strategy:
+        commit_to_branch:
+          when: Work is in progress but context window nearly full
+          process:
+            - "1. Commit all current work to a descriptive branch name"
+            - "2. Branch name should indicate: feature/bug + context-session-N or similar"
+            - "3. Include comprehensive commit message with session summary"
+            - "4. Create CONTINUATION.md file in repo root with full context"
+            - "5. Tell user: 'Created branch [name] to preserve session state'"
+            - "6. Explain what was saved and how to resume in new session"
+          continuation_file_contents:
+            - "## Session Context Summary"
+            - Current status and what was accomplished
+            - In-progress work and current step
+            - Todo list with status of each item
+            - Technical context and key file locations
+            - Commands to run to pick up where we left off
+            - "## How to Resume"
+            - Exact instructions for new session to bootstrap
+            - Branch to checkout and commands to run
+            - What to tell Claude to resume work
+        create_summary_file:
+          when: No code changes to commit, but need to preserve context
+          process:
+            - "Create .claude-session-context.md in current working directory"
+            - Include all state preservation required items above
+            - "Tell user: 'Created context file for session resumption'"
+            - Provide exact text user should paste in new session
+          bootstrap_instructions:
+            - Specific message for user to copy-paste into new chat
+            - "Example: 'Resume work from .claude-session-context.md in [directory]'"
+            - Should include file paths and what was being worked on
+      resumption_detection:
+        user_signals:
+          explicit:
+            - "User says: 'continue from previous session'"
+            - "User says: 'pick up where we left off'"
+            - "User says: 'load context from [file/branch]'"
+            - User references a CONTINUATION.md or .claude-session-context.md file
+          implicit:
+            - User mentions in-progress work from another session
+            - User asks to continue specific task without context
+            - User references recent changes not visible in current chat
+        agent_response:
+          immediate_actions:
+            - "1. Look for CONTINUATION.md in repo root"
+            - "2. Look for .claude-session-context.md in working directory"
+            - "3. Check for recent branches with 'context-session' naming"
+            - "4. Read context file and parse state"
+          after_loading_context:
+            - "Acknowledge: 'Loaded context from [source]'"
+            - Summarize what was accomplished previously
+            - Confirm current task and next steps
+            - "Ask: 'Ready to continue with [next task]?'"
+          if_no_context_found:
+            - "Ask user: 'I don't see a context file. Can you provide the branch name or file path?'"
+            - Offer to help locate context files
+            - Suggest checking recent branches or commits
+      proactive_monitoring:
+        token_awareness:
+          - Monitor context window usage throughout session
+          - When approaching 80% capacity, begin optimization
+          - When approaching 90% capacity, warn user and offer to preserve state
+          - "At 95% capacity: 'Context window nearly full. Should I preserve state for continuation?'"
+        long_running_work:
+          - For multi-hour sessions, periodically checkpoint progress
+          - Offer to commit intermediate state even before context limits
+          - "Suggest: 'We've made good progress. Want me to checkpoint this work?'"
   context_awareness:
     project_vs_general:
       - User often engages in conversations unrelated to specific GitHub repos
