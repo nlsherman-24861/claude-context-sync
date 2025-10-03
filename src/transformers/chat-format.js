@@ -90,13 +90,13 @@ export class ChatFormatTransformer extends BaseTransformer {
 
   _formatProfessionalBackground(background) {
     let text = '';
-    
+
     if (background.experience) {
-      text += `I'm a software engineer with ${background.experience}. `;
+      text += `The user has ${background.experience}. `;
     }
-    
+
     if (background.technical_level) {
-      text += `I have a ${background.technical_level.toLowerCase()}. `;
+      text += `${background.technical_level}. `;
     }
 
     if (background.philosophy && Array.isArray(background.philosophy)) {
@@ -108,53 +108,58 @@ export class ChatFormatTransformer extends BaseTransformer {
 n
   _formatCreativePursuits(pursuits) {
     let text = '';
-    
-    if (pursuits.music) {
-      const music = pursuits.music;
-      
-      if (music.artist_alias) {
-        text += `I make music under the artist alias "${music.artist_alias}". `;
+
+    // Iterate over all creative pursuit types (music, writing, visual_arts, etc.)
+    for (const [pursuitType, pursuitData] of Object.entries(pursuits)) {
+      // Identity/alias field (artist_alias, pen_name, alias, etc.)
+      const identityField = pursuitData.artist_alias || pursuitData.pen_name || pursuitData.alias;
+      if (identityField) {
+        text += `The user creates ${pursuitType} under "${identityField}". `;
       }
-      
-      if (music.passion) {
-        text += `${music.passion}. `;
+
+      // Passion/description
+      if (pursuitData.passion) {
+        text += `${pursuitData.passion}. `;
       }
-      
-      if (music.background && Array.isArray(music.background)) {
-        text += music.background.join('. ') + '. ';
+
+      // Background
+      if (pursuitData.background && Array.isArray(pursuitData.background)) {
+        text += pursuitData.background.join('. ') + '. ';
       }
-      
-      if (music.active_work) {
-        const work = music.active_work;
-        
+
+      // Active work
+      if (pursuitData.active_work) {
+        const work = pursuitData.active_work;
+
         if (work.role) {
-          text += `I'm actively working as a ${work.role}. `;
+          text += `The user is actively working as a ${work.role}. `;
         }
-        
+
         if (work.genres && Array.isArray(work.genres)) {
-          text += `My work spans ${this._formatList(work.genres)}. `;
+          text += `The user's work spans ${this._formatList(work.genres)}. `;
         }
-        
+
         if (work.approach && Array.isArray(work.approach)) {
           text += work.approach.join('. ') + '. ';
         }
       }
-      
-      if (music.engagement_patterns && Array.isArray(music.engagement_patterns)) {
-        text += 'I regularly engage in discussions about music including: ';
-        text += this._formatList(music.engagement_patterns) + '. ';
+
+      // Engagement patterns
+      if (pursuitData.engagement_patterns && Array.isArray(pursuitData.engagement_patterns)) {
+        text += `The user regularly engages in discussions about ${pursuitType} including: `;
+        text += this._formatList(pursuitData.engagement_patterns) + '. ';
       }
     }
-    
-    return text + '\n\n';
+
+    return text ? text + '\n\n' : '';
   }
 
 
   _formatPersonalInterests(interests) {
     let text = '';
-    
+
     if (interests.primary && Array.isArray(interests.primary)) {
-      text += `My interests include ${this._formatList(interests.primary)}. `;
+      text += `The user's interests include ${this._formatList(interests.primary)}. `;
     }
 
     if (interests.engagement_style && Array.isArray(interests.engagement_style)) {
@@ -162,7 +167,7 @@ n
     }
 
     if (interests.generation) {
-      text += `I'm ${interests.generation}. `;
+      text += `The user is ${interests.generation}. `;
     }
 
     return text ? text + '\n\n' : '';
@@ -172,7 +177,7 @@ n
     let text = '';
 
     if (style.communication && Array.isArray(style.communication)) {
-      text += 'I prefer ';
+      text += 'The user prefers ';
       text += this._formatList(style.communication, { lowercase: true });
       text += '. ';
     }
@@ -188,13 +193,13 @@ n
     }
 
     if (style.feedback && Array.isArray(style.feedback)) {
-      text += 'For feedback, I appreciate ';
+      text += 'For feedback, the user appreciates ';
       text += this._formatList(style.feedback, { lowercase: true });
       text += '. ';
     }
 
     if (style.learning && Array.isArray(style.learning)) {
-      text += 'When learning, I ';
+      text += 'When learning, the user ';
       text += this._formatList(style.learning, { lowercase: true });
       text += '. ';
     }

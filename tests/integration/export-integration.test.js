@@ -60,7 +60,7 @@ describe('Export Integration Tests', () => {
       // Verify output quality
       expect(output).toContain('15-20 years practical software engineering');
       expect(output).toContain('Sci-fi and Psychology');
-      expect(output).toContain('I prefer high-level summaries');
+      expect(output).toContain('The user prefers high-level summaries');
       expect(output).toContain('Think of yourself as "JAX"');
       
       // Verify natural prose format
@@ -108,7 +108,7 @@ describe('Export Integration Tests', () => {
       expect(validation.valid).toBe(true);
       
       const output = await transformer.transform();
-      expect(output).toContain('I prefer basic communication preference');
+      expect(output).toContain('The user prefers basic communication preference');
     });
 
     it('should handle minimal config for claude-md format', async () => {

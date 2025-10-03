@@ -19,7 +19,7 @@ describe('ChatFormatTransformer', () => {
       const output = await transformer.transform();
 
       expect(output).toContain('15-20 years practical software engineering');
-      expect(output).toContain('strong technical background');
+      expect(output).toContain('Strong technical background');
       expect(output).toContain('Love learning and the process of problem solving');
       expect(output).toContain('Prefer understanding what and why to quick-and-easy fixes');
     });
@@ -76,9 +76,9 @@ describe('ChatFormatTransformer', () => {
       const transformer = new ChatFormatTransformer(preferences);
       const output = await transformer.transform();
 
-      expect(output).toContain('I prefer high-level summaries');
+      expect(output).toContain('The user prefers high-level summaries');
       expect(output).toContain('concise bullets for action items');
-      expect(output).toContain('I appreciate positive reinforcement');
+      expect(output).toContain('the user appreciates positive reinforcement');
     });
   });
 
@@ -116,7 +116,7 @@ describe('ChatFormatTransformer', () => {
       const transformer = new ChatFormatTransformer(preferences);
       const output = await transformer.transform();
 
-      expect(output).toContain('My interests include Sci-fi');
+      expect(output).toContain("The user's interests include Sci-fi");
     });
 
     it('should format two item lists with "and"', async () => {
@@ -220,6 +220,165 @@ describe('ChatFormatTransformer', () => {
 
       expect(validation.valid).toBe(false);
       expect(validation.errors).toContain('No sections found for chat scope');
+    });
+  });
+
+  describe('creative pursuits - generic handling', () => {
+    it('should format writing creative pursuits with pen_name', async () => {
+      const preferences = {
+        creative_pursuits: {
+          writing: {
+            pen_name: 'J.K. Rowling',
+            passion: 'Storytelling through fantasy',
+            background: [
+              'Published author',
+              'Working on novel series'
+            ],
+            active_work: {
+              role: 'Fantasy novelist',
+              genres: ['Fantasy', 'Young Adult'],
+              approach: ['Character-driven narratives', 'World-building focus']
+            }
+          }
+        }
+      };
+
+      const transformer = new ChatFormatTransformer(preferences);
+      const output = await transformer.transform();
+
+      expect(output).toContain('writing');
+      expect(output).toContain('J.K. Rowling');
+      expect(output).toContain('Storytelling through fantasy');
+      expect(output).toContain('Fantasy novelist');
+      expect(output).toContain('Fantasy');
+      expect(output).toContain('Young Adult');
+      // CRITICAL: Should NOT contain music-specific language
+      expect(output).not.toContain('music');
+      expect(output).not.toContain('artist');
+    });
+
+    it('should format visual arts creative pursuits with alias', async () => {
+      const preferences = {
+        creative_pursuits: {
+          visual_arts: {
+            alias: 'Shutterbug Studios',
+            passion: 'Capturing urban landscapes',
+            active_work: {
+              role: 'Urban photographer',
+              genres: ['Street photography', 'Architectural']
+            },
+            engagement_patterns: [
+              'Composition discussions',
+              'Technical photography advice'
+            ]
+          }
+        }
+      };
+
+      const transformer = new ChatFormatTransformer(preferences);
+      const output = await transformer.transform();
+
+      expect(output).toContain('visual_arts');
+      expect(output).toContain('Shutterbug Studios');
+      expect(output).toContain('Urban photographer');
+      expect(output).toContain('Street photography');
+      // CRITICAL: Should NOT contain music or writing language
+      expect(output).not.toContain('music');
+      expect(output).not.toContain('writing');
+      expect(output).not.toContain('pen_name');
+    });
+
+    it('should handle multiple creative pursuits simultaneously', async () => {
+      const preferences = {
+        creative_pursuits: {
+          music: {
+            artist_alias: 'DJ Awesome',
+            active_work: {
+              role: 'Electronic music producer',
+              genres: ['Techno', 'House']
+            }
+          },
+          writing: {
+            pen_name: 'A. Writer',
+            active_work: {
+              role: 'Blogger',
+              genres: ['Tech writing']
+            }
+          }
+        }
+      };
+
+      const transformer = new ChatFormatTransformer(preferences);
+      const output = await transformer.transform();
+
+      // Should include BOTH pursuits
+      expect(output).toContain('DJ Awesome');
+      expect(output).toContain('A. Writer');
+      expect(output).toContain('music');
+      expect(output).toContain('writing');
+      expect(output).toContain('Techno');
+      expect(output).toContain('Blogger');
+    });
+
+    it('should handle music creative pursuits (original use case)', async () => {
+      const preferences = {
+        creative_pursuits: {
+          music: {
+            artist_alias: 'Left Out West',
+            passion: 'Love of music across all genres',
+            active_work: {
+              role: 'Producer, lyricist',
+              genres: ['Hip hop', 'Electronica']
+            }
+          }
+        }
+      };
+
+      const transformer = new ChatFormatTransformer(preferences);
+      const output = await transformer.transform();
+
+      expect(output).toContain('music');
+      expect(output).toContain('Left Out West');
+      expect(output).toContain('Producer, lyricist');
+      expect(output).toContain('Hip hop');
+    });
+  });
+
+  describe('professional background - no hardcoded profession', () => {
+    it('should handle teacher background without assuming engineer', async () => {
+      const preferences = {
+        professional_background: {
+          experience: '10 years teaching high school mathematics',
+          technical_level: 'Strong pedagogical background'
+        }
+      };
+
+      const transformer = new ChatFormatTransformer(preferences);
+      const output = await transformer.transform();
+
+      expect(output).toContain('10 years teaching high school mathematics');
+      expect(output).toContain('Strong pedagogical background');
+      // CRITICAL: Should NOT inject 'software engineer' or 'engineering'
+      expect(output).not.toContain('software engineer');
+      expect(output).not.toContain('engineering');
+    });
+
+    it('should handle scientist background', async () => {
+      const preferences = {
+        professional_background: {
+          experience: '15 years in biomedical research',
+          technical_level: 'PhD in molecular biology'
+        }
+      };
+
+      const transformer = new ChatFormatTransformer(preferences);
+      const output = await transformer.transform();
+
+      expect(output).toContain('15 years in biomedical research');
+      expect(output).toContain('PhD in molecular biology');
+      // Should not have any hardcoded profession
+      expect(output).not.toContain('software');
+      expect(output).not.toContain('engineer');
     });
   });
 });

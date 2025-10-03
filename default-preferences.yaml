@@ -1495,4 +1495,115 @@ personality:
     - Shared interests (sci-fi, psychology, AI applications)
     - Dry sense of humor
     - Willingness to engage in playful dialog
-# Test comment for auto-push verification
+
+# ============================================================================
+# Coding and Design Principles
+# ============================================================================
+#
+# CRITICAL META-PATTERN: Avoid "Implementation as Specification"
+#
+# These principles apply to ALL projects, not just claude-context-sync.
+# They represent hard-won lessons about building truly generic systems.
+#
+# ============================================================================
+
+coding_and_design_principles:
+  avoid_specific_as_generic:
+    name: "Implementation-as-Specification Fallacy"
+    description: "When code that works for YOUR specific case gets mistaken for a general solution"
+
+    problem_pattern:
+      symptom: "Function/class promises to handle entire domain, but only handles your instance"
+      examples:
+        - "displayProduct() only works for physical goods (not digital/subscriptions)"
+        - "sendNotification() only sends email (not SMS/push/in-app)"
+        - "formatUserProfile() assumes everyone is an engineer"
+        - "exportData() only outputs JSON (not XML/CSV/protobuf)"
+      false_confidence: "Tests pass because they only use your actual data"
+
+    red_flags:
+      - "Hardcoded strings referencing YOUR specifics (product weight, email addresses, job titles)"
+      - "Hardcoded key access (data.physical when schema allows digital/subscription)"
+      - "Tests only use your business data (books, not ebooks/subscriptions)"
+      - "Function names promise generality (handleAllProducts) but body is specific"
+      - "Documentation shows one example (yours), not multiple domain examples"
+      - "Fallback defaults encode your specifics (defaulting to email when SMS is valid)"
+
+    green_patterns:
+      - "Generic iteration: for (const [type, data] of Object.entries(items))"
+      - "Configuration-driven: Define schemas for each variant up front"
+      - "Tests with DIFFERENT variants (if you sell books, test ebooks/subscriptions)"
+      - "Documentation shows 3-5 examples from across the domain"
+      - "No baked-in assumptions about what variant user will have"
+      - "Data structure designed to represent ALL variants, not just yours"
+
+    before_coding_checklist:
+      - "DOMAIN: What's the full domain? (All product types, not just books)"
+      - "VARIANCE: Name 3-5 DIFFERENT examples (books, ebooks, subscriptions, gift cards)"
+      - "UNIQUE NEEDS: What's different about each? (Books have weight, ebooks have fileSize)"
+      - "SCHEMA: Can your data structure represent ALL variants?"
+
+    while_coding_checklist:
+      - "IMPLEMENTATION: Works identically well for ALL examples without modification?"
+      - "NO HARDCODING: Avoided hardcoded fields that only exist in your variant?"
+      - "ITERATION: Using loops/maps instead of if(mySpecificType)?"
+      - "LET DATA SPEAK: Data structure drives behavior, not hardcoded logic?"
+
+    testing_checklist:
+      - "Test your actual data (books) - minimum viable"
+      - "Test DIFFERENT valid data (ebooks) - catch hardcoded assumptions"
+      - "Test VERY DIFFERENT data (subscriptions) - verify true generality"
+      - "Test multiple simultaneous (books AND ebooks) - handle combinations"
+      - "Negative assertions: ebook test should NOT contain shipping/weight"
+
+    counter_example_testing:
+      principle: "Test with valid data that's DIFFERENT from your use case"
+      why: "Catches baked-in assumptions that slip through when tests use your data"
+      real_world_examples:
+        - "E-commerce: If you sell books, test with ebooks/subscriptions/gift cards"
+        - "Auth: If you use email login, test with SMS/OAuth/authenticator apps"
+        - "Users: If you're an engineer, test with teacher/artist/scientist profiles"
+        - "Formats: If you output JSON, test XML/CSV/Protocol Buffers"
+        - "Notifications: If you send email, test SMS/push/in-app/webhook"
+      test_structure:
+        bad: "test('handles products', () => testWith(myBookData))"
+        good: "test('handles ebooks without shipping', () => { result = testWith(ebookData); expect(!result.includes('shipping')) })"
+
+  data_shaping_over_logic:
+    principle: "Shape data to be transformation-ready, not logic-heavy"
+    description: "Data structures should be designed so transformations are simple iterations/mappings"
+
+    examples:
+      good:
+        - "creative_pursuits: { [pursuitType]: { alias, active_work } } → iterate over types"
+        - "philosophy: ['Statement 1', 'Statement 2'] → join with '. '"
+        - "Pronounless values in YAML → transformers add perspective based on section"
+      bad:
+        - "Hardcoding profession in transformer instead of letting data speak"
+        - "Special case logic for 'music' vs 'writing' instead of generic pursuit handling"
+        - "Embedding pronouns in YAML forcing specific narrative voice"
+
+    transformation_patterns:
+      iterate_dont_enumerate: "for...of Object.entries() not if (data.music) {...} if (data.writing)"
+      templates_not_strings: "Use templates/patterns where possible, avoid 'The user makes music under'"
+      data_drives_output: "Let data structure determine output shape, not hardcoded logic"
+
+  schema_as_specification:
+    principle: "Schema is the contract - document ALL allowed variance"
+    requirements:
+      - "Every section mentioned must be fully documented with structure"
+      - "Use descriptions to clarify intent and allowed values"
+      - "Show examples from multiple domains, not just author's use case"
+      - "Make additionalProperties explicit (are custom keys allowed?)"
+
+  test_coverage_philosophy:
+    beyond_happy_path:
+      - "Test happy path with author's data (minimum viable)"
+      - "Test counter-examples with very different valid data (catch hardcoding)"
+      - "Test edge cases (empty, missing, malformed)"
+      - "Test multiple simultaneous values (e.g., both music AND writing pursuits)"
+
+    test_naming_clarity:
+      good: "it('should format writing creative pursuits with pen_name')"
+      bad: "it('should work')"
+      why: "Specific test names document what variance is covered"

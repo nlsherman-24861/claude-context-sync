@@ -279,6 +279,107 @@ professional_background:
 
 ---
 
+### `creative_pursuits`
+
+**Scope**: chat, global
+**Required**: Optional
+
+Creative activities that help Claude understand your creative practice and provide relevant support.
+
+**Structure**: Generic object with pursuit type as key (music, writing, visual_arts, etc.)
+
+```yaml
+creative_pursuits:
+  [pursuit_type]:              # Any creative pursuit (music, writing, visual_arts, photography, etc.)
+    # Identity/alias field (one of these)
+    artist_alias: string       # For music
+    pen_name: string           # For writing
+    alias: string              # Generic alias
+
+    passion: string            # Brief passion statement
+
+    background:                # Array of strings
+      - string                 # Background/history item
+
+    active_work:               # Current work details
+      role: string             # Your role (e.g., "Producer, lyricist", "Novelist", "Photographer")
+      genres:                  # Array of genres/categories
+        - string
+      approach:                # Array of approach statements
+        - string
+
+    engagement_patterns:       # Array of strings
+      - string                 # How you engage with Claude about this pursuit
+```
+
+**Example** (Music):
+
+```yaml
+creative_pursuits:
+  music:
+    artist_alias: "Left Out West"
+    passion: "Love of music across all genres"
+    background:
+      - "Percussionist with history playing drums"
+      - "Local gigging experience"
+    active_work:
+      role: "Producer, lyricist"
+      genres:
+        - "Hip hop"
+        - "Electronica"
+      approach:
+        - "Actively working on music production"
+        - "Leverages AI tools for music generation"
+    engagement_patterns:
+      - "Regular discussions about music with Claude expected"
+      - "Production technique exploration"
+```
+
+**Example** (Writing):
+
+```yaml
+creative_pursuits:
+  writing:
+    pen_name: "A. Author"
+    passion: "Storytelling through science fiction"
+    background:
+      - "Published short fiction in various magazines"
+      - "Working on first novel"
+    active_work:
+      role: "Science fiction author"
+      genres:
+        - "Hard SF"
+        - "Space opera"
+      approach:
+        - "Character-driven narratives with technical accuracy"
+        - "Uses Claude for world-building consultation"
+    engagement_patterns:
+      - "Plot development discussions"
+      - "Scientific accuracy fact-checking"
+```
+
+**Example** (Multiple Pursuits):
+
+```yaml
+creative_pursuits:
+  photography:
+    alias: "Shutterbug Studios"
+    passion: "Capturing urban landscapes"
+    active_work:
+      role: "Urban photographer"
+      genres:
+        - "Street photography"
+        - "Architectural"
+  writing:
+    pen_name: "J. Wordsmith"
+    active_work:
+      role: "Blogger and essayist"
+```
+
+**Design Note**: The structure is intentionally generic to support any creative pursuit. Transformers iterate over pursuit types rather than hard-coding "music" or "writing".
+
+---
+
 ### `personal_interests`
 
 **Scope**: chat, global  

@@ -64,7 +64,9 @@ export class HybridFormatTransformer extends BaseTransformer {
     // Professional background
     if (sections.professional_background) {
       const bg = sections.professional_background;
-      prose += `The user is a competent engineering buddy with ${bg.experience || '15-20 years practical software engineering'}. `;
+      if (bg.experience) {
+        prose += `The user has ${bg.experience}. `;
+      }
 
       if (bg.technical_level) {
         prose += `${bg.technical_level}. `;
@@ -81,31 +83,38 @@ export class HybridFormatTransformer extends BaseTransformer {
       prose += '\n\n';
     }
 
-    // Creative pursuits
-    if (sections.creative_pursuits?.music) {
-      const music = sections.creative_pursuits.music;
+    // Creative pursuits (generic handling for music, writing, visual_arts, etc.)
+    if (sections.creative_pursuits) {
+      for (const [pursuitType, pursuitData] of Object.entries(sections.creative_pursuits)) {
+        // Identity/alias
+        const identityField = pursuitData.artist_alias || pursuitData.pen_name || pursuitData.alias;
+        if (identityField) {
+          prose += `The user creates ${pursuitType} under "${identityField}" - `;
+        }
 
-      if (music.artist_alias) {
-        prose += `The user makes music under "${music.artist_alias}" - `;
-      }
+        // Active work role
+        if (pursuitData.active_work?.role) {
+          prose += `${pursuitData.active_work.role}. `;
+        }
 
-      if (music.active_work?.role) {
-        prose += `${music.active_work.role}. `;
-      }
+        // Genres/categories
+        if (pursuitData.active_work?.genres) {
+          const genres = Array.isArray(pursuitData.active_work.genres)
+            ? pursuitData.active_work.genres
+            : [pursuitData.active_work.genres];
+          prose += `Work spans ${genres.join(', ')}. `;
+        }
 
-      if (music.active_work?.genres) {
-        const genres = Array.isArray(music.active_work.genres)
-          ? music.active_work.genres
-          : [music.active_work.genres];
-        prose += `Work spans ${genres.join(', ')}. `;
-      }
-
-      if (music.approach) {
-        const approaches = Array.isArray(music.approach)
-          ? music.approach
-          : [music.approach];
-        if (approaches.some(a => typeof a === 'string' && a.includes('AI'))) {
-          prose += 'Use AI for music generation and lyric workshopping. ';
+        // Approach (generic, not music-specific)
+        if (pursuitData.approach) {
+          const approaches = Array.isArray(pursuitData.approach)
+            ? pursuitData.approach
+            : [pursuitData.approach];
+          // Extract any AI-related approaches generically
+          const aiApproaches = approaches.filter(a => typeof a === 'string' && a.toLowerCase().includes('ai'));
+          if (aiApproaches.length > 0) {
+            prose += aiApproaches.join('. ') + '. ';
+          }
         }
       }
 

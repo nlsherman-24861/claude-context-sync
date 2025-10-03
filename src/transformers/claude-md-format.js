@@ -97,57 +97,69 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
 n
   _formatCreativePursuits(pursuits) {
     let section = '## Creative Pursuits\n\n';
-    
-    if (pursuits.music) {
-      section += '### Music\n\n';
-      
-      if (pursuits.music.artist_alias) {
-        section += `**Artist Alias**: ${pursuits.music.artist_alias}\n\n`;
+
+    // Iterate over all pursuit types (music, writing, visual_arts, etc.)
+    for (const [pursuitType, pursuitData] of Object.entries(pursuits)) {
+      // Capitalize pursuit type for heading
+      const pursuitLabel = pursuitType.charAt(0).toUpperCase() + pursuitType.slice(1).replace(/_/g, ' ');
+      section += `### ${pursuitLabel}\n\n`;
+
+      // Identity field (artist_alias, pen_name, alias, etc.)
+      const identityField = pursuitData.artist_alias || pursuitData.pen_name || pursuitData.alias;
+      const identityLabel = pursuitData.artist_alias ? 'Artist Alias' :
+                           pursuitData.pen_name ? 'Pen Name' :
+                           pursuitData.alias ? 'Alias' : null;
+      if (identityField && identityLabel) {
+        section += `**${identityLabel}**: ${identityField}\n\n`;
       }
-      
-      if (pursuits.music.passion) {
-        section += `${pursuits.music.passion}\n\n`;
+
+      // Passion/description
+      if (pursuitData.passion) {
+        section += `${pursuitData.passion}\n\n`;
       }
-      
-      if (pursuits.music.background && Array.isArray(pursuits.music.background)) {
+
+      // Background
+      if (pursuitData.background && Array.isArray(pursuitData.background)) {
         section += '**Background**:\n\n';
-        pursuits.music.background.forEach(item => {
+        pursuitData.background.forEach(item => {
           section += `- ${item}\n`;
         });
         section += '\n';
       }
-      
-      if (pursuits.music.active_work) {
-        const work = pursuits.music.active_work;
+
+      // Active work
+      if (pursuitData.active_work) {
+        const work = pursuitData.active_work;
         section += '**Active Work**:\n\n';
-        
+
         if (work.role) {
           section += `- **Role**: ${work.role}\n`;
         }
-        
+
         if (work.genres && Array.isArray(work.genres)) {
           section += '- **Genres**: ' + work.genres.join(', ') + '\n';
         }
-        
+
         if (work.approach && Array.isArray(work.approach)) {
           section += '\n**Approach**:\n\n';
           work.approach.forEach(item => {
             section += `- ${item}\n`;
           });
         }
-        
+
         section += '\n';
       }
-      
-      if (pursuits.music.engagement_patterns && Array.isArray(pursuits.music.engagement_patterns)) {
+
+      // Engagement patterns
+      if (pursuitData.engagement_patterns && Array.isArray(pursuitData.engagement_patterns)) {
         section += '**Engagement Patterns**:\n\n';
-        pursuits.music.engagement_patterns.forEach(item => {
+        pursuitData.engagement_patterns.forEach(item => {
           section += `- ${item}\n`;
         });
         section += '\n';
       }
     }
-    
+
     return section;
   }
 
