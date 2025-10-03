@@ -91,7 +91,7 @@ project_specific:
         design_rule: Structure project_specific YAML by priority - most important info at top level
         condensing_behavior:
           objects: "[N fields]"
-          arrays: "[N items]" or single value if length=1
+          arrays: '"[N items]" or single value if length=1'
         utilities:
           - "src/utils/depth-limit.js: limitDepth() and smartCondense() functions"
 
