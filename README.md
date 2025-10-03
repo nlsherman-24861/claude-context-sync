@@ -185,17 +185,21 @@ claude-context-sync discover
 # GitHub API discovery (no local clones needed)
 claude-context-sync discover --source github --user nlsherman-24861 --filter private
 
-# Sync configurator updates to all discovered repos with auto_update: true
+# Sync CLAUDE.md preference files to all discovered repos
 claude-context-sync sync-repos --dry-run
+
+# Auto-sync only repos with auto_update: true
+claude-context-sync sync-repos --auto
 
 # Example output with per-repo status:
 # ============================================================
 # → Syncing: C:\Users\n\repos\thread-stack
 # ============================================================
 #
-# ✓ Sync completed
-#   • Ran claude-actions-setup
-#   • Committed changes to current branch
+# ✓ Updated .github/CLAUDE.md
+# ✓ Updated .claude/CLAUDE.md
+# ✓ Committed changes
+# Sync completed
 #
 # ============================================================
 # → SYNC SUMMARY
@@ -209,6 +213,8 @@ claude-context-sync sync-repos --dry-run
 # ⚠ Skipped: 2
 #   • thread-stack: Repository has uncommitted changes
 ```
+
+**Note:** `sync-repos` syncs **preferences only** (CLAUDE.md files). For GitHub Actions/CI/CD setup, use [claude-actions-setup](https://github.com/nlsherman-24861/claude-actions-setup) separately.
 
 ### `backups` & `restore`
 

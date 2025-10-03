@@ -355,23 +355,43 @@ technical:
       - "MUST update README for any user-facing feature changes"
       - "MUST update inline documentation for code changes"
       - "MUST update API docs for interface changes"
+      - "MUST update docs/ directory files for affected features"
       - "MUST document breaking changes prominently"
       - "Committing without doc updates is a CRITICAL violation"
+    documentation_structure:
+      - "README.md: High-level overview and quick start"
+      - "docs/*.md: Detailed feature documentation"
+      - "Inline comments: Implementation details and rationale"
+      - "API docs: Generated from inline documentation"
+      - "Examples: Working code samples in examples/ directory"
+    thorough_doc_review:
+      - "CRITICAL: Search for ALL references to changed features"
+      - "Use grep/search to find mentions in all .md files"
+      - "Check README.md, docs/*.md, examples/*.md"
+      - "Update ALL found references, not just obvious ones"
+      - "Look for outdated examples, old terminology, changed behavior"
     maintenance:
       - Always look for and update docs after implementing new features
       - Update docs when changing existing feature behavior
-      - Check README, API docs, inline comments, and examples
+      - Check README, docs directory, inline comments, and examples
       - Document breaking changes prominently
+      - Search for feature mentions across entire docs/ directory
     priority:
       - User-facing changes get top priority
       - Internal/architectural changes need inline comments
       - Migration guides for breaking changes
     when_to_update:
-      - New features - update README, add examples
-      - Changed behavior - update affected documentation
+      - New features - update README, add examples, add docs/*.md entry
+      - Changed behavior - grep for feature name, update all mentions
       - New CLI flags/options - update command documentation
       - Configuration changes - update config documentation
       - Bug fixes - update relevant docs if behavior changed
+      - Refactoring - check if public interfaces changed, update docs
+    examples:
+      - "Removed configurator field? Search 'configurator' in docs/"
+      - "Changed command behavior? Grep command name in all .md files"
+      - "New .claude-sync format? Update AUTO_SYNC_REPOS.md examples"
+      - "Changed sync-repos purpose? Update description in README + docs/"
   file_operations:
     opening_files:
       - Use platform-appropriate commands to open files in default/configured

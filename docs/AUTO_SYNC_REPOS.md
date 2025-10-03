@@ -1,10 +1,12 @@
 # Auto-Sync Repositories
 
-Automatically sync configurator updates across multiple repositories.
+Automatically sync CLAUDE.md preference files across multiple repositories.
 
 ## Overview
 
-When your configurator tool (like `claude-actions-setup`) updates, you can automatically update all marked repositories with a single command instead of manually re-running the configurator in each repo.
+Keep your Claude preferences consistent across all your projects. The `sync-repos` command syncs your CLAUDE.md files to all marked repositories with a single command.
+
+**Important:** This tool syncs **preferences only** (CLAUDE.md files). It does NOT run configurators or setup tools. For GitHub Actions/CI/CD setup, use [claude-actions-setup](https://github.com/nlsherman-24861/claude-actions-setup) separately.
 
 ## Quick Start
 
@@ -16,10 +18,10 @@ Create a `.claude-sync` file in the root of each repository you want to auto-syn
 # .claude-sync
 sync: true
 auto_update: false  # false = interactive, true = automatic
-configurator: claude-actions-setup
-preserve_overrides: true
-create_pr: true
-branch_name: chore/update-claude-config
+merge_mode: true    # true = merge with existing, false = overwrite
+create_pr: false    # true = create PR, false = direct commit
+branch_name: chore/update-preferences
+auto_push: false    # true = auto-push commits
 ```
 
 ### 2. Discover Marked Repositories
@@ -63,20 +65,17 @@ sync: true
 # Auto-update without prompting
 auto_update: false
 
-# Configurator tool to use
-configurator: claude-actions-setup
-
-# Version constraints (optional)
-version: ">=1.0.0"
-
-# Preserve manual customizations
-preserve_overrides: true
+# Merge with existing CLAUDE.md or overwrite
+merge_mode: true
 
 # Create PR instead of direct commit
-create_pr: true
+create_pr: false
 
 # Branch name for PRs
-branch_name: chore/update-claude-config
+branch_name: chore/update-preferences
+
+# Auto-push commits to remote
+auto_push: false
 ```
 
 **JSON:**
@@ -85,10 +84,10 @@ branch_name: chore/update-claude-config
 {
   "sync": true,
   "auto_update": false,
-  "configurator": "claude-actions-setup",
-  "preserve_overrides": true,
-  "create_pr": true,
-  "branch_name": "chore/update-claude-config"
+  "merge_mode": true,
+  "create_pr": false,
+  "branch_name": "chore/update-preferences",
+  "auto_push": false
 }
 ```
 
@@ -98,11 +97,10 @@ branch_name: chore/update-claude-config
 |-------|------|---------|-------------|
 | `sync` | boolean | `true` | Enable sync for this repo (false = skip) |
 | `auto_update` | boolean | `false` | Auto-update without prompting |
-| `configurator` | string | `claude-actions-setup` | Which configurator tool to use |
-| `version` | string | `*` | Version constraints (semver) |
-| `preserve_overrides` | boolean | `true` | Keep manual customizations |
-| `create_pr` | boolean | `true` | Create PR instead of direct commit |
-| `branch_name` | string | `chore/update-claude-config` | Branch name for PRs |
+| `merge_mode` | boolean | `true` | Merge with existing CLAUDE.md (false = overwrite) |
+| `create_pr` | boolean | `false` | Create PR instead of direct commit |
+| `branch_name` | string | `chore/update-preferences` | Branch name for PRs |
+| `auto_push` | boolean | `false` | Auto-push commits to remote |
 
 ## Commands
 
@@ -127,19 +125,19 @@ claude-context-sync discover --scan ~/projects --verbose
 Found 3 repository(ies) with .claude-sync markers:
 
 1. /home/user/projects/my-app
-   Configurator: claude-actions-setup
    Auto-update: No
-   Create PR: Yes
+   Create PR: No
+   Auto-push: No
 
 2. /home/user/projects/another-app
-   Configurator: claude-actions-setup
    Auto-update: Yes
    Create PR: Yes
+   Auto-push: No
 ```
 
 ### sync-repos
 
-Sync configurator updates to marked repositories.
+Sync CLAUDE.md preference files to marked repositories.
 
 ```bash
 # Dry run - preview changes
@@ -190,7 +188,7 @@ claude-context-sync sync-repos --dry-run
 # 3. Sync interactively
 claude-context-sync sync-repos --interactive
 
-# 4. Review PRs created in each repo
+# 4. Review PRs created in each repo (if using create_pr: true)
 ```
 
 ### Automated Updates
@@ -214,6 +212,23 @@ claude-context-sync sync-repos \
   --path ~/project3
 ```
 
+## What Gets Synced
+
+The `sync-repos` command syncs your CLAUDE.md preference files to two locations in each repository:
+
+1. `.github/CLAUDE.md` - For GitHub integration
+2. `.claude/CLAUDE.md` - For Claude Code
+
+The content comes from your `default-preferences.yaml` file, transformed to CLAUDE.md format.
+
+**What is NOT synced:**
+- GitHub Actions workflows
+- CI/CD configurations
+- Project-specific files
+- Any other configuration files
+
+For those, use [claude-actions-setup](https://github.com/nlsherman-24861/claude-actions-setup) separately.
+
 ## Safety Features
 
 ### Uncommitted Changes Protection
@@ -231,15 +246,13 @@ Use `--force` to override:
 claude-context-sync sync-repos --force
 ```
 
-### Backups
+### Content Detection
 
-When `preserve_overrides: true`, backups are created before updates:
+Files are only updated if content has changed. If a repository's CLAUDE.md already matches your preferences, the sync is skipped:
 
 ```
-.claude-backups/
-  2025-10-02T14-30-45/
-    .github/workflows/claude.yml
-    .claude/CLAUDE.md
+✓ .github/CLAUDE.md already up to date
+✓ .claude/CLAUDE.md already up to date
 ```
 
 ### Dry Run Mode
@@ -251,19 +264,6 @@ claude-context-sync sync-repos --dry-run
 ```
 
 Output shows what *would* happen without making changes.
-
-## Supported Configurators
-
-| Configurator | Command |
-|--------------|---------|
-| `claude-actions-setup` | `npx -y @nlsherman/claude-actions-setup` |
-| `setup-claude-integration` | `node setup-claude-integration.js` |
-
-Custom configurators can be specified directly:
-
-```yaml
-configurator: "npx my-custom-setup"
-```
 
 ## Examples
 
@@ -280,9 +280,9 @@ Syncing: /home/user/projects/my-app
 ============================================================
 
 Sync this repository? (y/n) y
-Running configurator...
-✓ Ran claude-actions-setup
-✓ Created PR on branch chore/update-claude-config
+✓ Updated .github/CLAUDE.md
+✓ Updated .claude/CLAUDE.md
+✓ Committed changes
 Sync completed
 ```
 
@@ -297,8 +297,9 @@ Filtered to 2 auto-update repository(ies)
 Syncing: /home/user/projects/app-with-auto-update
 ============================================================
 
-✓ Ran claude-actions-setup
-✓ Created PR on branch chore/update-claude-config
+✓ Updated .github/CLAUDE.md
+✓ Updated .claude/CLAUDE.md
+✓ Committed changes
 Sync completed
 
 ============================================================
@@ -323,8 +324,8 @@ No changes will be made
 Syncing: /home/user/projects/my-app
 ============================================================
 
-✓ Would run claude-actions-setup
-✓ Would create PR changes
+✓ Would update CLAUDE.md files
+✓ Would commit changes
 Sync completed
 
 This was a dry run. Run without --dry-run to apply changes.
@@ -333,11 +334,10 @@ This was a dry run. Run without --dry-run to apply changes.
 ## Best Practices
 
 1. **Start with `auto_update: false`** - Use interactive mode until confident
-2. **Use `create_pr: true`** - Review changes before merging
-3. **Enable `preserve_overrides: true`** - Protect manual customizations
-4. **Run `--dry-run` first** - Preview changes before applying
-5. **Commit your changes** - Clean working directory before syncing
-6. **Use version constraints** - Control which configurator versions to use
+2. **Use `create_pr: true`** - Review changes before merging (optional)
+3. **Run `--dry-run` first** - Preview changes before applying
+4. **Commit your changes** - Clean working directory before syncing
+5. **Use `auto_push: false` initially** - Manually review commits before pushing
 
 ## Troubleshooting
 
@@ -358,14 +358,14 @@ Sync skipped
 
 **Solution:** Commit or stash changes, or use `--force` flag.
 
-### Configurator Failed
+### Files Not Updating
 
 ```
-Sync failed
-  ✗ Command failed: npx -y @nlsherman/claude-actions-setup
+✓ .github/CLAUDE.md already up to date
+✓ .claude/CLAUDE.md already up to date
 ```
 
-**Solution:** Check that the configurator package is available and working.
+**Explanation:** This is normal - files are only updated when content changes.
 
 ## Integration with GitHub Actions
 
@@ -373,7 +373,7 @@ You can automate repo syncing with GitHub Actions:
 
 ```yaml
 # .github/workflows/auto-sync-claude.yml
-name: Auto-Sync Claude Config
+name: Auto-Sync Claude Preferences
 
 on:
   schedule:
@@ -401,8 +401,22 @@ jobs:
         run: claude-context-sync sync-repos --auto
 ```
 
+## Separation of Concerns
+
+**claude-context-sync** (this tool):
+- Syncs CLAUDE.md preference files
+- Manages `.claude-sync` markers
+- Batch updates across repositories
+
+**claude-actions-setup** (separate tool):
+- Sets up GitHub Actions workflows
+- Configures CI/CD
+- Creates project scaffolding
+
+These tools are **decoupled** and can be used independently. Use both together for complete Claude integration, or use each separately as needed.
+
 ## See Also
 
-- [File Sync Operations](./FILE_SYNC.md)
-- [Configurator Setup](./CONFIGURATOR.md)
+- [Schema Documentation](./SCHEMA.md)
+- [Wrapper Scripts](./WRAPPER_SCRIPTS.md)
 - [Claude Actions Setup](https://github.com/nlsherman-24861/claude-actions-setup)
