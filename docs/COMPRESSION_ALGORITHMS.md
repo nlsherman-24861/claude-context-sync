@@ -1,16 +1,20 @@
 # Semantic Compression Algorithm Analysis
 
+> **Note**: This document contains the original analysis and planning for compression strategies. The actual implemented "Hybrid Prose-Bullet" format (see [src/transformers/hybrid-format.js](../src/transformers/hybrid-format.js)) achieves better compression than originally estimated (~885 tokens vs ~1,500 estimated). This document remains useful for understanding the design rationale and trade-offs.
+
 Analysis of different compression strategies for transforming preferences from the canonical YAML format into various token-optimized outputs.
 
 ## Current Formats (Baseline)
 
 ### Full (claude-md)
+
 - **Size**: 28 KB, 749 lines, 4,057 words
 - **Token estimate**: ~7,000 tokens
 - **Content**: Everything - all policies, examples, workflows, details
 - **Use case**: Claude Code, complete reference
 
 ### Ultra-compressed (chat)
+
 - **Size**: 3.3 KB, 13 lines, 475 words
 - **Token estimate**: ~850 tokens
 - **Compression**: 8.5x from full
@@ -20,6 +24,7 @@ Analysis of different compression strategies for transforming preferences from t
 ## Problem Statement
 
 Need middle ground between:
+
 - ❌ **Full**: Too verbose for chat context (7K tokens)
 - ❌ **Chat**: Missing critical policies and workflows
 
@@ -34,6 +39,7 @@ Need middle ground between:
 **Algorithm**: Include identity + critical policies, exclude examples
 
 **Include**:
+
 - ✅ Identity (name, role, background)
 - ✅ Communication preferences (style, tone)
 - ✅ Critical policies (testing, docs, git)
@@ -47,6 +53,7 @@ Need middle ground between:
 **Compression ratio**: 4x from full
 
 **Content breakdown**:
+
 ```
 Professional Background (3 lines)
 Creative Pursuits (5 lines)
@@ -69,6 +76,7 @@ Personality (5 lines)
 **Algorithm**: Bullet-point format, no prose, keep structure
 
 **Include**:
+
 - ✅ All sections from full format
 - ✅ Hierarchical structure preserved
 - ❌ All prose paragraphs → bullets
@@ -79,6 +87,7 @@ Personality (5 lines)
 **Compression ratio**: 6x from full
 
 **Format example**:
+
 ```
 ## Professional Background
 - 15-20 years software engineering
@@ -103,6 +112,7 @@ Personality (5 lines)
 **Algorithm**: Prose for identity, bullets for policies
 
 **Include**:
+
 - ✅ Identity sections in prose (readable)
 - ✅ Technical/policy sections as bullets
 - ✅ Critical workflows (condensed)
@@ -114,6 +124,7 @@ Personality (5 lines)
 **Compression ratio**: ~4.6x from full
 
 **Format example**:
+
 ```
 I'm JAX, a competent engineering buddy with 15-20 years practical
 software engineering. Strong technical background. Love learning and
@@ -145,6 +156,7 @@ Electronica, Dance, Nu metal, Punk, Alt rock. Use AI for music generation.
 **Algorithm**: Critical policies upfront, identity condensed
 
 **Include**:
+
 - ✅ Critical policies first (most important)
 - ✅ Technical stack
 - ✅ Identity summary (minimal)
@@ -155,6 +167,7 @@ Electronica, Dance, Nu metal, Punk, Alt rock. Use AI for music generation.
 **Compression ratio**: 5.5x from full
 
 **Format example**:
+
 ```
 ## Critical Policies
 
@@ -180,11 +193,13 @@ Tone: friendly + playful snark, not pushy
 **Algorithm**: Include sections based on importance scoring
 
 **Scoring system**:
+
 - Critical (always include): Testing, docs, git, technical stack, MCP
 - Important (include): Communication, tone, workflows
 - Optional (exclude): Examples, detailed setup, creative pursuits
 
 **Include**:
+
 - ✅ All critical sections (full detail)
 - ✅ Important sections (condensed)
 - ✅ Identity (minimal)
@@ -194,6 +209,7 @@ Tone: friendly + playful snark, not pushy
 **Compression ratio**: 4.5x from full
 
 **Content distribution**:
+
 - Critical policies: 40% of content
 - Technical details: 30% of content
 - Communication/style: 20% of content
@@ -264,12 +280,14 @@ Tone: friendly + playful snark, not pushy
 ## Recommendation: "Hybrid Prose-Bullet with MCP" (4.6x compression)
 
 **Why this algorithm**:
+
 1. **Optimal size**: 1,500 tokens (1.75x current chat, 4.6x compression from full)
 2. **Readable**: Prose for identity maintains personality
 3. **Complete**: Includes critical policies + MCP details in scannable format
 4. **Flexible**: Fits Custom Instructions limit or chat bootstrap
 
 **What you gain over current chat**:
+
 - ✅ Detailed git workflow (not just "use Git")
 - ✅ Documentation update requirements (grep all .md files)
 - ✅ Linting standards (MUST be clean)
@@ -278,6 +296,7 @@ Tone: friendly + playful snark, not pushy
 - ✅ **MCP environment selection (pronoun detection, tool selection)**
 
 **What you still lose from full**:
+
 - ❌ Examples and code snippets
 - ❌ Detailed setup instructions (Python, Node.js, Git)
 - ❌ Full dependency management policy details

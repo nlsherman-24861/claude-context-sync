@@ -19,7 +19,7 @@ Each needs similar-but-different context about you, your working style, and pref
 ### ✅ Currently Implemented
 
 - ✅ **YAML Configuration**: Structured preferences with validation
-- ✅ **Format Export**: Export to `claude-md` (CLAUDE.md) and `chat` formats
+- ✅ **Format Export**: Export to `claude-md` (full), `hybrid` (balanced), and `chat` (ultra-compressed) formats
 - ✅ **File Sync**: Update global and project CLAUDE.md files
 - ✅ **Backup System**: Automatic backups before sync operations
 - ✅ **Bulk Repository Marking**: Clone and mark all private/public repos with one command
@@ -49,10 +49,13 @@ Each needs similar-but-different context about you, your working style, and pref
 # Validate your preferences
 claude-context-sync validate
 
-# Export to CLAUDE.md format
+# Export to CLAUDE.md format (full detail)
 claude-context-sync export claude-md
 
-# Export to chat format
+# Export to hybrid format (recommended for Claude Chat)
+claude-context-sync export hybrid
+
+# Export to chat format (ultra-compressed)
 claude-context-sync export chat
 
 # Sync to global CLAUDE.md
@@ -111,10 +114,13 @@ claude-context-sync validate -c /path/to/preferences.yaml
 # List available formats
 claude-context-sync export --list-formats
 
-# Export to CLAUDE.md format
+# Export to CLAUDE.md format (full detail, ~7K tokens)
 claude-context-sync export claude-md -o output.md
 
-# Export to chat format
+# Export to hybrid format (balanced, ~885 tokens, recommended for Claude Chat)
+claude-context-sync export hybrid
+
+# Export to chat format (ultra-compressed, ~850 tokens)
 claude-context-sync export chat
 ```
 
@@ -125,18 +131,18 @@ claude-context-sync export chat
 claude-context-sync sync --target global
 
 # Sync to all targets (global + auto-update repos)
-# NOTE: Claude Chat sync excluded - use 'export chat' instead
+# NOTE: Claude Chat sync excluded - use 'export hybrid' instead
 claude-context-sync sync --target all
 
 # Sync to Claude Chat (requires authenticated session)
-# Tip: Use 'export chat' for simpler copy/paste workflow
+# Tip: Use 'export hybrid' for simpler copy/paste workflow
 claude-context-sync sync --target chat
 
 # Dry run
 claude-context-sync sync --target global --dry-run
 ```
 
-**Note**: `--target all` syncs global CLAUDE.md and discovered repositories with `auto_update: true`. Claude Chat sync is intentionally excluded due to authentication complexity. For Claude Chat, use `export chat` and manually copy/paste to claude.ai.
+**Note**: `--target all` syncs global CLAUDE.md and discovered repositories with `auto_update: true`. Claude Chat sync is intentionally excluded due to authentication complexity. For Claude Chat, use `export hybrid` (recommended) or `export chat` and manually copy/paste to claude.ai.
 
 ### `mark` - Bulk Repository Setup
 
@@ -233,7 +239,10 @@ claude-context-sync restore --target global --backup 1
 **Recommended workflow** for updating Claude Chat preferences:
 
 ```bash
-# Export preferences in chat format
+# Export preferences in hybrid format (balanced, recommended)
+claude-context-sync export hybrid
+
+# Or use ultra-compressed chat format
 claude-context-sync export chat
 
 # Copy the output and paste into claude.ai Custom Instructions

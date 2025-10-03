@@ -679,6 +679,36 @@ technical:
       - "Changed command behavior? Grep command name in all .md files"
       - "New .claude-sync format? Update AUTO_SYNC_REPOS.md examples"
       - "Changed sync-repos purpose? Update description in README + docs/"
+  markdown_formatting:
+    principle: Follow markdown linting standards to avoid repetitive cleanup
+    critical_spacing_rules:
+      headings:
+        - "MUST have blank line before AND after headings"
+        - "Exception: First heading in file (no blank line before)"
+        - "Example: text\\n\\n## Heading\\n\\nmore text"
+      lists:
+        - "MUST have blank line before AND after lists"
+        - "Example: text\\n\\n- item\\n- item\\n\\nmore text"
+      fenced_code_blocks:
+        - "MUST have blank line before opening fence (```)"
+        - "MUST have blank line after closing fence (```)"
+        - "Example: text\\n\\n```\\ncode\\n```\\n\\nmore text"
+      block_transitions:
+        - "Always add blank line when switching between block types (text→list, text→code, heading→list, etc.)"
+        - "Think: visual breathing room between different syntactic structures"
+    common_violations:
+      - "Heading immediately followed by list (need blank line between)"
+      - "Text immediately followed by code block (need blank line before ```)"
+      - "List immediately followed by text (need blank line after list)"
+    linting_tools:
+      - "markdownlint: npm run lint:md"
+      - "Fix most issues automatically: npm run lint:md:fix (if available)"
+      - "Check before committing to avoid cleanup commits"
+    when_to_apply:
+      - "When writing new .md files"
+      - "When editing existing .md documentation"
+      - "When generating markdown output (transformers, exports)"
+      - "Before committing changes to any markdown file"
   file_operations:
     opening_files:
       - Use platform-appropriate commands to open files in default/configured
