@@ -144,37 +144,66 @@ export async function syncProject(options = {}) {
 
 /**
  * Sync preferences to all targets
+ *
+ * NOTE: Claude Chat sync is excluded from 'all' target due to authentication
+ * complexity. Use `export chat` first, then optionally `sync --target chat`.
  */
 export async function syncAll(options = {}) {
-  info('Syncing to all targets......\n');
+  info('Syncing to all targets (global + discovered repos)...\n');
+  info('ℹ Claude Chat sync excluded from --target all');
+  info('  For Claude Chat: Run `claude-context-sync export chat` and copy/paste to claude.ai\n');
 
   const results = {
     global: null,
+    repos: null,
+    chat: { skipped: true, reason: 'Use export chat or sync --target chat' },
     errors: []
   };
 
-    // Sync Claude Chat
-  try {
-    info('1/2: Syncing Claude Chat preferences...');
-    results.chat = await syncChat(options);
-  } catch (e) {
-    results.errors.push({ target: 'chat', error: e.message });
-    warn(`Failed to sync Claude Chat: ${e.message}`);
-  }
-
   // Sync global CLAUDE.md
   try {
-    info('2/2: Syncing global CLAUDE.md...');
+    info('1/2: Syncing global CLAUDE.md...');
     results.global = await syncGlobal(options);
   } catch (e) {
     results.errors.push({ target: 'global', error: e.message });
     warn(`Failed to sync global CLAUDE.md: ${e.message}`);
   }
 
+  // Sync discovered repos
+  try {
+    info('\n2/2: Syncing discovered repositories...');
+    const { syncReposCmd } = await import('./sync-repos.js');
+    results.repos = await syncReposCmd({
+      ...options,
+      auto: true, // Only sync repos with auto_update: true
+      verbose: options.verbose || false
+    });
+    
+    if (!results.repos || results.repos.length === 0) {
+      info('No repositories with auto_update: true found');
+    }
+  } catch (e) {
+    // Don't treat missing repos as fatal error
+    if (e.message.includes('No repositories found')) {
+      info('No repositories with .claude-sync markers found');
+      results.repos = [];
+    } else {
+      results.errors.push({ target: 'repos', error: e.message });
+      warn(`Failed to sync repositories: ${e.message}`);
+    }
+  }
+
   // Summary
   console.log('\n' + '='.repeat(50));
   if (results.errors.length === 0) {
-    success('✓ All targets synced successfully!');
+    success('✓ Sync completed successfully!');
+    if (results.global) {
+      info(`  - Global CLAUDE.md: ${results.global.path}`);
+    }
+    if (results.repos && results.repos.length > 0) {
+      const successful = results.repos.filter(r => r.success).length;
+      info(`  - Repositories synced: ${successful}/${results.repos.length}`);
+    }
   } else {
     warn(`⚠ Completed with ${results.errors.length} error(s):`);
     results.errors.forEach(({ target, error }) => {

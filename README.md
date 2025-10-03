@@ -119,15 +119,22 @@ claude-context-sync export chat
 ### `sync`
 
 ```bash
-# Sync to global CLAUDE.md
+# Sync to global CLAUDE.md only
 claude-context-sync sync --target global
 
-# Sync to all discovered repos
+# Sync to all targets (global + auto-update repos)
+# NOTE: Claude Chat sync excluded - use 'export chat' instead
 claude-context-sync sync --target all
+
+# Sync to Claude Chat (requires authenticated session)
+# Tip: Use 'export chat' for simpler copy/paste workflow
+claude-context-sync sync --target chat
 
 # Dry run
 claude-context-sync sync --target global --dry-run
 ```
+
+**Note**: `--target all` syncs global CLAUDE.md and discovered repositories with `auto_update: true`. Claude Chat sync is intentionally excluded due to authentication complexity. For Claude Chat, use `export chat` and manually copy/paste to claude.ai.
 
 ### `discover` & `sync-repos`
 

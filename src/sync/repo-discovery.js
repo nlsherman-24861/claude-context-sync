@@ -148,7 +148,8 @@ export class RepoDiscovery {
       version: config.version || '*',
       preserve_overrides: config.preserve_overrides !== false,
       create_pr: config.create_pr !== false,
-      branch_name: config.branch_name || 'chore/update-claude-config'
+      branch_name: config.branch_name || 'chore/update-claude-config', 
+      auto_push: config.auto_push !== false  // Default to true - push commits automatically
     };
   }
 
