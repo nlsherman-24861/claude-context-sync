@@ -22,6 +22,7 @@ Each needs similar-but-different context about you, your working style, and pref
 - ✅ **Format Export**: Export to `claude-md` (CLAUDE.md) and `chat` formats
 - ✅ **File Sync**: Update global and project CLAUDE.md files
 - ✅ **Backup System**: Automatic backups before sync operations
+- ✅ **Bulk Repository Marking**: Clone and mark all private/public repos with one command
 - ✅ **Repository Discovery**: Find repos with `.claude-sync` markers
 - ✅ **Validation**: YAML structure and schema validation
 - ✅ **Markdown Linting**: Generated output passes markdownlint
@@ -135,6 +136,23 @@ claude-context-sync sync --target global --dry-run
 ```
 
 **Note**: `--target all` syncs global CLAUDE.md and discovered repositories with `auto_update: true`. Claude Chat sync is intentionally excluded due to authentication complexity. For Claude Chat, use `export chat` and manually copy/paste to claude.ai.
+
+### `mark` - Bulk Repository Setup
+
+```bash
+# Mark a single repository for auto-sync
+claude-context-sync mark /path/to/repo
+
+# Bulk mark all private repos for your GitHub user
+# Clones repos to ~/repos and adds .claude-sync markers
+claude-context-sync mark --bulk --user nlsherman-24861 --filter private
+
+# Options for bulk marking:
+# --filter: private, public, or all (default: private)
+# --repos-dir: Custom directory for cloned repos (default: ~/repos)
+# --dry-run: Preview without making changes
+# --force: Overwrite existing markers
+```
 
 ### `discover` & `sync-repos`
 

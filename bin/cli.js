@@ -174,6 +174,43 @@ program
   });
 
 program
+  .command('mark')
+  .description('Mark repository for auto-sync')
+  .argument('[path]', 'Path to repository to mark')
+  .option('--bulk', 'Mark multiple repositories')
+  .option('--user <username>', 'GitHub username (required for --bulk)')
+  .option('--filter <type>', 'Filter repos: private, public, or all', 'private')
+  .option('--repos-dir <path>', 'Directory for cloned repos (default: ~/repos)')
+  .option('--dry-run', 'Preview without making changes')
+  .option('--force', 'Overwrite existing markers')
+  .action(async (path, options) => {
+    try {
+      const { bulkMarkCmd, markRepoCmd } = await import('../src/commands/mark.js');
+
+      if (options.bulk) {
+        await bulkMarkCmd({
+          user: options.user,
+          filter: options.filter,
+          reposDir: options.reposDir,
+          dryRun: options.dryRun,
+          force: options.force
+        });
+      } else {
+        if (!path) {
+          error('Repository path required (or use --bulk)');
+          process.exit(1);
+        }
+        await markRepoCmd(path, {
+          force: options.force
+        });
+      }
+    } catch (e) {
+      printError(e);
+      process.exit(1);
+    }
+  });
+
+program
   .command('sync-repos')
   .description('Sync configurator updates across repositories')
   .option('--path <paths...>', 'Specific repository paths to sync')
