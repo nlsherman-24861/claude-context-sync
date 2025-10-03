@@ -1025,6 +1025,12 @@ project_defaults:
       - Immediate agent collaboration capability via @claude mentions
   preference_sync:
     description: claude-context-sync tool for preference management
+    scope: ONLY syncs CLAUDE.md preference files - NOT coupled to configurators
+    separation_of_concerns:
+      - claude-context-sync syncs CLAUDE.md preferences across repos
+      - claude-actions-setup handles GitHub Actions/CI/CD (separate tool)
+      - ".claude-sync marker only indicates 'sync preferences here'"
+      - No configurator field in .claude-sync (removed to decouple)
     bulk_marking:
       - "Use `mark --bulk --user <username>` to clone and mark all private repos"
       - "Exclude repos with `--exclude pattern1 pattern2` (supports globs:
@@ -1035,12 +1041,13 @@ project_defaults:
         cloning)"
       - "Filesystem mode: `discover --source filesystem` (default, scans local
         dirs)"
-      - "Discovered repos with auto_update: true sync automatically via `sync
-        --target all`"
+      - "Discovered repos with auto_update: true sync automatically via `sync-repos
+        --auto`"
     sync_commands:
-      - "`sync --target all` syncs global CLAUDE.md + auto-update repos"
+      - "`sync --target all` syncs global CLAUDE.md only"
       - "`sync --target global` syncs only ~/.claude/CLAUDE.md"
-      - "`sync-repos` runs configurator updates across discovered repos"
+      - "`sync-repos` syncs CLAUDE.md files to all marked repositories"
+      - "`sync-repos --auto` only syncs repos with auto_update: true"
       - "Per-repo status shown: ✓ success, ⚠ skipped, ✗ failed"
       - "Use `--dry-run` flag to preview changes before applying"
     yaml_linting:

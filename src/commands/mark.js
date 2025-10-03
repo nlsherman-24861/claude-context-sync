@@ -13,14 +13,12 @@ import yaml from 'js-yaml';
 const execAsync = promisify(exec);
 
 const DEFAULT_CLAUDE_SYNC_CONFIG = {
-  sync: true,
-  auto_update: true,
-  configurator: 'claude-actions-setup',
-  version: '*',
-  preserve_overrides: true,
-  create_pr: false,
-  branch_name: 'chore/update-claude-config',
-  auto_push: false
+  sync: true,  // Enable CLAUDE.md sync for this repo
+  auto_update: false,  // Auto-sync when running sync-repos (set to true to enable)
+  merge_mode: true,  // Merge with existing CLAUDE.md (false to overwrite)
+  create_pr: false,  // Create PR instead of direct commit
+  branch_name: 'chore/update-preferences',  // Branch name for PRs
+  auto_push: false  // Auto-push commits after sync
 };
 
 /**

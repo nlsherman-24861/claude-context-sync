@@ -72,9 +72,9 @@ export async function discoverRepos(options = {}) {
       } else {
         console.log(`${i + 1}. ${repo.path}`);
       }
-      console.log(`   Configurator: ${repo.config.configurator}`);
       console.log(`   Auto-update: ${repo.config.auto_update ? 'Yes' : 'No'}`);
       console.log(`   Create PR: ${repo.config.create_pr ? 'Yes' : 'No'}`);
+      console.log(`   Auto-push: ${repo.config.auto_push ? 'Yes' : 'No'}`);
       console.log('');
     });
 
@@ -86,7 +86,7 @@ export async function discoverRepos(options = {}) {
 }
 
 /**
- * Sync configurator updates to repositories
+ * Sync CLAUDE.md preferences to multiple repositories
  */
 export async function syncReposCmd(options = {}) {
   const {

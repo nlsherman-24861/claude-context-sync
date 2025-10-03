@@ -91,7 +91,7 @@ describe('RepoDiscovery', () => {
       const marker = `
 sync: true
 auto_update: true
-configurator: claude-actions-setup
+merge_mode: true
 create_pr: false
 `;
       writeFileSync(join(repo1, '.claude-sync'), marker, 'utf-8');
@@ -100,7 +100,7 @@ create_pr: false
 
       expect(repos.length).toBe(1);
       expect(repos[0].config.auto_update).toBe(true);
-      expect(repos[0].config.configurator).toBe('claude-actions-setup');
+      expect(repos[0].config.merge_mode).toBe(true);
       expect(repos[0].config.create_pr).toBe(false);
     });
 
@@ -111,30 +111,16 @@ create_pr: false
       const marker = JSON.stringify({
         sync: true,
         auto_update: true,
-        configurator: 'setup-claude-integration'
+        merge_mode: false,
+        auto_push: true
       });
       writeFileSync(join(repo1, '.claude-sync'), marker, 'utf-8');
 
       const repos = await discovery.discover([testDir]);
 
       expect(repos.length).toBe(1);
-      expect(repos[0].config.configurator).toBe('setup-claude-integration');
-    });
-  });
-
-  describe('filterByConfigurator', () => {
-    it('should filter repos by configurator type', () => {
-      const repos = [
-        { path: '/repo1', config: { configurator: 'claude-actions-setup' } },
-        { path: '/repo2', config: { configurator: 'setup-claude-integration' } },
-        { path: '/repo3', config: { configurator: 'claude-actions-setup' } }
-      ];
-
-      const filtered = discovery.filterByConfigurator(repos, 'claude-actions-setup');
-
-      expect(filtered.length).toBe(2);
-      expect(filtered[0].path).toBe('/repo1');
-      expect(filtered[1].path).toBe('/repo3');
+      expect(repos[0].config.merge_mode).toBe(false);
+      expect(repos[0].config.auto_push).toBe(true);
     });
   });
 

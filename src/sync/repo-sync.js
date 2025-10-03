@@ -1,9 +1,10 @@
 import { execSync } from 'child_process';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { join, dirname } from 'path';
 
 /**
- * Syncs configurator updates across repositories
+ * Syncs CLAUDE.md preference files across repositories
+ * This tool is ONLY for syncing preferences - not for running configurators
  */
 export class RepoSync {
   constructor(options = {}) {
@@ -11,10 +12,10 @@ export class RepoSync {
   }
 
   /**
-   * Sync a repository with configurator updates
+   * Sync CLAUDE.md preferences to a repository
    */
   async syncRepo(repo, options = {}) {
-    const { dryRun = this.dryRun, verbose = false } = options;
+    const { dryRun = this.dryRun, verbose = false, force = false } = options;
 
     const result = {
       repo: repo.path,
@@ -27,43 +28,54 @@ export class RepoSync {
     try {
       // Check for uncommitted changes
       if (this._hasUncommittedChanges(repo.path)) {
-        if (!options.force) {
+        if (!force) {
           result.skipped = true;
           result.errors.push('Repository has uncommitted changes. Use --force to override.');
           return result;
         }
       }
 
-      // Create backup if needed
-      if (!dryRun && repo.config.preserve_overrides) {
-        await this._createBackup(repo.path);
-        result.changes.push('Created backup');
-      }
+      // Sync CLAUDE.md preferences
+      const syncResult = await this._syncPreferences(repo.path, repo.config, { dryRun, verbose });
 
-      // Run configurator
-      const configuratorResult = await this._runConfigurator(
-        repo.path,
-        repo.config.configurator,
-        { dryRun, verbose }
-      );
-
-      if (configuratorResult.success) {
-        result.changes.push(`Ran ${repo.config.configurator}`);
-      } else {
-        result.errors.push(configuratorResult.error);
+      if (!syncResult.success) {
+        result.errors.push(syncResult.error);
         return result;
       }
 
-      // Create PR or commit directly
-      if (!dryRun) {
+      result.changes.push(...syncResult.changes);
+
+      // Handle git operations if not dry run
+      if (!dryRun && syncResult.changes.length > 0) {
         if (repo.config.create_pr) {
-          await this._createPR(repo.path, repo.config.branch_name);
-          result.changes.push(`Created PR on branch ${repo.config.branch_name}`);
+          const prResult = await this._createPR(repo.path, repo.config.branch_name);
+          if (prResult.success) {
+            result.changes.push(`Created PR on branch ${repo.config.branch_name}`);
+
+            if (repo.config.auto_push) {
+              result.changes.push('Pushed changes to remote');
+            }
+          } else {
+            result.errors.push(`PR creation failed: ${prResult.error}`);
+          }
         } else {
-          await this._commitChanges(repo.path);
-          result.changes.push('Committed changes to current branch');
+          const commitResult = await this._commitChanges(repo.path);
+          if (commitResult.success) {
+            result.changes.push('Committed changes');
+
+            if (repo.config.auto_push) {
+              const pushResult = await this._pushChanges(repo.path);
+              if (pushResult.success) {
+                result.changes.push('Pushed changes to remote');
+              } else {
+                result.errors.push(`Push failed: ${pushResult.error}`);
+              }
+            }
+          } else {
+            result.errors.push(`Commit failed: ${commitResult.error}`);
+          }
         }
-      } else {
+      } else if (dryRun) {
         result.changes.push(`Would ${repo.config.create_pr ? 'create PR' : 'commit'} changes`);
       }
 
@@ -76,17 +88,75 @@ export class RepoSync {
   }
 
   /**
-   * Sync multiple repositories
+   * Sync CLAUDE.md preferences to a repository
    */
-  async syncRepos(repos, options = {}) {
-    const results = [];
+  async _syncPreferences(repoPath, config, options = {}) {
+    const { dryRun = false, verbose = false } = options;
 
-    for (const repo of repos) {
-      const result = await this.syncRepo(repo, options);
-      results.push(result);
+    try {
+      if (dryRun) {
+        return {
+          success: true,
+          changes: ['Would update CLAUDE.md files']
+        };
+      }
+
+      // Import the necessary modules
+      const { loadConfig } = await import('../config/index.js');
+      const { createTransformer } = await import('../transformers/index.js');
+
+      // Load preferences from default config
+      const { config: preferences } = await loadConfig();
+
+      // Transform to CLAUDE.md format
+      const transformer = createTransformer('claude-md', preferences);
+      const claudeMd = await transformer.transform();
+
+      // Define target paths
+      const targets = [
+        join(repoPath, '.github', 'CLAUDE.md'),
+        join(repoPath, '.claude', 'CLAUDE.md')
+      ];
+
+      const changes = [];
+
+      // Write to both locations
+      for (const targetPath of targets) {
+        // Check if file already exists and has same content
+        if (existsSync(targetPath)) {
+          const existingContent = readFileSync(targetPath, 'utf-8');
+          if (existingContent === claudeMd) {
+            if (verbose) {
+              console.log(`  ✓ ${targetPath} already up to date`);
+            }
+            continue;
+          }
+        }
+
+        // Ensure directory exists
+        mkdirSync(dirname(targetPath), { recursive: true });
+
+        // Write file
+        writeFileSync(targetPath, claudeMd, 'utf-8');
+
+        changes.push(`Updated ${targetPath}`);
+
+        if (verbose) {
+          console.log(`  ✓ Updated ${targetPath}`);
+        }
+      }
+
+      return {
+        success: true,
+        changes
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to sync preferences: ${error.message}`,
+        changes: []
+      };
     }
-
-    return results;
   }
 
   /**
@@ -107,140 +177,21 @@ export class RepoSync {
   }
 
   /**
-   * Create backup of important files
-   */
-  async _createBackup(repoPath) {
-    const timestamp = new Date().toISOString().replace(/:/g, '-').replace(/\..+$/, '');
-    const backupDir = join(repoPath, '.claude-backups', timestamp);
-
-    const filesToBackup = [
-      '.github/workflows/claude.yml',
-      '.claude/CLAUDE.md',
-      'CLAUDE.md'
-    ];
-
-    for (const file of filesToBackup) {
-      const filePath = join(repoPath, file);
-      if (existsSync(filePath)) {
-        const content = readFileSync(filePath, 'utf-8');
-        const backupPath = join(backupDir, file);
-
-        // Create backup directory structure
-        const { mkdirSync } = await import('fs');
-        mkdirSync(join(backupDir, ...file.split('/').slice(0, -1)), { recursive: true });
-
-        writeFileSync(backupPath, content, 'utf-8');
-      }
-    }
-
-    return backupDir;
-  }
-
-  /**
-   * Run configurator tool
-   */
-  async _runConfigurator(repoPath, configurator, options = {}) {
-    const { dryRun = false, verbose = false } = options;
-
-    try {
-      if (dryRun) {
-        return { success: true, output: '[DRY RUN] Would run configurator' };
-      }
-
-      // Special handling for preferences-only configurator
-      if (configurator === 'preferences-only') {
-        return await this._syncPreferencesOnly(repoPath, options);
-      }
-
-      const command = this._getConfiguratorCommand(configurator);
-
-      const output = execSync(command, {
-        cwd: repoPath,
-        encoding: 'utf-8',
-        stdio: verbose ? 'inherit' : 'pipe'
-      });
-
-      return { success: true, output };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  }
-
-  /**
-   * Sync preferences only (no external configurator)
-   * Just updates CLAUDE.md files from the default preferences
-   */
-  async _syncPreferencesOnly(repoPath, options = {}) {
-    const { verbose = false } = options;
-
-    try {
-      // Import the necessary modules
-      const { loadConfig } = await import('../config/index.js');
-      const { createTransformer } = await import('../transformers/index.js');
-      const { mkdirSync } = await import('fs');
-      const { dirname } = await import('path');
-
-      // Load preferences from default config
-      const { config } = await loadConfig();
-
-      // Transform to CLAUDE.md format
-      const transformer = createTransformer('claude-md', config);
-      const claudeMd = await transformer.transform();
-
-      // Define target paths
-      const targets = [
-        join(repoPath, '.github', 'CLAUDE.md'),
-        join(repoPath, '.claude', 'CLAUDE.md')
-      ];
-
-      // Write to both locations
-      for (const targetPath of targets) {
-        // Ensure directory exists
-        mkdirSync(dirname(targetPath), { recursive: true });
-
-        // Write file
-        writeFileSync(targetPath, claudeMd, 'utf-8');
-
-        if (verbose) {
-          console.log(`  ✓ Updated ${targetPath}`);
-        }
-      }
-
-      return {
-        success: true,
-        output: `Synced CLAUDE.md to .github/ and .claude/`
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: `Failed to sync preferences: ${error.message}`
-      };
-    }
-  }
-
-  /**
-   * Get command for configurator
-   */
-  _getConfiguratorCommand(configurator) {
-    const commands = {
-      'claude-actions-setup': 'npx -y @nlsherman/claude-actions-setup',
-      'setup-claude-integration': 'node setup-claude-integration.js',
-      'preferences-only': '[internal - handled by _syncPreferencesOnly]'
-    };
-
-    return commands[configurator] || configurator;
-  }
-
-  /**
    * Create pull request
    */
   async _createPR(repoPath, branchName) {
     try {
       // Check if branch exists
-      const branchExists = execSync(`git rev-parse --verify ${branchName}`, {
-        cwd: repoPath,
-        stdio: 'pipe'
-      }).toString().trim();
+      let branchExists = false;
+      try {
+        execSync(`git rev-parse --verify ${branchName}`, {
+          cwd: repoPath,
+          stdio: 'pipe'
+        });
+        branchExists = true;
+      } catch {
+        branchExists = false;
+      }
 
       if (branchExists) {
         // Switch to existing branch
@@ -251,10 +202,10 @@ export class RepoSync {
       }
 
       // Stage changes
-      execSync('git add .', { cwd: repoPath, stdio: 'pipe' });
+      execSync('git add .github/CLAUDE.md .claude/CLAUDE.md', { cwd: repoPath, stdio: 'pipe' });
 
       // Commit
-      const commitMsg = 'chore: update Claude Code configuration\n\nAuto-synced from claude-context-sync';
+      const commitMsg = 'chore: update Claude preferences\n\nAuto-synced from claude-context-sync';
       execSync(`git commit -m "${commitMsg}"`, { cwd: repoPath, stdio: 'pipe' });
 
       // Push
@@ -262,12 +213,12 @@ export class RepoSync {
 
       // Create PR using gh cli if available
       try {
-        execSync(`gh pr create --title "Update Claude Code Configuration" --body "Auto-synced configuration from claude-context-sync"`, {
+        execSync(`gh pr create --title "Update Claude Preferences" --body "Auto-synced preferences from claude-context-sync"`, {
           cwd: repoPath,
           stdio: 'pipe'
         });
-      } catch (ghError) {
-        // gh cli not available or PR already exists
+      } catch {
+        // gh cli not available or PR already exists - not a failure
       }
 
       return { success: true };
@@ -281,11 +232,23 @@ export class RepoSync {
    */
   async _commitChanges(repoPath) {
     try {
-      execSync('git add .', { cwd: repoPath, stdio: 'pipe' });
+      execSync('git add .github/CLAUDE.md .claude/CLAUDE.md', { cwd: repoPath, stdio: 'pipe' });
 
-      const commitMsg = 'chore: update Claude Code configuration\n\nAuto-synced from claude-context-sync';
+      const commitMsg = 'chore: update Claude preferences\n\nAuto-synced from claude-context-sync';
       execSync(`git commit -m "${commitMsg}"`, { cwd: repoPath, stdio: 'pipe' });
 
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Push changes to remote
+   */
+  async _pushChanges(repoPath) {
+    try {
+      execSync('git push', { cwd: repoPath, stdio: 'pipe' });
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };

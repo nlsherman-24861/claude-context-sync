@@ -146,22 +146,13 @@ export class RepoDiscovery {
    */
   _normalizeConfig(config) {
     return {
-      sync: config.sync !== false,
-      auto_update: config.auto_update || false,
-      configurator: config.configurator || 'claude-actions-setup',
-      version: config.version || '*',
-      preserve_overrides: config.preserve_overrides !== false,
-      create_pr: config.create_pr !== false,
-      branch_name: config.branch_name || 'chore/update-claude-config', 
-      auto_push: config.auto_push !== false  // Default to true - push commits automatically
+      sync: config.sync !== false,  // Enable CLAUDE.md sync for this repo
+      auto_update: config.auto_update || false,  // Auto-sync when running sync-repos
+      merge_mode: config.merge_mode !== false,  // Merge with existing CLAUDE.md or overwrite
+      create_pr: config.create_pr || false,  // Create PR instead of direct commit
+      branch_name: config.branch_name || 'chore/update-preferences',  // Branch name for PRs
+      auto_push: config.auto_push || false  // Auto-push commits after sync
     };
-  }
-
-  /**
-   * Filter repos by configurator type
-   */
-  filterByConfigurator(repos, configurator) {
-    return repos.filter(repo => repo.config.configurator === configurator);
   }
 
   /**

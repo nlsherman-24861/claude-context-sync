@@ -1,3 +1,6 @@
 sync: true
 auto_update: true
-configurator: preferences-only
+merge_mode: true
+create_pr: false
+branch_name: chore/update-preferences
+auto_push: false

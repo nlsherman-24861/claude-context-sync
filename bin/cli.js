@@ -223,7 +223,7 @@ program
 
 program
   .command('sync-repos')
-  .description('Sync configurator updates across repositories')
+  .description('Sync CLAUDE.md preferences to multiple repositories')
   .option('--path <paths...>', 'Specific repository paths to sync')
   .option('--scan <paths...>', 'Paths to scan for repositories')
   .option('--dry-run', 'Preview changes without applying them')
