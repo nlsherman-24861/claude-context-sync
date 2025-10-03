@@ -1,4 +1,5 @@
 import { BaseTransformer } from './base.js';
+import { limitDepth } from '../utils/depth-limit.js';
 
 /**
  * Hybrid Prose-Bullet transformer - balances readability with token efficiency
@@ -323,56 +324,39 @@ export class HybridFormatTransformer extends BaseTransformer {
 
   /**
    * Format project-specific section as condensed bullets
+   * Uses depth limit of 2 (top-level + one sublevel)
    */
   _formatProjectSpecificBullets(projectSpecific) {
+    // Limit to depth 2 for hybrid format
+    const limited = limitDepth(projectSpecific, 2);
+
     let bullets = '\n**Project-Specific Context**:\n\n';
 
-    // Identity
-    if (projectSpecific.identity) {
-      const id = projectSpecific.identity;
-      if (id.repository) {
-        bullets += `*Repository*: ${id.repository}\n`;
-      }
-      if (id.purpose) {
-        bullets += `*Purpose*: ${id.purpose}\n`;
-      }
-      bullets += '\n';
-    }
+    // Generic rendering for depth-limited structure
+    // At depth 2, we get top-level keys + their immediate children
+    for (const [key, value] of Object.entries(limited)) {
+      const title = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      bullets += `*${title}*:\n`;
 
-    // Critical requirements (condensed)
-    if (projectSpecific.critical_requirements) {
-      bullets += '*Critical Requirements*:\n';
-      const reqs = projectSpecific.critical_requirements;
-
-      // Perspective and voice
-      if (reqs.perspective_and_voice) {
-        bullets += '- CRITICAL: Maintain clear pronoun perspective when editing preferences/transformers\n';
-      }
-
-      // Schema integrity
-      if (reqs.schema_integrity) {
-        bullets += '- Schema in default-preferences.yaml is the contract; transformers are dumb pipes\n';
-      }
-
-      // Testing
-      if (reqs.transformer_testing) {
-        bullets += '- Test all 3 formats after transformer changes; 218 tests must pass\n';
-      }
-
-      bullets += '\n';
-    }
-
-    // Domain knowledge (condensed)
-    if (projectSpecific.domain_knowledge) {
-      bullets += '*Domain Knowledge*:\n';
-      const domain = projectSpecific.domain_knowledge;
-
-      if (domain.preference_compression) {
-        bullets += '- 3 formats: claude-md (7k tokens), chat (850 tokens, 8.5x compression), hybrid (885 tokens, 4.8x)\n';
-      }
-
-      if (domain.file_sync_behavior) {
-        bullets += '- sync-repos only touches CLAUDE.md, never .claude/preferences.*.yaml files\n';
+      if (typeof value === 'string') {
+        bullets += `- ${value}\n`;
+      } else if (Array.isArray(value)) {
+        value.forEach(item => {
+          bullets += `- ${item}\n`;
+        });
+      } else if (typeof value === 'object' && value !== null) {
+        // Nested object (depth 2) - render as sub-bullets
+        for (const [subKey, subValue] of Object.entries(value)) {
+          const subTitle = subKey.replace(/_/g, ' ');
+          if (typeof subValue === 'string') {
+            bullets += `- ${subTitle}: ${subValue}\n`;
+          } else if (Array.isArray(subValue)) {
+            bullets += `- ${subTitle}: ${subValue.join('; ')}\n`;
+          } else {
+            // Depth 3+ was condensed by limitDepth
+            bullets += `- ${subTitle}: ${subValue}\n`;
+          }
+        }
       }
 
       bullets += '\n';

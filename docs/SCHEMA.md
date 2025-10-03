@@ -139,6 +139,68 @@ project_specific:
 - Adding new sections → write as **instructions/context about the project**
 - Use tone: "This project requires...", "Always verify...", "Repository uses..."
 
+### Tiered Depth Transformation
+
+**The `project_specific` section uses tiered depth limits** based on output format token budgets:
+
+| Format | Token Budget | Depth Limit | What's Included |
+|--------|-------------|-------------|-----------------|
+| **claude-md** | ~7,000 tokens | Unlimited | All nested levels, full detail |
+| **hybrid** | ~885 tokens | Depth 2 | Top-level + one sublevel, depth 3+ condensed |
+| **chat** | ~850 tokens | Depth 1 | Top-level keys only, values condensed to summaries |
+
+**This creates a natural priority system**: Put critical information at top levels, details nested deeper.
+
+**Example**:
+
+```yaml
+project_specific:
+  identity:                    # Depth 1: Always in all formats
+    repository: my-app
+    domain: Healthcare SaaS
+  critical_requirements:       # Depth 1: Always in all formats
+    compliance:                # Depth 2: hybrid+ only
+      - "HIPAA compliant"
+      - "Audit logging required"
+    testing:                   # Depth 2: hybrid+ only
+      coverage:                # Depth 3: claude-md only
+        - "Minimum 80% coverage"
+```
+
+**Output in each format**:
+
+```
+# chat (depth 1):
+Project: identity: [2 fields]; critical requirements: [2 fields].
+
+# hybrid (depth 2):
+*Identity*:
+- repository: my-app
+- domain: Healthcare SaaS
+
+*Critical Requirements*:
+- compliance: HIPAA compliant; Audit logging required
+- testing: [1 field]
+
+# claude-md (unlimited):
+## Project Specific
+
+### Identity
+- repository: my-app
+- domain: Healthcare SaaS
+
+### Critical Requirements
+#### Compliance
+- HIPAA compliant
+- Audit logging required
+
+#### Testing
+##### Coverage
+- Minimum 80% coverage
+```
+
+**Design Principle**: Structure your `project_specific` YAML by importance/priority, not just by category. Top-level keys appear in all formats, so make them count.
+
 ### Benefits
 
 - ✅ **Zero coupling**: Developers can add layers without sync tool
@@ -146,6 +208,7 @@ project_specific:
 - ✅ **Composability**: Share common layers across projects
 - ✅ **Discoverability**: `ls .claude/preferences.*.yaml` shows customizations
 - ✅ **Sync safety**: `sync-repos` only touches `CLAUDE.md`, never `.claude/preferences.*.yaml`
+- ✅ **Priority-based disclosure**: Token-constrained formats get the most important info first
 
 ### Example Layer File
 

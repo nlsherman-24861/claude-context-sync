@@ -1,4 +1,5 @@
 import { BaseTransformer } from './base.js';
+import { limitDepth, smartCondense } from '../utils/depth-limit.js';
 
 /**
  * Transforms preferences into natural prose format for Claude Chat
@@ -57,6 +58,11 @@ export class ChatFormatTransformer extends BaseTransformer {
       output += this._formatProjectDefaults(sections.project_defaults);
     }
 
+    // Project-specific (ultra-condensed, depth 1 only)
+    if (sections.project_specific) {
+      output += this._formatProjectSpecific(sections.project_specific);
+    }
+
     // Handle any unknown/custom sections generically
     const knownSections = new Set([
       'creative_pursuits', 'professional_background',
@@ -66,6 +72,7 @@ export class ChatFormatTransformer extends BaseTransformer {
       'personal',
       'technical',
       'project_defaults',
+      'project_specific', // Handled explicitly above
       'claude_interfaces', // Internal config, not for output
       'configurator_setup', // Tooling config, not for output
       'preference_sync' // Tooling config, not for output
@@ -495,5 +502,26 @@ n
       valid: errors.length === 0,
       errors
     };
+  }
+
+  /**
+   * Format project-specific section (ultra-condensed, depth 1 only)
+   * Chat format has tight token budget, so only top-level keys with smart condensing
+   */
+  _formatProjectSpecific(projectSpecific) {
+    // Limit to depth 1 (top-level keys only)
+    const limited = limitDepth(projectSpecific, 1);
+
+    const parts = [];
+
+    for (const [key, value] of Object.entries(limited)) {
+      const keyName = key.replace(/_/g, ' ');
+      const condensed = smartCondense(value);
+      parts.push(`${keyName}: ${condensed}`);
+    }
+
+    if (parts.length === 0) return '';
+
+    return `Project: ${parts.join('; ')}. `;
   }
 }
