@@ -28,10 +28,16 @@ Each needs similar-but-different context about you, your working style, and pref
 - ✅ **Cross-platform Wrappers**: Install unified command wrappers
 - ✅ **219 Tests Passing**: Comprehensive test coverage
 
+### 🚧 Experimental (Chat Sync)
+
+- ✅ **Playwright-based setup**: Capture authenticated browser session
+- ✅ **Session management**: Store and validate sessions
+- ✅ **Multi-tab support**: Handles email verification workflows
+- ⚠️ **Note**: Manual paste currently required due to Claude Chat rate limiting
+
 ### 🚧 Roadmap
 
-- [ ] Playwright-based Claude Chat sync (automated browser updates)
-- [ ] Session management for headless operation
+- [ ] Automated Claude Chat preference updates (headless)
 - [ ] Interactive diff viewer
 - [ ] Profile management (multiple personas)
 
@@ -141,6 +147,35 @@ claude-context-sync backups --target global
 
 # Restore from backup
 claude-context-sync restore --target global --backup 1
+```
+
+### `setup` & `session` (Chat Sync - Experimental)
+
+```bash
+# Interactive setup wizard for Claude Chat sync
+npm run setup:chat
+# or
+claude-context-sync setup --authenticate
+
+# Check session status
+npm run session:check
+# or
+claude-context-sync session --check
+
+# View session info
+claude-context-sync session --info
+
+# Sync to Claude Chat (requires valid session)
+npm run sync:chat
+# or
+claude-context-sync sync --target chat
+```
+
+**Note**: Due to Claude Chat rate limiting, you may need to use the manual export:
+
+```bash
+# Export chat format and paste manually
+claude-context-sync export chat
 ```
 
 ## Agent Collaboration with GitHub Actions
