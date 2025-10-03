@@ -359,10 +359,48 @@ n
         }
       } else if (typeof value === 'string') {
         section += `- **${this._formatSectionTitle(key)}**: ${value}\n`;
+      } else if (typeof value === 'object' && value !== null) {
+        // Handle nested objects (testing_standards, linting_policy, documentation)
+        section += this._formatNestedTechnicalSection(key, value);
       }
     }
 
     return section + '\n';
+  }
+
+  /**
+   * Format nested technical sections (testing_standards, linting_policy, etc.)
+   * @private
+   */
+  _formatNestedTechnicalSection(key, obj) {
+    let section = `### ${this._formatSectionTitle(key)}\n\n`;
+
+    for (const [propKey, propValue] of Object.entries(obj)) {
+      if (typeof propValue === 'string') {
+        section += `**${this._formatSectionTitle(propKey)}**: ${propValue}\n\n`;
+      } else if (Array.isArray(propValue)) {
+        section += `**${this._formatSectionTitle(propKey)}**:\n\n`;
+        propValue.forEach(item => {
+          section += `- ${item}\n`;
+        });
+        section += '\n';
+      } else if (typeof propValue === 'object' && propValue !== null) {
+        section += `**${this._formatSectionTitle(propKey)}**:\n\n`;
+        for (const [subKey, subValue] of Object.entries(propValue)) {
+          if (typeof subValue === 'string') {
+            section += `- ${this._formatSectionTitle(subKey)}: ${subValue}\n`;
+          } else if (Array.isArray(subValue)) {
+            section += `- ${this._formatSectionTitle(subKey)}:\n`;
+            subValue.forEach(item => {
+              section += `  - ${item}\n`;
+            });
+          }
+        }
+        section += '\n';
+      }
+    }
+
+    return section;
   }
 
   /**
