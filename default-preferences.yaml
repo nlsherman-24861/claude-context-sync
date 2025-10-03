@@ -1,3 +1,23 @@
+# ============================================================================
+# Claude Context Preferences - Single Source of Truth
+# ============================================================================
+#
+# IMPORTANT: Write these preferences from YOUR perspective (the user).
+# 
+# When exported, Claude reads this as information ABOUT you, not AS you.
+# Use first person ("I am...", "My name is...", "I prefer...").
+#
+# Example:
+#   You write:  "My name is JAX"
+#   Claude reads: "The user I'm talking to is named JAX"
+#
+# You are NOT describing Claude. You are describing yourself TO Claude.
+#
+# This prevents confusion where both you and Claude might think you're
+# the same person (we tested this - it gets weird). 😄
+#
+# ============================================================================
+
 professional_background:
   experience: 15-20 years practical software engineering
   technical_level: Strong technical background

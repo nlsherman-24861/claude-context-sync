@@ -1,5 +1,20 @@
+# ============================================================================
 # Claude Context Sync - Preferences Template
+# ============================================================================
 # Copy to ~/.config/claude/preferences.yaml and customize
+#
+# IMPORTANT: Write these preferences from YOUR perspective (the user).
+# 
+# When exported, Claude reads this as information ABOUT you, not AS you.
+# Use first person in your values ("I prefer...", "My background is...").
+#
+# Example:
+#   You write:  experience: "10 years in backend development"
+#   Claude reads: "The user has 10 years in backend development"
+#
+# You are describing yourself TO Claude, not describing Claude.
+#
+# ============================================================================
 
 # Your Professional Background
 professional_background:
