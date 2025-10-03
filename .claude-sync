@@ -1,1 +1,3 @@
-# Claude Context Sync - Auto-sync enabled
+sync: true
+auto_update: true
+configurator: claude-actions-setup
