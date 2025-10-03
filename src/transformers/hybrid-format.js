@@ -43,6 +43,11 @@ export class HybridFormatTransformer extends BaseTransformer {
     // PROSE SECTION - Personality closer
     output += this._formatPersonalityProse(sections);
 
+    // PROJECT-SPECIFIC SECTION - Critical project context
+    if (sections.project_specific) {
+      output += this._formatProjectSpecificBullets(sections.project_specific);
+    }
+
     return output.trim();
   }
 
@@ -314,5 +319,65 @@ export class HybridFormatTransformer extends BaseTransformer {
 
     prose += '\n';
     return prose;
+  }
+
+  /**
+   * Format project-specific section as condensed bullets
+   */
+  _formatProjectSpecificBullets(projectSpecific) {
+    let bullets = '\n**Project-Specific Context**:\n\n';
+
+    // Identity
+    if (projectSpecific.identity) {
+      const id = projectSpecific.identity;
+      if (id.repository) {
+        bullets += `*Repository*: ${id.repository}\n`;
+      }
+      if (id.purpose) {
+        bullets += `*Purpose*: ${id.purpose}\n`;
+      }
+      bullets += '\n';
+    }
+
+    // Critical requirements (condensed)
+    if (projectSpecific.critical_requirements) {
+      bullets += '*Critical Requirements*:\n';
+      const reqs = projectSpecific.critical_requirements;
+
+      // Perspective and voice
+      if (reqs.perspective_and_voice) {
+        bullets += '- CRITICAL: Maintain clear pronoun perspective when editing preferences/transformers\n';
+      }
+
+      // Schema integrity
+      if (reqs.schema_integrity) {
+        bullets += '- Schema in default-preferences.yaml is the contract; transformers are dumb pipes\n';
+      }
+
+      // Testing
+      if (reqs.transformer_testing) {
+        bullets += '- Test all 3 formats after transformer changes; 218 tests must pass\n';
+      }
+
+      bullets += '\n';
+    }
+
+    // Domain knowledge (condensed)
+    if (projectSpecific.domain_knowledge) {
+      bullets += '*Domain Knowledge*:\n';
+      const domain = projectSpecific.domain_knowledge;
+
+      if (domain.preference_compression) {
+        bullets += '- 3 formats: claude-md (7k tokens), chat (850 tokens, 8.5x compression), hybrid (885 tokens, 4.8x)\n';
+      }
+
+      if (domain.file_sync_behavior) {
+        bullets += '- sync-repos only touches CLAUDE.md, never .claude/preferences.*.yaml files\n';
+      }
+
+      bullets += '\n';
+    }
+
+    return bullets;
   }
 }

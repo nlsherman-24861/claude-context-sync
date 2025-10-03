@@ -14,7 +14,7 @@ export async function syncChat(options = {}) {
   info('and error-prone. Manual export/paste workflow is more reliable.');
   info('');
   info('To sync Claude Chat preferences:');
-  info('  1. Run: claude-context-sync export chat');
+  info('  1. Run: claude-context-sync export hybrid');
   info('  2. Copy the output');
   info('  3. Paste into claude.ai Custom Instructions');
   info('');
@@ -122,12 +122,12 @@ export async function syncProject(options = {}) {
 export async function syncAll(options = {}) {
   info('Syncing to all targets (global + discovered repos)...\n');
   info('ℹ Claude Chat sync excluded from --target all');
-  info('  For Claude Chat: Run `claude-context-sync export chat` and copy/paste to claude.ai\n');
+  info('  For Claude Chat: Run `claude-context-sync export hybrid` and copy/paste to claude.ai\n');
 
   const results = {
     global: null,
     repos: null,
-    chat: { skipped: true, reason: 'Use export chat or sync --target chat' },
+    chat: { skipped: true, reason: 'Use export hybrid for Claude Chat' },
     errors: []
   };
 
