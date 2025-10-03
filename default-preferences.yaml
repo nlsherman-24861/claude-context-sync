@@ -391,6 +391,12 @@ technical:
       - Use .python-version files for version pinning
     automation_policy:
       level: Maximum automation - do not just suggest, actually perform installation
+      url_policy:
+        - CRITICAL: Never hardcode download URLs in commands
+        - Always check official websites for current download links
+        - Use web search to find latest stable versions
+        - Verify URLs are from official/reputable sources
+        - Package managers (winget/brew/apt) handle versions automatically
       context_awareness:
         - CRITICAL: Check conversation context to determine VM vs user space
         - Review Mcp And Environment Selection section for pronoun guidance
@@ -404,22 +410,27 @@ technical:
         - Verify successful installation (check version, run --version)
         - Report clear success or failure with specifics
       python_automation:
+        before_download:
+          - REQUIRED: Check python.org website for current download URLs
+          - Search for latest stable Python version
+          - Get official download link for target OS and architecture
+          - Never use hardcoded URLs - always fetch fresh from web
         windows_vm:
-          - "curl -o python-installer.exe
-            https://www.python.org/ftp/python/3.12.x/python-3.12.x-amd64.exe"
+          - Search python.org downloads for latest Windows 64-bit installer
+          - "curl -o python-installer.exe [CURRENT_URL_FROM_WEB]"
           - "./python-installer.exe /quiet InstallAllUsers=1 PrependPath=1"
           - Monitor exit code and verify with python --version
         windows_user:
           - Use MCP tools to check if winget available
-          - "Execute: winget install Python.Python.3.12 --silent"
+          - "Execute: winget install Python.Python.3 --silent (gets latest)"
           - Or guide user to Microsoft Store with specific steps
         linux_vm:
           - "sudo apt update && sudo apt install -y python3 python3-pip python3-venv"
           - Or appropriate package manager for distro
           - Verify with python3 --version
         macos_vm:
-          - "brew install python3 (if Homebrew available)"
-          - Or download and install from python.org
+          - "brew install python3 (if Homebrew available, gets latest)"
+          - Or check python.org for macOS installer URL and download
       monitoring:
         - Watch for error messages during installation
         - Check exit codes (0 = success)
@@ -463,20 +474,26 @@ technical:
     automation_policy:
       level: Perform installation automatically with user awareness
       nodejs_automation:
+        before_download:
+          - REQUIRED: Check nodejs.org for current LTS version
+          - Get download URL for target OS and architecture
+          - For Linux, verify current NodeSource setup script URL
+          - Never use hardcoded URLs - always fetch fresh
         windows_vm:
-          - "curl -o node-installer.msi
-            https://nodejs.org/dist/v20.x.x/node-v20.x.x-x64.msi"
+          - Search nodejs.org downloads for latest LTS Windows 64-bit MSI
+          - "curl -o node-installer.msi [CURRENT_URL_FROM_WEB]"
           - "msiexec /i node-installer.msi /quiet /norestart"
           - Verify with node --version && npm --version
         windows_user:
-          - "winget install OpenJS.NodeJS.LTS --silent"
+          - "winget install OpenJS.NodeJS.LTS --silent (gets current LTS)"
           - Verify installation with version check
         linux_vm:
-          - "curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -"
+          - Check nodesource.com for current setup script
+          - "curl -fsSL [CURRENT_NODESOURCE_SCRIPT_URL] | sudo -E bash -"
           - "sudo apt-get install -y nodejs"
           - Or equivalent for other package managers
         macos_vm:
-          - "brew install node"
+          - "brew install node (Homebrew handles version)"
           - Verify with node --version
       monitoring:
         - Check exit codes and output for errors
@@ -522,20 +539,27 @@ technical:
     automation_policy:
       level: Perform installation and configuration automatically
       git_automation:
+        before_download:
+          - REQUIRED: Check git-scm.com or GitHub releases for current version
+          - Get download URL for target OS and architecture
+          - For Git for Windows, check latest release on GitHub
+          - Never use hardcoded URLs - always fetch fresh
         windows_vm:
-          - "curl -o git-installer.exe
-            https://github.com/git-for-windows/git/releases/download/v2.x.x/Git-2.x.x-64-bit.exe"
+          - Search git-scm.com or github.com/git-for-windows/git/releases for
+            latest
+          - "curl -o git-installer.exe [CURRENT_URL_FROM_WEB]"
           - "./git-installer.exe /VERYSILENT /NORESTART /COMPONENTS=\"icons,ext\\reg\\shellhere,assoc,assoc_sh\""
           - Verify with git --version
           - Git Bash is included automatically
         windows_user:
-          - "winget install Git.Git --silent"
+          - "winget install Git.Git --silent (gets latest)"
           - Verify installation
         linux_vm:
-          - "sudo apt-get install -y git (Ubuntu/Debian)"
+          - "sudo apt-get install -y git (Ubuntu/Debian, uses package manager
+            version)"
           - Or equivalent for other distros
         macos_vm:
-          - "brew install git"
+          - "brew install git (Homebrew handles version)"
           - Or use Xcode Command Line Tools
       configuration_automation:
         - Check git config user.name and user.email
