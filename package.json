@@ -40,18 +40,18 @@
   },
   "dependencies": {
     "chalk": "^5.3.0",
-    "commander": "^11.1.0",
-    "inquirer": "^9.2.12",
-    "ora": "^7.0.1",
+    "commander": "^14.0.1",
+    "inquirer": "^12.9.6",
+    "ora": "^9.0.0",
     "playwright": "^1.40.0",
     "yaml": "^2.3.4"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^1.0.4",
-    "eslint": "^8.55.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "eslint": "^9.36.0",
     "markdownlint-cli": "^0.45.0",
     "prettier": "^3.1.1",
-    "vitest": "^1.0.4",
+    "vitest": "^3.2.4",
     "yaml-lint": "^1.7.0"
   },
   "repository": {

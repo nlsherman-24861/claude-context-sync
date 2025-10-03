@@ -442,6 +442,74 @@ technical:
         - Explain what went wrong in user-friendly terms
         - Suggest alternative installation methods
         - Offer manual installation guidance as fallback
+  dependency_management:
+    policy: All project dependencies must be secure and current
+    version_requirements:
+      critical: MUST NOT have known security vulnerabilities
+      preferred: SHOULD use latest stable version
+      compatibility: Use latest compatible version if latest has breaking changes
+    before_adding_dependency:
+      - Check npm/PyPI/package registry for latest version
+      - Search web for known security issues with package
+      - Check package reputation and maintenance status
+      - Verify package is actively maintained (recent commits/releases)
+      - Review package download stats and community usage
+      - Check for official documentation and support
+    security_checks:
+      required:
+        - Run npm audit (Node.js) or safety check (Python) before and after
+        - MUST resolve all critical and high severity vulnerabilities
+        - Document any medium/low vulnerabilities that can't be resolved
+      automation:
+        - Run security audit automatically when adding dependencies
+        - Check for updates with npm outdated or pip list --outdated
+        - Use npm audit fix or equivalent to auto-fix vulnerabilities
+        - Report security issues to user with severity levels
+    version_selection:
+      latest_stable:
+        - Use latest stable version as default
+        - Check package registry for version number
+        - Verify version is not pre-release (no alpha/beta/rc tags)
+      compatibility_constraints:
+        - Check package.json/requirements.txt for existing constraints
+        - Test compatibility with existing dependencies
+        - Use semver ranges appropriately (^, ~, or exact)
+        - Document reason if not using latest version
+      update_strategy:
+        - Prefer caret ranges (^) for automatic patch/minor updates
+        - Use tilde ranges (~) for patch-only updates
+        - Use exact versions only when necessary for stability
+        - Keep dependencies up to date with regular updates
+    adding_dependencies:
+      process:
+        - "1. Search web for package name + 'npm' or 'pypi'"
+        - "2. Check package registry page for latest version"
+        - "3. Search for 'package-name security vulnerabilities'"
+        - "4. Check GitHub repo for maintenance status"
+        - "5. Install with specific version: npm install package@version"
+        - "6. Run security audit"
+        - "7. Test that package works as expected"
+        - "8. Commit package.json/package-lock.json changes"
+      documentation:
+        - Document why dependency was added
+        - Note any known issues or limitations
+        - Reference documentation or examples used
+    updating_dependencies:
+      regular_updates:
+        - Check for updates periodically
+        - Update patch versions frequently (bug fixes only)
+        - Update minor versions after testing (new features)
+        - Update major versions carefully (breaking changes)
+      process:
+        - "Run: npm outdated or pip list --outdated"
+        - Review changelog for breaking changes
+        - Update one dependency at a time for large changes
+        - Run full test suite after each update
+        - Check for deprecation warnings
+      automation:
+        - Offer to update dependencies when outdated
+        - Run tests automatically after updates
+        - Rollback if tests fail
   nodejs_setup:
     guidance: Suggest and help with Node.js/npm setup if not available
     installation_methods:
