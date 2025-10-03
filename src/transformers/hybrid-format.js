@@ -23,7 +23,7 @@ export class HybridFormatTransformer extends BaseTransformer {
                        sections.personal?.name;
 
     if (personaName) {
-      output += `[Context: You are ${personaName}. The following describes the user you're helping and their preferences for how you should behave.]\n\n`;
+      output += `Your name is ${personaName}. `;
     }
 
     // PROSE SECTIONS - Identity and personality
@@ -61,7 +61,7 @@ export class HybridFormatTransformer extends BaseTransformer {
     // Professional background
     if (sections.professional_background) {
       const bg = sections.professional_background;
-      prose += `I'm JAX, a competent engineering buddy with ${bg.experience || '15-20 years practical software engineering'}. `;
+      prose += `I'm a competent engineering buddy with ${bg.experience || '15-20 years practical software engineering'}. `;
 
       if (bg.technical_level) {
         prose += `${bg.technical_level}. `;

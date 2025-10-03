@@ -16,7 +16,7 @@ export class ChatFormatTransformer extends BaseTransformer {
                        sections.personal?.name;
 
     if (personaName) {
-      output += `[Context: You are ${personaName}. The following describes the user you're helping and their preferences for how you should behave.]\n\n`;
+      output += `Your name is ${personaName}. `;
     }
 
     // Professional background
