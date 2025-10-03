@@ -156,12 +156,37 @@ claude-context-sync mark --bulk --user nlsherman-24861 --filter private
 
 ### `discover` & `sync-repos`
 
+**Discovery is dynamic** - scans filesystem directories (not GitHub API) for `.claude-sync` markers.
+
+Default scan paths: `~/projects`, `~/work`, `~/repos`
+
 ```bash
-# Find repos with .claude-sync markers
+# Find repos with .claude-sync markers (scans default paths)
 claude-context-sync discover
 
-# Sync to all discovered repos
+# Sync configurator updates to all discovered repos with auto_update: true
 claude-context-sync sync-repos --dry-run
+
+# Example output with per-repo status:
+# ============================================================
+# → Syncing: C:\Users\n\repos\thread-stack
+# ============================================================
+#
+# ✓ Sync completed
+#   • Ran claude-actions-setup
+#   • Committed changes to current branch
+#
+# ============================================================
+# → SYNC SUMMARY
+# ============================================================
+#
+# Total repositories: 9
+# ✓ Successful: 7
+#   • claude-actions-setup
+#   • co-parenting-app
+#   • context-manager-mcp
+# ⚠ Skipped: 2
+#   • thread-stack: Repository has uncommitted changes
 ```
 
 ### `backups` & `restore`

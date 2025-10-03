@@ -137,15 +137,16 @@ export async function syncReposCmd(options = {}) {
       results.push(result);
 
       if (result.success) {
-        success('Sync completed');
-        result.changes.forEach(change => info(`  ✓ ${change}`));
+        success('✓ Sync completed');
+        result.changes.forEach(change => info(`  • ${change}`));
       } else if (result.skipped) {
-        warn('Sync skipped');
-        result.errors.forEach(err => warn(`  ⚠ ${err}`));
+        warn('⚠ Sync skipped');
+        result.errors.forEach(err => warn(`  • ${err}`));
       } else {
-        logError('Sync failed');
-        result.errors.forEach(err => logError(`  ✗ ${err}`));
+        logError('✗ Sync failed');
+        result.errors.forEach(err => logError(`  • ${err}`));
       }
+      console.log(''); // Blank line for readability
     }
 
     // Print summary
@@ -155,9 +156,32 @@ export async function syncReposCmd(options = {}) {
 
     const summary = repoSync.getSummary(results);
     console.log(`Total repositories: ${summary.total}`);
-    console.log(`Successful: ${summary.successful}`);
-    console.log(`Failed: ${summary.failed}`);
-    console.log(`Skipped: ${summary.skipped}`);
+
+    if (summary.successful > 0) {
+      success(`✓ Successful: ${summary.successful}`);
+      results.filter(r => r.success).forEach(r => {
+        const repoName = r.repo.split(/[/\\]/).pop();
+        console.log(`  • ${repoName}`);
+      });
+    }
+
+    if (summary.failed > 0) {
+      logError(`✗ Failed: ${summary.failed}`);
+      results.filter(r => !r.success && !r.skipped).forEach(r => {
+        const repoName = r.repo.split(/[/\\]/).pop();
+        const errorMsg = r.errors[0] || 'Unknown error';
+        console.log(`  • ${repoName}: ${errorMsg}`);
+      });
+    }
+
+    if (summary.skipped > 0) {
+      warn(`⚠ Skipped: ${summary.skipped}`);
+      results.filter(r => r.skipped).forEach(r => {
+        const repoName = r.repo.split(/[/\\]/).pop();
+        const skipMsg = r.errors[0] || 'Unknown reason';
+        console.log(`  • ${repoName}: ${skipMsg}`);
+      });
+    }
 
     if (dryRun) {
       info('\nThis was a dry run. Run without --dry-run to apply changes.');
