@@ -329,7 +329,7 @@ claude-context-sync export hybrid
 # Export to file
 claude-context-sync export hybrid > preferences-hybrid.md
 
-# Sync to chat format (keeps current ultra-compressed)
+# Export chat format (natural prose)
 claude-context-sync export chat
 ```
 

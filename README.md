@@ -19,7 +19,7 @@ Each needs similar-but-different context about you, your working style, and pref
 ### ✅ Currently Implemented
 
 - ✅ **YAML Configuration**: Structured preferences with validation
-- ✅ **Format Export**: Export to `claude-md` (full), `hybrid` (balanced), and `chat` (ultra-compressed) formats
+- ✅ **Format Export**: Export to `claude-md` (full detail), `hybrid` (compact bullets), and `chat` (natural prose) formats
 - ✅ **File Sync**: Update global and project CLAUDE.md files
 - ✅ **Backup System**: Automatic backups before sync operations
 - ✅ **Bulk Repository Marking**: Clone and mark all private/public repos with one command
@@ -52,10 +52,10 @@ claude-context-sync validate
 # Export to CLAUDE.md format (full detail)
 claude-context-sync export claude-md
 
-# Export to hybrid format (recommended for Claude Chat)
+# Export to hybrid format (compact bullets, ~1K tokens - recommended for Claude Chat)
 claude-context-sync export hybrid
 
-# Export to chat format (ultra-compressed)
+# Export to chat format (natural prose, ~2K tokens)
 claude-context-sync export chat
 
 # Sync to global CLAUDE.md
@@ -117,10 +117,10 @@ claude-context-sync export --list-formats
 # Export to CLAUDE.md format (full detail, ~7K tokens)
 claude-context-sync export claude-md -o output.md
 
-# Export to hybrid format (balanced, ~885 tokens, recommended for Claude Chat)
+# Export to hybrid format (compact bullets, ~1K tokens, recommended for Claude Chat)
 claude-context-sync export hybrid
 
-# Export to chat format (ultra-compressed, ~850 tokens)
+# Export to chat format (natural prose, ~2K tokens)
 claude-context-sync export chat
 ```
 
@@ -239,10 +239,10 @@ claude-context-sync restore --target global --backup 1
 **Recommended workflow** for updating Claude Chat preferences:
 
 ```bash
-# Export preferences in hybrid format (balanced, recommended)
+# Export preferences in hybrid format (compact bullets, ~1K tokens - recommended)
 claude-context-sync export hybrid
 
-# Or use ultra-compressed chat format
+# Or use chat format (natural prose, ~2K tokens)
 claude-context-sync export chat
 
 # Copy the output and paste into claude.ai Custom Instructions
