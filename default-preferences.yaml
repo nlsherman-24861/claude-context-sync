@@ -389,12 +389,48 @@ technical:
       - Stick to one installation method per system
       - Update Python and packages regularly
       - Use .python-version files for version pinning
-    automation_suggestions:
-      - Offer to install Python if not detected
-      - Suggest installation method based on OS and user level
-      - Provide complete command with explanation
-      - Offer to configure VS Code Python extension if using VS Code
-      - Check for and suggest fixing common PATH issues
+    automation_policy:
+      level: Maximum automation - do not just suggest, actually perform installation
+      context_awareness:
+        - CRITICAL: Check conversation context to determine VM vs user space
+        - Review Mcp And Environment Selection section for pronoun guidance
+        - "User says 'my machine' or 'I need' → User's machine (MCP tools)"
+        - "User says 'you need' or 'can you' → VM space (bash_tool)"
+        - When uncertain, ask which environment needs the tool
+      execution:
+        - Use silent/unattended install flags when available
+        - Download installers from official sources (curl/wget)
+        - Monitor installation progress and output
+        - Verify successful installation (check version, run --version)
+        - Report clear success or failure with specifics
+      python_automation:
+        windows_vm:
+          - "curl -o python-installer.exe
+            https://www.python.org/ftp/python/3.12.x/python-3.12.x-amd64.exe"
+          - "./python-installer.exe /quiet InstallAllUsers=1 PrependPath=1"
+          - Monitor exit code and verify with python --version
+        windows_user:
+          - Use MCP tools to check if winget available
+          - "Execute: winget install Python.Python.3.12 --silent"
+          - Or guide user to Microsoft Store with specific steps
+        linux_vm:
+          - "sudo apt update && sudo apt install -y python3 python3-pip python3-venv"
+          - Or appropriate package manager for distro
+          - Verify with python3 --version
+        macos_vm:
+          - "brew install python3 (if Homebrew available)"
+          - Or download and install from python.org
+      monitoring:
+        - Watch for error messages during installation
+        - Check exit codes (0 = success)
+        - Verify tool is in PATH after installation
+        - Test basic functionality (run --version, simple command)
+        - Report any warnings or non-critical issues
+      failure_handling:
+        - Capture full error output
+        - Explain what went wrong in user-friendly terms
+        - Suggest alternative installation methods
+        - Offer manual installation guidance as fallback
   nodejs_setup:
     guidance: Suggest and help with Node.js/npm setup if not available
     installation_methods:
@@ -424,11 +460,34 @@ technical:
       version_conflicts:
         symptom: Package version mismatches
         solution: Delete node_modules and package-lock.json, run npm install
-    automation_suggestions:
-      - Check for Node.js/npm when project has package.json
-      - Suggest installation if not found
-      - Verify versions meet project requirements
-      - Offer to run npm install for new projects
+    automation_policy:
+      level: Perform installation automatically with user awareness
+      nodejs_automation:
+        windows_vm:
+          - "curl -o node-installer.msi
+            https://nodejs.org/dist/v20.x.x/node-v20.x.x-x64.msi"
+          - "msiexec /i node-installer.msi /quiet /norestart"
+          - Verify with node --version && npm --version
+        windows_user:
+          - "winget install OpenJS.NodeJS.LTS --silent"
+          - Verify installation with version check
+        linux_vm:
+          - "curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -"
+          - "sudo apt-get install -y nodejs"
+          - Or equivalent for other package managers
+        macos_vm:
+          - "brew install node"
+          - Verify with node --version
+      monitoring:
+        - Check exit codes and output for errors
+        - Verify npm is included and working
+        - Test with simple npm command
+        - Run npm install automatically if package.json present
+      post_install:
+        - Check for package.json in project
+        - Offer to run npm install if dependencies not installed
+        - Verify package-lock.json is created
+        - Check for vulnerabilities with npm audit
   git_setup:
     guidance: Suggest and help with Git setup if not available
     installation_methods:
@@ -460,12 +519,42 @@ technical:
       ssh: Offer to help set up SSH keys if needed
       https: Use credential manager (Git Credential Manager included with Git for
         Windows)
-    automation_suggestions:
-      - Check for git when working with repositories
-      - Verify git config has user.name and user.email
-      - Suggest GitHub CLI installation for GitHub operations
-      - Offer to help with SSH key setup if using SSH
-      - Check credential helper is configured
+    automation_policy:
+      level: Perform installation and configuration automatically
+      git_automation:
+        windows_vm:
+          - "curl -o git-installer.exe
+            https://github.com/git-for-windows/git/releases/download/v2.x.x/Git-2.x.x-64-bit.exe"
+          - "./git-installer.exe /VERYSILENT /NORESTART /COMPONENTS=\"icons,ext\\reg\\shellhere,assoc,assoc_sh\""
+          - Verify with git --version
+          - Git Bash is included automatically
+        windows_user:
+          - "winget install Git.Git --silent"
+          - Verify installation
+        linux_vm:
+          - "sudo apt-get install -y git (Ubuntu/Debian)"
+          - Or equivalent for other distros
+        macos_vm:
+          - "brew install git"
+          - Or use Xcode Command Line Tools
+      configuration_automation:
+        - Check git config user.name and user.email
+        - If not set, ask user for details and configure automatically
+        - "git config --global user.name \"Name\""
+        - "git config --global user.email \"email@example.com\""
+        - "git config --global init.defaultBranch main"
+        - Set core.autocrlf based on OS
+      github_cli_automation:
+        - Check if gh is installed when working with GitHub repos
+        - "Install automatically: winget install GitHub.cli --silent (Windows)"
+        - "brew install gh (macOS)"
+        - "sudo apt install gh (Linux)"
+        - Offer to authenticate with gh auth login
+      monitoring:
+        - Verify git works after installation
+        - Check git config is properly set
+        - Test git commands work
+        - Verify credential helper is configured
   information_gathering:
     web_searches:
       when_to_use:
