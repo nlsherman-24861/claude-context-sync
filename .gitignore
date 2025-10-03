@@ -37,3 +37,4 @@ build/
 *.bak
 *.original
 *.patch
+/.claude-backups/
