@@ -202,6 +202,38 @@ technical:
       - 'Example success indicators: "All tests passed", "PASS", exit code 0'
       - 'Example failure indicators: "FAIL", "Error", "✗", non-zero exit code,
         timeout before completion'
+  linting_policy:
+    principle: All code and documentation should be lint-checked and lint-clean
+    scope:
+      - Code files (JavaScript, TypeScript, Python, etc.)
+      - Documentation (Markdown, YAML, JSON)
+      - Configuration files
+      - Any generated output (if applicable)
+    workflow:
+      during_creation:
+        - Run linters during file creation/editing when reasonable
+        - Fix linting issues immediately for small changes
+        - For batch operations, defer linting until batch completion
+      batching_strategy:
+        - Consider active todos and planned work
+        - Complete related changes as a batch
+        - Run linters once for entire batch
+        - Fix all linting issues before committing
+      performance_considerations:
+        - Skip immediate linting if it adds order of magnitude to operation time
+        - Skip immediate linting if substantive time cost vs value
+        - Always run linting before final commit
+      transparency:
+        - If linting is skipped during work, explicitly tell user
+        - Explain why linting was deferred
+        - Confirm linting will happen before commit
+        - "Example: \"Deferring linting until batch complete to avoid repeated
+          overhead\""
+    integration:
+      - Linting runs automatically in test suite (lint:all)
+      - Use project-specific lint scripts when available
+      - Respect project linting configuration (.eslintrc, .markdownlint, etc.)
+    priority: Standard operating procedure - linting is not optional
   documentation:
     maintenance:
       - Always look for and update docs after implementing new features
