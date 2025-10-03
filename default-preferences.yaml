@@ -250,27 +250,25 @@ technical:
       - Understand "agent" contextually when user is discussing GitHub
         automation workflows
   git_authentication:
-    credential_vault:
-      - Environment has github-credential-vault MCP available
-      - ALWAYS use credential vault for GitHub authentication - it's already configured
-      - "Fast path: github-credential-vault:list_profiles() → authenticate_github({profile: 'default'}) → git push"
-      - Do NOT manually configure git credentials, tokens, or remote URLs
-      - Do NOT use 'git config credential.helper store' or similar manual approaches
-      - The credential vault has proper scopes and is maintained by the user
+    environment_pattern:
+      - This environment provides github-credential-vault MCP for GitHub auth
+      - Use this instead of manual token/credential configuration
+      - "Pattern: list_profiles() → authenticate_github({profile}) → git operations"
+      - The credential vault is already configured and maintained
+    why_explicit:
+      - Git auth is high-stakes (failed pushes block work)
+      - Manual approaches (credential.helper, embedded tokens) are anti-patterns here
+      - Explicit guidance prevents frustrating trial-and-error cycles
+      - This documents environmental conventions, not tool mechanics
     common_mistakes:
-      - "Attempting manual token configuration (don't do this)"
-      - "Using 'git remote set-url' with embedded tokens (don't do this)"
-      - "Multiple failed push attempts before discovering credential vault (frustrating for everyone)"
-      - Forgetting to authenticate before attempting to push
-    workflow:
-      - Check available profiles with list_profiles()
-      - Authenticate with authenticate_github() BEFORE attempting git operations
-      - Configure git identity if needed (user.email, user.name)
-      - Then proceed with normal git commands (push, pull, etc)
+      - Attempting manual git config (credential vault handles this)
+      - Using git remote set-url with tokens (security/maintenance issue)
+      - Multiple failed attempts before checking available tools
+      - Not authenticating before push attempts
     troubleshooting:
-      - "Error 'could not read Username': You forgot to authenticate with credential vault"
-      - "Error '404 Not Found': Check git remote -v to verify repository URL"
-      - "Error 'Authentication failed': Token may be expired, notify user"
+      - "Error 'could not read Username': Authenticate first (list_profiles → authenticate_github)"
+      - "Error '404 Not Found': Verify repository URL (git remote -v)"
+      - "Error 'Authentication failed': Token expired, notify user"
   code_quality:
     - Prioritize maintainability and clarity
     - Identify technical debt - discuss address now vs document

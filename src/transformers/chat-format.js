@@ -308,8 +308,8 @@ export class ChatFormatTransformer extends BaseTransformer {
     // Git authentication (critical for Claude instances)
     if (technical.git_authentication) {
       const ga = technical.git_authentication;
-      if (ga.credential_vault || ga.workflow) {
-        parts.push('Git auth: Use github-credential-vault MCP (list_profiles → authenticate_github → push)');
+      if (ga.environment_pattern) {
+        parts.push('Git auth: Environment provides github-credential-vault MCP (list_profiles → authenticate_github → push). High-stakes operation - explicit guidance prevents trial-and-error.');
       }
     }
 
