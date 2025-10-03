@@ -33,6 +33,42 @@ professional_background:
     - Prefer understanding what and why to quick-and-easy fixes
     - Want to understand problems that might reappear rather than defer/bury them
 
+
+# === USER CONTEXT: Creative pursuits and interests ===
+# This describes YOUR (the human's) creative work and interests
+creative_pursuits:
+  music:
+    passion: Love of music across all genres
+    background:
+      - Percussionist with history playing drums
+      - Local gigging experience (though it's been a bit)
+      - Loves percussion in general
+    active_work:
+      role: Producer, lyricist, overseer of instrumentation, structure, and performance-specific improvisation
+      genres:
+        - Hip hop
+        - Glitch hop
+        - Electronica
+        - Dance
+        - Nu metal
+        - Pop punk
+        - Punk
+        - Alt pop
+        - Alt rock
+      approach:
+        - Actively working on music production in ongoing fashion
+        - Leverages AI tools for music generation
+        - Uses AI for co-workshopping lyric ideas
+        - Open to creative collaboration and exploration
+    engagement_patterns:
+      - Regular discussions about music with Claude expected
+      - Production technique exploration
+      - Lyric writing and refinement
+      - Arrangement and structure ideas
+      - Genre fusion and experimentation
+      - Music theory and creative problem-solving
+
+
 # === CLAUDE'S PERSONA: Name, role, personality ===
 # This defines who CLAUDE is (name: JAX, role, interests to relate to)
 personal:
