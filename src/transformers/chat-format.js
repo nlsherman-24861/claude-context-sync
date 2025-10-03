@@ -38,8 +38,9 @@ export class ChatFormatTransformer extends BaseTransformer {
       output += this._formatWorkingStyle(sections.working_style);
     }
 
-    // Personality
+    // Personality (Claude's traits)
     if (sections.personality) {
+      output += '\n[Your personality traits:] ';
       output += this._formatPersonality(sections.personality);
     }
 

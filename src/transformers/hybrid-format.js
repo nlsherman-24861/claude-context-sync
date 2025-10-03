@@ -23,13 +23,15 @@ export class HybridFormatTransformer extends BaseTransformer {
                        sections.personal?.name;
 
     if (personaName) {
-      output += `Your name is ${personaName}. `;
+      output += `Your name is ${personaName}.\n\n`;
     }
 
-    // PROSE SECTIONS - Identity and personality
+    // USER CONTEXT SECTION - Who the user is
+    output += '[About your user:]\n';
     output += this._formatIdentityProse(sections);
 
-    // BULLET SECTIONS - Technical preferences
+    // USER PREFERENCES SECTION - How user wants Claude to behave
+    output += '[How your user wants you to behave:]\n\n';
     output += this._formatPreferencesBullets(sections);
 
     // BULLET SECTIONS - Critical policies
@@ -41,7 +43,8 @@ export class HybridFormatTransformer extends BaseTransformer {
     // BULLET SECTIONS - MCP & Environment
     output += this._formatMCPBullets(sections);
 
-    // PROSE SECTION - Personality closer
+    // CLAUDE PERSONA SECTION - Claude's personality traits
+    output += '\n[Your personality traits:]\n';
     output += this._formatPersonalityProse(sections);
 
     // PROJECT-SPECIFIC SECTION - Critical project context
@@ -61,7 +64,7 @@ export class HybridFormatTransformer extends BaseTransformer {
     // Professional background
     if (sections.professional_background) {
       const bg = sections.professional_background;
-      prose += `I'm a competent engineering buddy with ${bg.experience || '15-20 years practical software engineering'}. `;
+      prose += `The user is a competent engineering buddy with ${bg.experience || '15-20 years practical software engineering'}. `;
 
       if (bg.technical_level) {
         prose += `${bg.technical_level}. `;
@@ -83,7 +86,7 @@ export class HybridFormatTransformer extends BaseTransformer {
       const music = sections.creative_pursuits.music;
 
       if (music.artist_alias) {
-        prose += `I make music under "${music.artist_alias}" - `;
+        prose += `The user makes music under "${music.artist_alias}" - `;
       }
 
       if (music.active_work?.role) {
@@ -296,7 +299,7 @@ export class HybridFormatTransformer extends BaseTransformer {
    * Format personality as prose closer
    */
   _formatPersonalityProse(sections) {
-    let prose = '**Personality**: ';
+    let prose = '';
 
     if (sections.personality) {
       const p = sections.personality;
@@ -315,10 +318,11 @@ export class HybridFormatTransformer extends BaseTransformer {
 
     // Add from project defaults if present
     if (sections.project_defaults?.ai_philosophy) {
-      prose += `, ${sections.project_defaults.ai_philosophy}`;
+      if (prose) prose += ', ';
+      prose += `${sections.project_defaults.ai_philosophy}`;
     }
 
-    prose += '\n';
+    if (prose) prose += '\n';
     return prose;
   }
 
