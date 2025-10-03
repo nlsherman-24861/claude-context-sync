@@ -147,6 +147,11 @@ export class RepoSync {
         return { success: true, output: '[DRY RUN] Would run configurator' };
       }
 
+      // Special handling for preferences-only configurator
+      if (configurator === 'preferences-only') {
+        return await this._syncPreferencesOnly(repoPath, options);
+      }
+
       const command = this._getConfiguratorCommand(configurator);
 
       const output = execSync(command, {
@@ -162,12 +167,65 @@ export class RepoSync {
   }
 
   /**
+   * Sync preferences only (no external configurator)
+   * Just updates CLAUDE.md files from the default preferences
+   */
+  async _syncPreferencesOnly(repoPath, options = {}) {
+    const { verbose = false } = options;
+
+    try {
+      // Import the necessary modules
+      const { loadConfig } = await import('../config/index.js');
+      const { createTransformer } = await import('../transformers/index.js');
+      const { mkdirSync } = await import('fs');
+      const { dirname } = await import('path');
+
+      // Load preferences from default config
+      const { config } = await loadConfig();
+
+      // Transform to CLAUDE.md format
+      const transformer = createTransformer('claude-md', config);
+      const claudeMd = await transformer.transform();
+
+      // Define target paths
+      const targets = [
+        join(repoPath, '.github', 'CLAUDE.md'),
+        join(repoPath, '.claude', 'CLAUDE.md')
+      ];
+
+      // Write to both locations
+      for (const targetPath of targets) {
+        // Ensure directory exists
+        mkdirSync(dirname(targetPath), { recursive: true });
+
+        // Write file
+        writeFileSync(targetPath, claudeMd, 'utf-8');
+
+        if (verbose) {
+          console.log(`  ✓ Updated ${targetPath}`);
+        }
+      }
+
+      return {
+        success: true,
+        output: `Synced CLAUDE.md to .github/ and .claude/`
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to sync preferences: ${error.message}`
+      };
+    }
+  }
+
+  /**
    * Get command for configurator
    */
   _getConfiguratorCommand(configurator) {
     const commands = {
       'claude-actions-setup': 'npx -y @nlsherman/claude-actions-setup',
-      'setup-claude-integration': 'node setup-claude-integration.js'
+      'setup-claude-integration': 'node setup-claude-integration.js',
+      'preferences-only': '[internal - handled by _syncPreferencesOnly]'
     };
 
     return commands[configurator] || configurator;
