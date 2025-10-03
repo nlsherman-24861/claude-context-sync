@@ -222,6 +222,7 @@ The `sync-repos` command syncs your CLAUDE.md preference files to two locations 
 The content comes from your `default-preferences.yaml` file, transformed to CLAUDE.md format.
 
 **What is NOT synced:**
+
 - GitHub Actions workflows
 - CI/CD configurations
 - Project-specific files
@@ -404,11 +405,13 @@ jobs:
 ## Separation of Concerns
 
 **claude-context-sync** (this tool):
+
 - Syncs CLAUDE.md preference files
 - Manages `.claude-sync` markers
 - Batch updates across repositories
 
 **claude-actions-setup** (separate tool):
+
 - Sets up GitHub Actions workflows
 - Configures CI/CD
 - Creates project scaffolding
