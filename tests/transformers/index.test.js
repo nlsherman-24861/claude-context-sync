@@ -41,7 +41,8 @@ describe('Transformer Registry', () => {
       expect(formats).toBeInstanceOf(Array);
       expect(formats).toContain('chat');
       expect(formats).toContain('claude-md');
-      expect(formats).toHaveLength(2);
+      expect(formats).toContain('hybrid');
+      expect(formats).toHaveLength(3);
     });
   });
 

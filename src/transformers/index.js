@@ -3,16 +3,18 @@
  */
 import { ChatFormatTransformer } from './chat-format.js';
 import { ClaudeMdFormatTransformer } from './claude-md-format.js';
+import { HybridFormatTransformer } from './hybrid-format.js';
 
 // Registry of available transformers
 const TRANSFORMERS = {
   chat: ChatFormatTransformer,
-  'claude-md': ClaudeMdFormatTransformer
+  'claude-md': ClaudeMdFormatTransformer,
+  hybrid: HybridFormatTransformer
 };
 
 /**
  * Create a transformer instance for the specified format
- * @param {string} format - Format name (chat, claude-md)
+ * @param {string} format - Format name (chat, claude-md, hybrid)
  * @param {Object} preferences - Preferences object to transform
  * @returns {BaseTransformer} Transformer instance
  */
@@ -46,4 +48,5 @@ export function isFormatSupported(format) {
 // Export transformer classes for direct use
 export { ChatFormatTransformer } from './chat-format.js';
 export { ClaudeMdFormatTransformer } from './claude-md-format.js';
+export { HybridFormatTransformer } from './hybrid-format.js';
 export { BaseTransformer } from './base.js';

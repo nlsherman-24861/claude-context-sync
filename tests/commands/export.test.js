@@ -58,7 +58,7 @@ describe('Export Command', () => {
         await exportCmd(options);
 
         expect(logger.error).toHaveBeenCalledWith(
-          'Export failed: Unknown format: unknown. Available formats: chat, claude-md'
+          'Export failed: Unknown format: unknown. Available formats: chat, claude-md, hybrid'
         );
         expect(process.exit).toHaveBeenCalledWith(1);
       });

@@ -69,7 +69,7 @@ program
 program
   .command('export')
   .description('Export preferences to different formats')
-  .argument('[format]', 'Output format (claude-md, chat, etc.)')
+  .argument('[format]', 'Output format (claude-md, chat, hybrid, etc.)')
   .option('-o, --output <file>', 'Write to file instead of stdout')
   .option('--list-formats', 'List available export formats')
   .action(async (format, options) => {
