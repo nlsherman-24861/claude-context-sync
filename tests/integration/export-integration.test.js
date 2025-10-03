@@ -150,17 +150,18 @@ describe('Export Integration Tests', () => {
       }
     };
 
-    it('should include only chat-scoped content in chat format', async () => {
+    it('should include chat and global scoped content in chat format', async () => {
       const transformer = createTransformer('chat', scopedPreferences);
       const output = await transformer.transform();
 
+      // Chat format now includes both 'chat' and 'global' scopes for richer context
       expect(output).toContain('Chat only content');
       expect(output).toContain('Chat and global content');
+      expect(output).toContain('Global only content'); // Now included with global scope
       expect(output).toContain('all scopes communication'); // working_style includes chat (lowercase from formatter)
-      
-      expect(output).not.toContain('Global only content');
-      expect(output).not.toContain('Project only content');
-      expect(output).not.toContain('Global and project philosophy'); // technical_approach excludes chat
+      expect(output).toContain('Global and project philosophy'); // technical_approach includes global scope
+
+      expect(output).not.toContain('Project only content'); // Still excludes project-only
     });
 
     it('should include chat and global scoped content in claude-md format', async () => {
