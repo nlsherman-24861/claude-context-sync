@@ -70,7 +70,7 @@ describe('Export Command', () => {
 
         await exportCmd(options);
 
-        expect(config.loadConfig).toHaveBeenCalledWith(undefined);
+        expect(config.loadConfig).toHaveBeenCalledWith(undefined, { skipProjectLayers: true });
         expect(console.log).toHaveBeenCalled();
         
         // Get the output that was logged
@@ -98,7 +98,7 @@ describe('Export Command', () => {
 
         await exportCmd(options);
 
-        expect(config.loadConfig).toHaveBeenCalledWith('/custom/path.yaml');
+        expect(config.loadConfig).toHaveBeenCalledWith('/custom/path.yaml', { skipProjectLayers: true });
       });
     });
 

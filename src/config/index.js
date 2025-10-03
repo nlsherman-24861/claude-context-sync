@@ -82,7 +82,8 @@ export function discoverProjectLayers(baseConfigPath) {
   }
 }
 
-export async function loadConfig(customPath = null) {
+export async function loadConfig(customPath = null, options = {}) {
+  const { skipProjectLayers = false } = options;
   const configPath = await findConfigFile(customPath);
 
   try {
@@ -95,8 +96,8 @@ export async function loadConfig(customPath = null) {
       throw new ConfigValidationError(validation.errors, configPath);
     }
 
-    // Discover and load project-specific layers
-    const layerPaths = discoverProjectLayers(configPath);
+    // Discover and load project-specific layers (unless skipped)
+    const layerPaths = skipProjectLayers ? [] : discoverProjectLayers(configPath);
     const layers = [];
 
     for (const layerPath of layerPaths) {

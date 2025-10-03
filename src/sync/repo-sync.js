@@ -105,8 +105,9 @@ export class RepoSync {
       const { loadConfig } = await import('../config/index.js');
       const { createTransformer } = await import('../transformers/index.js');
 
-      // Load preferences from default config
-      const { config: preferences } = await loadConfig();
+      // Load preferences from default config, skipping project-specific layers
+      // This prevents claude-context-sync's own project context from leaking to other repos
+      const { config: preferences } = await loadConfig(null, { skipProjectLayers: true });
 
       // Transform to CLAUDE.md format
       const transformer = createTransformer('claude-md', preferences);

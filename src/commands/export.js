@@ -24,7 +24,10 @@ export async function exportCmd(options) {
     }
 
     // Load configuration
-    const { config } = await loadConfig(options.configPath);
+    // For chat/hybrid formats, skip project-specific layers (those are for repo CLAUDE.md only)
+    // For claude-md format, include project layers (generating repo-specific CLAUDE.md)
+    const skipProjectLayers = (options.format === 'chat' || options.format === 'hybrid');
+    const { config } = await loadConfig(options.configPath, { skipProjectLayers });
     
     // Filter by section if specified
     let preferences = config;
