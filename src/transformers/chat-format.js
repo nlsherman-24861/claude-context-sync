@@ -305,6 +305,14 @@ export class ChatFormatTransformer extends BaseTransformer {
       if (agentInfo.length) parts.push(`Agent collab: ${agentInfo.join(', ')}`);
     }
 
+    // Git authentication (critical for Claude instances)
+    if (technical.git_authentication) {
+      const ga = technical.git_authentication;
+      if (ga.credential_vault || ga.workflow) {
+        parts.push('Git auth: Use github-credential-vault MCP (list_profiles → authenticate_github → push)');
+      }
+    }
+
     // File operations (ultra-condensed - just key facts)
     if (technical.file_operations?.opening_files) {
       const fileOps = technical.file_operations.opening_files;

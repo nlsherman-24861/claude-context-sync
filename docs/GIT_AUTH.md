@@ -1,6 +1,8 @@
 # Git Authentication for Claude Instances
 
-Quick reference for Claude instances needing to push to this repository.
+**Note**: This document is supplementary. The primary git auth guidance is in JAX's preferences YAML and is automatically available to all Claude instances via `<userPreferences>` tags. This file provides repo-specific details and troubleshooting.
+
+---
 
 ## The Fast Path
 
