@@ -1,5 +1,6 @@
 import { BaseTransformer } from './base.js';
 import { limitDepth, smartCondense } from '../utils/depth-limit.js';
+import { generateMetadata } from '../utils/version.js';
 
 /**
  * Transforms preferences into natural prose format for Claude Chat
@@ -8,7 +9,8 @@ export class ChatFormatTransformer extends BaseTransformer {
   async transform() {
     const sections = this.filterByScope(['chat', 'global']);
 
-    let output = '';
+    // Add generation metadata as HTML comment
+    let output = generateMetadata({ format: 'chat' }) + '\n\n';
 
     // Add framing context to clarify perspective and pronouns
     const personaName = sections.personality?.construct_name ||

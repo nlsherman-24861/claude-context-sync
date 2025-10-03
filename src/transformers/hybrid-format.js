@@ -1,5 +1,6 @@
 import { BaseTransformer } from './base.js';
 import { limitDepth } from '../utils/depth-limit.js';
+import { generateMetadata } from '../utils/version.js';
 
 /**
  * Hybrid Prose-Bullet transformer - balances readability with token efficiency
@@ -15,7 +16,8 @@ export class HybridFormatTransformer extends BaseTransformer {
   async transform() {
     const sections = this.filterByScope(['chat', 'global']);
 
-    let output = '';
+    // Add generation metadata as HTML comment
+    let output = generateMetadata({ format: 'hybrid' }) + '\n\n';
 
     // Add framing context to clarify perspective and pronouns
     const personaName = sections.personality?.construct_name ||

@@ -1,4 +1,5 @@
 import { BaseTransformer } from './base.js';
+import { generateMetadata } from '../utils/version.js';
 
 /**
  * Transforms preferences into structured markdown format for CLAUDE.md files
@@ -6,8 +7,10 @@ import { BaseTransformer } from './base.js';
 export class ClaudeMdFormatTransformer extends BaseTransformer {
   async transform() {
     const sections = this.filterByScope(['chat', 'global']);
-    
-    let output = '# Claude Code Preferences\n\n';
+
+    // Add generation metadata as HTML comment
+    let output = generateMetadata({ format: 'claude-md' }) + '\n\n';
+    output += '# Claude Code Preferences\n\n';
 
     // Professional background
     if (sections.professional_background) {
