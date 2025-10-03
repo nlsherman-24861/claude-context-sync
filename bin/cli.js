@@ -15,6 +15,7 @@ import { loadConfig, getDefaultConfigPath } from '../src/config/index.js';
 import { validateBasicStructure } from '../src/parsers/yaml-parser.js';
 import { exportCmd, showAvailableFormats } from '../src/commands/export.js';
 import { installWrappers, uninstallWrappers, listWrappers } from '../src/wrappers/installer.js';
+import { setupCmd, sessionCmd } from '../src/commands/session.js';
 import { addUnifiedAliases, showUnifiedExamples } from '../src/wrappers/aliases.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -248,6 +249,37 @@ program
   .description('Show examples of unified wrapper commands')
   .action(() => {
     showUnifiedExamples();
+  });
+
+
+// Setup command for chat sync
+program
+  .command('setup')
+  .description('Set up Claude Chat sync (capture browser session)')
+  .option('--authenticate', 'Capture new authenticated session')
+  .option('--refresh-session', 'Refresh existing session')
+  .action(async (options) => {
+    try {
+      await setupCmd(options);
+    } catch (e) {
+      printError(e);
+      process.exit(1);
+    }
+  });
+
+// Session management command
+program
+  .command('session')
+  .description('Manage Claude Chat browser session')
+  .option('--check', 'Check if session is valid')
+  .option('--info', 'Show session information')
+  .action(async (options) => {
+    try {
+      await sessionCmd(options);
+    } catch (e) {
+      printError(e);
+      process.exit(1);
+    }
   });
 
 program.parse();

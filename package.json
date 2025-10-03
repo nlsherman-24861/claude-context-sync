@@ -16,7 +16,11 @@
     "dev": "node bin/cli.js",
     "lint:md": "markdownlint \"**/*.md\" --ignore node_modules",
     "lint:md:fix": "markdownlint \"**/*.md\" --ignore node_modules --fix",
-    "lint:all": "npm run lint && npm run lint:md"
+    "lint:all": "npm run lint && npm run lint:md",
+    "setup:chat": "node scripts/setup-chat-sync.js",
+    "sync:chat": "node bin/cli.js sync --target chat",
+    "sync:all": "node bin/cli.js sync --target all",
+    "session:check": "node bin/cli.js session --check"
   },
   "keywords": [
     "claude",

@@ -92,3 +92,25 @@ export async function sessionClear() {
     process.exit(1);
   }
 }
+
+// CLI command wrappers
+export async function setupCmd(options) {
+  const { SessionManager } = await import('../browser/session-manager.js');
+  const manager = new SessionManager();
+
+  if (options.authenticate || options.refreshSession) {
+    await manager.captureSession();
+  } else {
+    info('Use: claude-context-sync setup --authenticate');
+  }
+}
+
+export async function sessionCmd(options) {
+  if (options.check) {
+    await sessionCheck();
+  } else if (options.info) {
+    await sessionInfo();
+  } else {
+    await sessionCheck();
+  }
+}
