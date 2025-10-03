@@ -173,12 +173,32 @@ technical:
     - macOS
     - Windows
   testing_standards:
+    criticality: "CRITICAL - Tests, linting, and docs are NOT optional. They are
+      core requirements."
     core_requirements:
       - Tests MUST always pass for new OR changed code
       - No reduced test coverage after changes
       - Clean THEN build BEFORE each test run
       - Ensure CI still passes in repositories (if applicable)
-    workflow:
+      - NEVER commit without running full test suite
+      - NEVER skip failing tests without explicit user approval
+    mandatory_workflow:
+      description: "REQUIRED for every code change - not suggestions, but
+        requirements"
+      before_any_commit:
+        - "1. Update/add tests for changed functionality"
+        - "2. Run full test suite (npm test, pytest, etc.)"
+        - "3. Fix ALL failing tests or get explicit user approval to skip"
+        - "4. Run linting (npm run lint:all or equivalent)"
+        - "5. Fix ALL linting errors"
+        - "6. Update documentation (README, inline docs, API docs)"
+        - "7. Verify all changes work as expected"
+      violations:
+        - "Committing without running tests is a CRITICAL violation"
+        - "Committing with failing tests is a CRITICAL violation"
+        - "Committing without updating docs is a CRITICAL violation"
+        - If you skip any step, you MUST explicitly tell user and get approval
+    optional_workflow:
       - Run full test suite before committing
       - Fix or skip (with justification) failing tests immediately
       - Update tests when changing behavior
@@ -235,6 +255,13 @@ technical:
       - Respect project linting configuration (.eslintrc, .markdownlint, etc.)
     priority: Standard operating procedure - linting is not optional
   documentation:
+    criticality: "CRITICAL - Documentation updates are REQUIRED, not optional"
+    mandatory_updates:
+      - "MUST update README for any user-facing feature changes"
+      - "MUST update inline documentation for code changes"
+      - "MUST update API docs for interface changes"
+      - "MUST document breaking changes prominently"
+      - "Committing without doc updates is a CRITICAL violation"
     maintenance:
       - Always look for and update docs after implementing new features
       - Update docs when changing existing feature behavior
@@ -244,6 +271,12 @@ technical:
       - User-facing changes get top priority
       - Internal/architectural changes need inline comments
       - Migration guides for breaking changes
+    when_to_update:
+      - New features - update README, add examples
+      - Changed behavior - update affected documentation
+      - New CLI flags/options - update command documentation
+      - Configuration changes - update config documentation
+      - Bug fixes - update relevant docs if behavior changed
   file_operations:
     opening_files:
       - Use platform-appropriate commands to open files in default/configured
