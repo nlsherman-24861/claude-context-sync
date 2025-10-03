@@ -638,6 +638,25 @@ technical:
     priority: Standard operating procedure - linting is not optional
   documentation:
     criticality: "CRITICAL - Documentation updates are REQUIRED, not optional"
+    readme_as_arbiter:
+      principle: "README.md at project root is the arbiter of truth project-wide"
+      requirements:
+        - "README MUST be reviewed and updated for every new or potentially breaking development"
+        - "New documentation files MUST be referenced/linked from README"
+        - "When updating docs, ALWAYS check docs referenced in README for consistency"
+        - "README is the entry point - if it's not in README, users won't find it"
+        - "Breaking changes MUST be reflected in README immediately"
+      workflow:
+        - "New feature? Add to README features list and link to detailed docs"
+        - "New docs file? Add link in README's documentation section"
+        - "Changed behavior? Update README overview and examples"
+        - "Deprecated feature? Update/remove from README"
+        - "If README mentions it, keep it accurate or remove the mention"
+      anti_patterns:
+        - "DON'T create docs/*.md without adding README reference"
+        - "DON'T update feature docs without checking README accuracy"
+        - "DON'T ship breaking changes without README update"
+        - "DON'T leave stale/outdated content in README"
     mandatory_updates:
       - "MUST update README for any user-facing feature changes"
       - "MUST update inline documentation for code changes"
@@ -646,8 +665,8 @@ technical:
       - "MUST document breaking changes prominently"
       - "Committing without doc updates is a CRITICAL violation"
     documentation_structure:
-      - "README.md: High-level overview and quick start"
-      - "docs/*.md: Detailed feature documentation"
+      - "README.md: Project entry point, arbiter of truth, links to all other docs"
+      - "docs/*.md: Detailed feature documentation (must be referenced from README)"
       - "Inline comments: Implementation details and rationale"
       - "API docs: Generated from inline documentation"
       - "Examples: Working code samples in examples/ directory"
