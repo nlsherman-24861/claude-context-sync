@@ -16,7 +16,8 @@
     "dev": "node bin/cli.js",
     "lint:md": "markdownlint \"**/*.md\" --ignore node_modules",
     "lint:md:fix": "markdownlint \"**/*.md\" --ignore node_modules --fix",
-    "lint:all": "npm run lint && npm run lint:md",
+    "lint:yaml": "yamllint default-preferences.yaml",
+    "lint:all": "npm run lint && npm run lint:md && npm run lint:yaml",
     "setup:chat": "node scripts/setup-chat-sync.js",
     "sync:chat": "node bin/cli.js sync --target chat",
     "sync:all": "node bin/cli.js sync --target all",
@@ -50,7 +51,8 @@
     "eslint": "^8.55.0",
     "markdownlint-cli": "^0.45.0",
     "prettier": "^3.1.1",
-    "vitest": "^1.0.4"
+    "vitest": "^1.0.4",
+    "yaml-lint": "^1.7.0"
   },
   "repository": {
     "type": "git",

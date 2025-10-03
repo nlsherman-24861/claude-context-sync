@@ -57,7 +57,9 @@ export class ChatFormatTransformer extends BaseTransformer {
       'personal',
       'technical',
       'project_defaults',
-      'claude_interfaces' // Internal config, not for output
+      'claude_interfaces', // Internal config, not for output
+      'configurator_setup', // Tooling config, not for output
+      'preference_sync' // Tooling config, not for output
     ]);
 
     for (const [key, value] of Object.entries(sections)) {

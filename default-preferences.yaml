@@ -317,85 +317,63 @@ technical:
   mcp_and_environment_selection:
     - "CRITICAL - Context Disambiguation via Pronouns:"
     - "  Two distinct environments exist with different tooling:"
-    - ""
     - "  USER'S PERSPECTIVE:"
     - "    'you/your' → VM space (Claude's isolated Linux container)"
     - "      Example: 'Can you clone this repo and run tests?'"
     - "      Tools: bash_tool, str_replace, view, create_file"
     - "      Use for: Cloning repos, building, testing, analyzing code"
-    - ""
     - "    'I/me/my' → User's machine (Windows workstation)"
     - "      Example: 'Check my Claude Code settings'"
     - "      Tools: Filesystem MCP, CLI MCP, Windows MCP, browser-use"
     - "      Use for: Checking configs, accessing user files, browser automation"
-    - ""
     - "  AGENT'S PERSPECTIVE:"
     - "    'you/your' → User's machine"
     - "      Example: 'Your config is at C:\\Users\\n\\.claude'"
-    - ""
     - "    'I/me/my' → VM space"
     - "      Example: 'I cloned it to /home/claude/project'"
-    - ""
     - "  ENVIRONMENT DECISION TREE:"
     - "    1. Check for possessive pronouns:"
     - "       - 'my/mine' from user → User's Machine (MCP)"
     - "       - 'your/yours' from user → VM Space (bash_tool)"
-    - ""
     - "    2. If no clear pronoun, infer from request type:"
     - "       - Config/settings files → User's Machine"
     - "       - 'Clone and work on...' → VM Space"
     - "       - Browser operations → User's Machine"
     - "       - Build/test/analyze → VM Space (after clone)"
     - "       - Windows-specific paths → User's Machine"
-    - ""
     - "  TOOL SELECTION HEURISTICS:"
-    - ""
     - "  For User's Machine (MCP):"
     - "    1. Filesystem MCP - First choice for config files"
     - "       - Check known paths: %USERPROFILE%\\.claude, %APPDATA%,
       %LOCALAPPDATA%"
     - "       - Direct access, no shell syntax issues"
-    - ""
     - "    2. CLI MCP - For running executables or simple commands"
     - "       - Use simple commands: cd, dir, where"
     - "       - Avoid complex flags/escaping (causes security violations)"
-    - ""
     - "    3. Windows MCP - Desktop automation, UI interaction"
-    - ""
     - "    4. Browser-use - Web automation"
-    - ""
     - "    5. GitHub-credential-vault - Credential management"
-    - ""
     - "  For VM Space (bash_tool):"
     - "    1. bash_tool - Primary workhorse"
     - "       - Git operations (clone, commit, push)"
     - "       - Building, testing, analyzing"
     - "       - File manipulation in /home/claude"
-    - ""
     - "    2. str_replace - Targeted file edits"
-    - ""
     - "    3. view - Reading files/directories"
-    - ""
     - "    4. create_file - New file creation"
-    - ""
     - "  CONFIG FILE ACCESS PATTERN:"
     - "    1. Check known locations with Filesystem MCP first"
     - "    2. If not found: CLI MCP with simple commands (cd, dir)"
     - "    3. Last resort: Complex search (risk of syntax errors)"
-    - ""
     - "  PRACTICAL EXAMPLES:"
-    - ""
     - "  User: 'check my environment's claude code settings'"
     - "    → 'my' = User's Machine"
     - "    → Filesystem MCP: C:\\Users\\n\\.claude\\settings.local.json"
-    - ""
     - "  User: 'clone my repo and refactor the auth module'"
     - "    → Work action = VM Space (clone first)"
     - "    → bash_tool: git clone → work in /home/claude/repo-name"
-    - ""
     - "  Agent: 'I've cloned it and your tests are passing'"
     - "    → 'I' = VM action, 'your' = user's tests (running in VM)"
-    - ""
     - "  User: 'can you check the config?'"
     - "    → 'config' typically user-specific, default to User's Machine"
   best_practices:
@@ -490,43 +468,50 @@ project_defaults:
     applications. Fully aware of objective weaknesses and limitations. Don't go
     for hype. Cognizant of real costs and that many are understandably biased
     against AI.
-  repository_setup:
-    - Infer desire to configure new projects/repositories with
-      claude-actions-setup
-    - Assume configurator should be run when creating new projects (if tooling
-      available)
-    - Check current environment has necessary tools (git, gh CLI, Node.js)
-    - Offer to run configurator when ad-hoc discussions result in significant
-      structured code
-    - Suggest setup when code emerges without conventions/scaffolding that
-      configurator provides
-    - "Example triggers: \"Let's start a new project\", \"Created a new repo\",
-      writing multiple files ad-hoc"
-    - ""
-    - "Configurator benefits:"
-    - "- Automated .github/CLAUDE.md creation with auto-detected tech stack"
-    - "- GitHub Actions workflows for @claude automation"
-    - "- CI/CD template setup based on detected build tools"
-    - "- Consistent project structure across repositories"
-    - "- Immediate agent collaboration capability via @claude mentions"
-    - ""
-    - "Bulk repository marking and discovery:"
-    - "- Use `mark --bulk --user <username>` to clone and mark all private repos"
-    - "- Exclude repos with `--exclude pattern1 pattern2` (supports globs: test-*,
-      *-backup)"
-    - "- Create ~/.repos/.claude-sync-workspace for persistent excludes"
-    - "- Use `discover --source github --user <username>` for API-based discovery
-      (no cloning)"
-    - "- Use `discover --source filesystem` for local filesystem scan (default)"
-    - "- Discovered repos with auto_update: true sync automatically via `sync
-      --target all`"
-    - ""
-    - "Repository sync options:"
-    - "- `sync --target all` syncs global CLAUDE.md + auto-update repos"
-    - "- `sync --target global` syncs only ~/.claude/CLAUDE.md"
-    - "- `sync-repos` runs configurator updates across discovered repos"
-    - "- Per-repo status shown: ✓ success, ⚠ skipped, ✗ failed"
-    - "- Use `--dry-run` flag to preview changes before applying"
+  configurator_setup:
+    description: claude-actions-setup tool for repository automation
+    when_to_suggest:
+      - Infer desire to configure new projects/repositories
+      - Assume configurator should be run when creating new projects (if tooling
+        available)
+      - Check current environment has necessary tools (git, gh CLI, Node.js)
+      - Offer to run configurator when ad-hoc discussions result in significant
+        structured code
+      - Suggest setup when code emerges without conventions/scaffolding that
+        configurator provides
+      - "Example triggers: \"Let's start a new project\", \"Created a new repo\",
+        writing multiple files ad-hoc"
+    benefits:
+      - Automated .github/CLAUDE.md creation with auto-detected tech stack
+      - GitHub Actions workflows for @claude automation
+      - CI/CD template setup based on detected build tools
+      - Consistent project structure across repositories
+      - Immediate agent collaboration capability via @claude mentions
+  preference_sync:
+    description: claude-context-sync tool for preference management
+    bulk_marking:
+      - "Use `mark --bulk --user <username>` to clone and mark all private repos"
+      - "Exclude repos with `--exclude pattern1 pattern2` (supports globs:
+        test-*, *-backup)"
+      - Create ~/.repos/.claude-sync-workspace for persistent excludes
+    discovery:
+      - "GitHub API mode: `discover --source github --user <username>` (no
+        cloning)"
+      - "Filesystem mode: `discover --source filesystem` (default, scans local
+        dirs)"
+      - "Discovered repos with auto_update: true sync automatically via `sync
+        --target all`"
+    sync_commands:
+      - "`sync --target all` syncs global CLAUDE.md + auto-update repos"
+      - "`sync --target global` syncs only ~/.claude/CLAUDE.md"
+      - "`sync-repos` runs configurator updates across discovered repos"
+      - "Per-repo status shown: ✓ success, ⚠ skipped, ✗ failed"
+      - "Use `--dry-run` flag to preview changes before applying"
+    yaml_linting:
+      - "Run `npm run lint:yaml` to check YAML formatting"
+      - "Run `npm run lint:yaml:fix` to auto-fix YAML issues (if available)"
+      - Linting runs automatically in test suite
+      - "Never use `- \"\"` for blank lines - just omit the line"
   timeboxing_and_completion:
     philosophy:
       - Balance between "good enough" and "perfect now" - lean toward "perfect

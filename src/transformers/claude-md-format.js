@@ -54,9 +54,9 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
 
     // Handle any unknown/custom sections
     const knownSections = new Set([
-      'creative_pursuits', 'professional_background', 'personal_interests', 'working_style', 
-      'technical_approach', 'project_conventions', 'personality', 
-      'personal', 'technical'
+      'creative_pursuits', 'professional_background', 'personal_interests', 'working_style',
+      'technical_approach', 'project_conventions', 'personality',
+      'personal', 'technical', 'project_defaults'
     ]);
 
     for (const [key, value] of Object.entries(sections)) {
