@@ -17,6 +17,171 @@ The preferences file is a YAML document with a specific structure designed to ca
 
 Current version: `1.0.0`
 
+## Perspective and Pronoun Usage
+
+The preferences YAML uses a **hybrid model** where different sections represent different perspectives:
+
+1. **User Context Sections** - Facts about you (the human user)
+   - `professional_background`, `creative_pursuits`, `personal_interests`
+   - Written as neutral facts: "15-20 years experience", "Love learning"
+   - Transformers convert to first-person when exported: "I have 15-20 years experience", "I love learning"
+
+2. **User Preference Sections** - How you want Claude to behave
+   - `working_style`, `technical`, `project_defaults`
+   - Written as neutral preferences: "High-level summaries", "Tests must pass"
+   - Transformers convert to first-person preferences: "I prefer high-level summaries"
+
+3. **Claude Persona Section** - Who Claude should be
+   - `personality` (construct_name, traits)
+   - Written as neutral attributes: "JAX", "Dry sense of humor"
+   - Transformers convert to second-person directives: "Your name is JAX", "You have a dry sense of humor"
+
+**Writing Convention**: Keep YAML values clean and pronounless. Write complete phrases or fragments as appropriate. The schema defines the perspective, and transformers handle pronoun insertion based on output format (chat uses first/second-person, claude-md uses neutral markdown).
+
+**Example**:
+
+```yaml
+# User context (about you)
+professional_background:
+  experience: "15-20 years practical software engineering"
+  philosophy:
+    - "Love learning and problem solving"        # Fragment OK
+    - "Prefer understanding over quick fixes"    # Verb phrase OK
+
+# User preferences (how you want Claude to act)
+working_style:
+  communication:
+    - "High-level summaries with structured outlines"  # Complete phrase
+
+# Claude persona (who Claude should be)
+personality:
+  construct_name: "JAX"
+  traits:
+    - "Dry sense of humor"                       # Attribute OK
+    - "Shared interests in sci-fi and psychology"
+```
+
+**Exported as chat format** (first/second person):
+```
+I have 15-20 years practical software engineering experience. I love learning and problem solving. I prefer understanding over quick fixes.
+
+I prefer high-level summaries with structured outlines.
+
+Your name is JAX. You have a dry sense of humor and shared interests in sci-fi and psychology.
+```
+
+**Exported as claude-md format** (neutral markdown):
+```markdown
+## Professional Background
+- **Experience**: 15-20 years practical software engineering
+- Love learning and problem solving
+- Prefer understanding over quick fixes
+
+## Working Style
+- High-level summaries with structured outlines
+
+## Personality
+- **Name**: JAX
+- Dry sense of humor
+- Shared interests in sci-fi and psychology
+```
+
+## Multi-File Preference Layering
+
+**Pattern**: `.claude/preferences.*.yaml`
+
+Projects can add preference layers that extend or supplement the base configuration without coupling to the sync tool. These files are automatically discovered and deep-merged.
+
+### File Locations
+
+```
+project-root/
+├── CLAUDE.md                           # Generated output (Claude Code reads this)
+├── .claude/
+│   ├── preferences.yaml                # Base (optional, for projects not using sync)
+│   ├── preferences.project-context.yaml   # Layer 1 (project-specific)
+│   └── preferences.team-conventions.yaml  # Layer 2 (team overrides)
+```
+
+### Discovery and Merge
+
+- Files are discovered alphabetically from `.claude/` directory
+- Deep merge: `defaults → base → layer1 → layer2 → ...`
+- **Arrays append** (additive): `[A, B] + [C] = [A, B, C]`
+- **Objects merge** (later wins): `{x: 1} + {y: 2} = {x: 1, y: 2}`
+
+### Perspective Rules for Layers
+
+**When extending core sections**: Follow that section's perspective rules (see Perspective and Pronoun Usage above)
+
+```yaml
+# Extending working_style (user preferences)
+working_style:
+  communication:
+    - "Prefer async code reviews in this project"  # User preference tone
+```
+
+**When adding new sections**: Use instructional/directive perspective about the project
+
+```yaml
+# New section = project context/requirements
+project_specific:
+  critical_requirements:
+    - "CRITICAL: All API changes need migration guide"  # Directive
+  domain_knowledge:
+    - "Healthcare SaaS, HIPAA compliant"  # Fact about project
+  codebase_context:
+    - "Legacy Java → Node.js migration in progress"  # Project state
+```
+
+**Mental Model**:
+- Extending existing sections → inherit their perspective style
+- Adding new sections → write as **instructions/context about the project**
+- Use tone: "This project requires...", "Always verify...", "Repository uses..."
+
+### Benefits
+
+- ✅ **Zero coupling**: Developers can add layers without sync tool
+- ✅ **Team collaboration**: Different team members can own different layers
+- ✅ **Composability**: Share common layers across projects
+- ✅ **Discoverability**: `ls .claude/preferences.*.yaml` shows customizations
+- ✅ **Sync safety**: `sync-repos` only touches `CLAUDE.md`, never `.claude/preferences.*.yaml`
+
+### Example Layer File
+
+`.claude/preferences.project-context.yaml`:
+
+```yaml
+# Project-specific context for this codebase
+project_specific:
+  identity:
+    repository: my-healthcare-app
+    domain: Healthcare SaaS
+
+  critical_requirements:
+    compliance:
+      - "HIPAA compliant - all patient data must be encrypted"
+      - "Audit logging required for all data access"
+    testing:
+      - "Integration tests required for all API endpoints"
+      - "Mock external services, never hit real APIs in tests"
+
+  codebase_context:
+    architecture:
+      - "Microservices architecture with 15 services"
+      - "Event-driven communication via RabbitMQ"
+    migration_status:
+      - "Currently migrating auth service from Java to Node.js"
+      - "See docs/MIGRATION.md for migration guide"
+
+# Extend core technical section
+technical:
+  testing_standards:
+    core_requirements:
+      - "Minimum 80% code coverage for healthcare services"
+      - "Security tests required for authentication flows"
+```
+
 ## Top-Level Sections
 
 ### `professional_background`

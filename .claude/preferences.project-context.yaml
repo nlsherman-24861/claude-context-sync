@@ -1,0 +1,129 @@
+# Project-Specific Context for claude-context-sync
+#
+# This file contains project-specific preferences that extend the base preferences.
+# It will be automatically discovered and merged with default-preferences.yaml.
+#
+# Location: .claude/preferences.project-context.yaml
+# Merge order: defaults → base → this file → other .claude/preferences.*.yaml files
+
+# Project metadata and critical requirements
+project_specific:
+  identity:
+    repository: claude-context-sync
+    purpose: Single source of truth for Claude preferences across all interfaces
+    meta_nature: This tool manages its own preferences - extra care required
+
+  critical_requirements:
+    perspective_and_voice:
+      principle: "CRITICAL: Maintain clear understanding of pronoun perspective when working on preferences"
+      before_modifying:
+        - Verify which sections describe the user (professional_background, creative_pursuits)
+        - Verify which sections describe Claude's persona (personality)
+        - Verify which sections describe user preferences for Claude's behavior (working_style, technical)
+      after_changes:
+        - Test output formats (chat, hybrid, claude-md) for consistency
+        - Compare new output with previous commits
+        - If perspective/voice changed, understand WHY
+      anti_patterns:
+        - "NEVER revert commits that fix perspective/voice without understanding what they accomplished"
+        - "DON'T update tests to match wrong output - investigate schema/transformer logic first"
+
+    schema_integrity:
+      contract: default-preferences.yaml defines canonical structure
+      transformers_role: Dumb pipes that follow schema perspective rules
+      change_requirements:
+        - Changes to schema perspective mappings MUST be documented in SCHEMA.md
+        - Breaking schema changes require user discussion and explicit approval
+        - Test all three output formats after schema changes
+
+    transformer_testing:
+      required_coverage:
+        - All three formats (chat, hybrid, claude-md) maintain consistent semantics
+        - Perspective framing is clear in all outputs
+        - Project-specific sections preserved across syncs
+        - Full test suite (218 tests) passes before commit
+      regression_checks:
+        - Compare output format with previous commits after transformer modifications
+
+    multi_file_layering:
+      usage: This project uses layered preferences as its own feature
+      structure:
+        - CLAUDE.md in project root (auto-synced output, Claude Code reads this)
+        - .claude/preferences.project-context.yaml (THIS FILE, never touched by sync)
+        - Additional .claude/preferences.*.yaml files can be added
+      merge_behavior:
+        - Files merged alphabetically
+        - Arrays append (additive)
+        - Objects merge (later wins)
+
+    self_dogfooding:
+      philosophy: Eat your own dog food
+      practices:
+        - Test sync operations on this repo itself
+        - Document new features in code AND generated outputs
+        - Use this project as reference implementation
+        - "If it doesn't work here, it won't work for users"
+
+  domain_knowledge:
+    preference_compression:
+      formats:
+        claude_md:
+          size: 28 KB
+          tokens: ~7000
+          use: Claude Code global config
+        chat:
+          size: 3.3 KB
+          tokens: ~850
+          compression: 8.5x from full
+          use: Claude Chat custom instructions
+        hybrid:
+          size: 3.5 KB
+          tokens: ~885
+          compression: 4.8x from full
+          use: Balanced readability and efficiency
+      documentation: See docs/COMPRESSION_ALGORITHMS.md for detailed analysis
+
+    file_sync_behavior:
+      commands:
+        - "sync --target global: Syncs only ~/.claude/CLAUDE.md"
+        - "sync --target all: Syncs global CLAUDE.md (historical naming)"
+        - "sync-repos: Syncs CLAUDE.md to project root of all marked repositories"
+        - "sync-repos --auto: Only syncs repos with auto_update: true"
+      critical_note: "sync-repos ONLY touches CLAUDE.md - never modifies .claude/preferences.*.yaml files"
+
+    repository_marking:
+      marker_file: .claude-sync in repo root
+      purpose: Indicates repository should receive preference syncs
+      configuration: Contains sync behavior (auto_update, create_pr, etc.)
+      deprecated: preserve_sections field (replaced by multi-file approach)
+      commands:
+        - "mark: Add marker to current repo"
+        - "mark --bulk: Batch mark all repos for a user"
+
+  testing_expectations:
+    test_count:
+      current: 218 tests passing
+      policy: DO NOT commit if tests failing
+      changes: If test count changes, understand why
+
+    critical_test_files:
+      - "tests/transformers/*.test.js: Format output validation"
+      - "tests/commands/sync.test.js: Sync behavior"
+      - "tests/config/index.test.js: Config loading and merging"
+      - Integration tests verify end-to-end workflows
+
+  known_gotchas:
+    yaml_linting:
+      - "Empty string arrays cause failures: - \"\" is invalid"
+      - "Check: npm run lint:yaml"
+      - "Fix: npm run lint:yaml:fix (if available)"
+
+    markdown_linting:
+      - Requires blank lines around headings and lists
+      - Fenced code blocks need blank line before/after
+      - "Known issues: docs/COMPRESSION_ALGORITHMS.md has linting violations"
+
+    git_operations:
+      - Always verify username (nlsherman-24861) before repo operations
+      - Never assume repo ownership - confirm first
+      - Follow git commit discipline policy (see default-preferences.yaml)

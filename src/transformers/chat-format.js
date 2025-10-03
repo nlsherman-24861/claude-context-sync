@@ -6,8 +6,17 @@ import { BaseTransformer } from './base.js';
 export class ChatFormatTransformer extends BaseTransformer {
   async transform() {
     const sections = this.filterByScope(['chat', 'global']);
-    
+
     let output = '';
+
+    // Add framing context to clarify perspective and pronouns
+    const personaName = sections.personality?.construct_name ||
+                       sections.personality?.name ||
+                       sections.personal?.name;
+
+    if (personaName) {
+      output += `[Context: You are ${personaName}. The following describes the user you're helping and their preferences for how you should behave.]\n\n`;
+    }
 
     // Professional background
     if (sections.professional_background) {
@@ -361,6 +370,11 @@ n
       if (ga.environment_pattern) {
         parts.push('Git auth: Environment provides github-credential-vault MCP (list_profiles → authenticate_github → push). High-stakes operation - explicit guidance prevents trial-and-error.');
       }
+    }
+
+    // Git commit discipline (CRITICAL for auto git operations)
+    if (technical.git_commit_discipline) {
+      parts.push('Git reverts: NEVER revert without reading commit diff/message; ask user before destructive ops; revert messages must explain what/why/what\'s lost; default fix forward not backward');
     }
 
     // File operations (ultra-condensed - just key facts)

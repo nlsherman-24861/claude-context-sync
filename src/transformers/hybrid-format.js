@@ -16,6 +16,15 @@ export class HybridFormatTransformer extends BaseTransformer {
 
     let output = '';
 
+    // Add framing context to clarify perspective and pronouns
+    const personaName = sections.personality?.construct_name ||
+                       sections.personality?.name ||
+                       sections.personal?.name;
+
+    if (personaName) {
+      output += `[Context: You are ${personaName}. The following describes the user you're helping and their preferences for how you should behave.]\n\n`;
+    }
+
     // PROSE SECTIONS - Identity and personality
     output += this._formatIdentityProse(sections);
 
@@ -195,6 +204,16 @@ export class HybridFormatTransformer extends BaseTransformer {
       bullets += '- Verify username: nlsherman-24861\n';
       bullets += '- Never force push to main/master\n';
       bullets += '- Commit msg: type: description + Claude attribution\n\n';
+    }
+
+    // Git commit discipline (CRITICAL for auto git operations)
+    if (sections.technical?.git_commit_discipline) {
+      bullets += '*Git Commit Discipline*:\n';
+      bullets += '- NEVER revert commits without understanding what they did\n';
+      bullets += '- Read commit diff and message before reverting\n';
+      bullets += '- Ask user before destructive operations if consequences unclear\n';
+      bullets += '- Revert messages MUST explain: what, why, what\'s lost, alternative\n';
+      bullets += '- Default: fix forward, not revert backward\n\n';
     }
 
     // Linting

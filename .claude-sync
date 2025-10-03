@@ -4,3 +4,5 @@ merge_mode: true
 create_pr: false
 branch_name: chore/update-preferences
 auto_push: false
+preserve_sections:
+  - project_specific

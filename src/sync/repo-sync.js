@@ -113,19 +113,41 @@ export class RepoSync {
       const claudeMd = await transformer.transform();
 
       // Define target paths
+      // Per Claude Code convention: CLAUDE.md in project root
+      // Also sync to .claude/ for backward compatibility
       const targets = [
-        join(repoPath, '.github', 'CLAUDE.md'),
-        join(repoPath, '.claude', 'CLAUDE.md')
+        join(repoPath, 'CLAUDE.md'),           // Primary: project root
+        join(repoPath, '.claude', 'CLAUDE.md')  // Secondary: .claude directory
       ];
 
       const changes = [];
 
       // Write to both locations
       for (const targetPath of targets) {
+        let finalContent = claudeMd;
+
+        // Check if we need to preserve sections
+        if (config.preserve_sections && config.preserve_sections.length > 0) {
+          if (existsSync(targetPath)) {
+            const existingContent = readFileSync(targetPath, 'utf-8');
+
+            // Extract preserved sections from existing file
+            const preservedContent = this._extractPreservedSections(
+              existingContent,
+              config.preserve_sections
+            );
+
+            if (preservedContent) {
+              // Append preserved content with clear marker
+              finalContent = claudeMd + '\n\n' + preservedContent;
+            }
+          }
+        }
+
         // Check if file already exists and has same content
         if (existsSync(targetPath)) {
           const existingContent = readFileSync(targetPath, 'utf-8');
-          if (existingContent === claudeMd) {
+          if (existingContent === finalContent) {
             if (verbose) {
               console.log(`  ✓ ${targetPath} already up to date`);
             }
@@ -137,7 +159,7 @@ export class RepoSync {
         mkdirSync(dirname(targetPath), { recursive: true });
 
         // Write file
-        writeFileSync(targetPath, claudeMd, 'utf-8');
+        writeFileSync(targetPath, finalContent, 'utf-8');
 
         changes.push(`Updated ${targetPath}`);
 
@@ -157,6 +179,25 @@ export class RepoSync {
         changes: []
       };
     }
+  }
+
+  /**
+   * Extract preserved sections from existing CLAUDE.md file
+   * Looks for HTML comment markers indicating project-specific content
+   */
+  _extractPreservedSections(content, sectionNames) {
+    // Look for the PROJECT-SPECIFIC marker comment
+    const startMarker = '<!-- PROJECT-SPECIFIC PREFERENCES';
+    const startIndex = content.indexOf(startMarker);
+
+    if (startIndex === -1) {
+      return null; // No preserved section found
+    }
+
+    // Extract everything from the marker to the end
+    const preserved = content.substring(startIndex);
+
+    return preserved;
   }
 
   /**

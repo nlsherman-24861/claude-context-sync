@@ -195,3 +195,51 @@
 ### Code
 
 ### Projects
+
+---
+
+<!-- ========================================================================== -->
+<!-- PROJECT-SPECIFIC PREFERENCES (preserved across syncs)                      -->
+<!-- This section is maintained separately and will NOT be overwritten when     -->
+<!-- running sync-repos. Add project-specific context and requirements here.    -->
+<!-- ========================================================================== -->
+
+## Project-Specific Context
+
+**Repository**: claude-context-sync
+**Purpose**: Single source of truth for Claude preferences across all interfaces
+
+### Critical Requirements for This Project
+
+**Perspective and Voice Consistency**:
+
+- **CRITICAL**: When working on preference definitions, transformers, or schema changes, MUST maintain clear understanding of pronoun perspective (user vs Claude)
+- Before modifying preference YAML or transformer output, verify understanding of:
+  - Which sections describe the user (professional_background, creative_pursuits)
+  - Which sections describe Claude's persona (personality)
+  - Which sections describe user preferences for Claude's behavior (working_style, technical)
+- Test output formats (chat, hybrid, claude-md) after changes to verify consistency
+- Compare new output with previous commits - if perspective/voice changed, understand WHY
+- NEVER revert commits that fix perspective/voice without understanding what they accomplished
+- If output doesn't match expectations, investigate the schema/transformer logic - don't just update tests to match new output
+
+**Schema Integrity**:
+
+- The YAML schema in `default-preferences.yaml` is the contract
+- Transformers are dumb pipes - they follow schema perspective rules
+- Changes to schema perspective mappings require documentation in SCHEMA.md
+- Breaking schema changes require user discussion and explicit approval
+
+**Transformer Testing**:
+
+- All three formats (chat, hybrid, claude-md) must maintain consistent semantics
+- Perspective framing must be clear in all outputs
+- Project-specific sections must be preserved across syncs
+- Run full test suite (218 tests) before committing transformer changes
+
+**This Project's Meta-Nature**:
+
+- This tool manages its own preferences - be extra careful with changes
+- Test sync operations on this repo itself to verify preservation logic
+- Document any new features both in code and in the generated outputs
+- The tool should "eat its own dog food" - use it to manage its own CLAUDE.md
