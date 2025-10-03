@@ -84,8 +84,9 @@ program
     }
 
     try {
-      await exportCmd(format, {
-        config: program.opts().config,
+      await exportCmd({
+        format,
+        configPath: program.opts().config,
         output: options.output
       });
     } catch (e) {

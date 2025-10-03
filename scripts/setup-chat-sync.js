@@ -6,6 +6,7 @@
  */
 
 import { spawn } from 'child_process';
+import inquirer from 'inquirer';
 import { SessionManager } from '../src/browser/session-manager.js';
 import { info, success, error, warn } from '../src/utils/logger.js';
 
@@ -43,11 +44,15 @@ async function installPlaywright() {
 async function installBrowsers() {
   info('Installing Playwright browsers (chromium)...');
   info('This may take a few minutes...');
-  
+
   return new Promise((resolve, reject) => {
-    const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-    const install = spawn(npx, ['playwright', 'install', 'chromium'], {
-      stdio: 'inherit'
+    const cmd = process.platform === 'win32'
+      ? 'npx.cmd playwright install chromium'
+      : 'npx playwright install chromium';
+
+    const install = spawn(cmd, [], {
+      stdio: 'inherit',
+      shell: true
     });
 
     install.on('close', (code) => {
@@ -61,25 +66,36 @@ async function installBrowsers() {
   });
 }
 
-async function captureSession() {
-  info('
-=== Session Capture ===');
+async function captureSession(skipConfirm = false) {
+  info('\n=== Session Capture ===');
   info('A browser window will open for you to log in to Claude.');
-  info('After logging in, the session will be saved automatically.');
-  info('
-Press Ctrl+C to cancel, or press Enter to continue...');
+  info('After logging in, the session will be saved automatically.\n');
 
-  // Wait for user confirmation
-  await new Promise((resolve) => {
-    process.stdin.once('data', resolve);
-  });
+  // Only prompt if we have a TTY (interactive terminal)
+  if (!skipConfirm && process.stdin.isTTY) {
+    const { proceed } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'proceed',
+        message: 'Ready to open browser and capture session?',
+        default: true
+      }
+    ]);
+
+    if (!proceed) {
+      warn('Session capture cancelled');
+      return false;
+    }
+  } else if (!skipConfirm) {
+    info('Non-interactive mode detected - proceeding automatically in 3 seconds...');
+    await new Promise(resolve => setTimeout(resolve, 3000));
+  }
 
   const manager = new SessionManager();
   
   try {
     await manager.captureSession();
-    success('
-✓ Session captured successfully!');
+    success('\n✓ Session captured successfully!');
     return true;
   } catch (err) {
     error(`Session capture failed: ${err.message}`);
@@ -107,9 +123,7 @@ async function checkExistingSession() {
 }
 
 async function main() {
-  console.log('
-=== Claude Chat Sync Setup ===
-');
+  console.log('\n=== Claude Chat Sync Setup ===\n');
 
   // Step 1: Check Playwright
   info('Step 1: Checking dependencies...');
@@ -125,8 +139,7 @@ async function main() {
   }
 
   // Step 2: Install browsers
-  info('
-Step 2: Checking Playwright browsers...');
+  info('\nStep 2: Checking Playwright browsers...');
   try {
     await installBrowsers();
   } catch (err) {
@@ -135,8 +148,7 @@ Step 2: Checking Playwright browsers...');
   }
 
   // Step 3: Check/capture session
-  info('
-Step 3: Checking Claude Chat session...');
+  info('\nStep 3: Checking Claude Chat session...');
   const hasValidSession = await checkExistingSession();
   
   if (!hasValidSession) {
@@ -150,12 +162,9 @@ Step 3: Checking Claude Chat session...');
   }
 
   // Done!
-  success('
-✓ Chat sync setup complete!
-');
+  success('\n✓ Chat sync setup complete!\n');
   info('You can now run: claude-context-sync sync --target chat');
-  info('Or sync everything: claude-context-sync sync --target all
-');
+  info('Or sync everything: claude-context-sync sync --target all\n');
 }
 
 main().catch((err) => {

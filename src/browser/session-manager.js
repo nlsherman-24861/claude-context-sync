@@ -23,26 +23,73 @@ export class SessionManager {
       // Ensure config directory exists
       await ensureDir(this.configDir);
 
-      const browser = await chromium.launch({ 
+      const browser = await chromium.launch({
         headless: false,  // Must be headed for login
-        timeout: 120000   // 2 minute timeout for browser launch
+        timeout: 120000,   // 2 minute timeout for browser launch
+        args: [
+          '--disable-blink-features=AutomationControlled'
+        ]
       });
 
-      const context = await browser.newContext();
+      const context = await browser.newContext({
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        viewport: { width: 1280, height: 720 },
+        locale: 'en-US',
+        timezoneId: 'America/New_York'
+      });
       const page = await context.newPage();
 
       info('Opening Claude Chat...');
       await page.goto('https://claude.ai');
 
       info('Please log in to Claude...');
+      info('If you receive an email verification link, paste it into the Playwright browser.');
       info('Waiting for authentication...');
 
-      // Wait for successful login - either chat URL or presence of user menu
-      await Promise.race([
-        page.waitForURL('**/chat/**', { timeout: 300000 }), // 5 min
-        page.waitForSelector('[data-testid="user-menu"]', { timeout: 300000 }),
-        page.waitForSelector('text=New chat', { timeout: 300000 })
-      ]);
+      // Monitor ALL pages in context for authentication success
+      const waitForAuthOnAnyPage = async () => {
+        return new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error('Authentication timeout after 5 minutes')), 300000);
+
+          // Check existing page
+          const checkAuth = async (pageToCheck) => {
+            try {
+              await Promise.race([
+                pageToCheck.waitForURL('**/chat/**', { timeout: 5000 }).then(() => true),
+                pageToCheck.waitForSelector('[data-testid="user-menu"]', { timeout: 5000 }).then(() => true),
+                pageToCheck.waitForSelector('text=New chat', { timeout: 5000 }).then(() => true)
+              ]).then(() => {
+                clearTimeout(timeout);
+                resolve(pageToCheck);
+              }).catch(() => {}); // Ignore individual check failures
+            } catch (e) {
+              // Keep trying
+            }
+          };
+
+          // Monitor current page
+          const checkInterval = setInterval(() => checkAuth(page), 1000);
+
+          // Listen for new pages (e.g., from email verification links)
+          context.on('page', async (newPage) => {
+            info('New tab detected - monitoring for authentication...');
+            const newPageCheckInterval = setInterval(() => checkAuth(newPage), 1000);
+
+            newPage.on('close', () => {
+              clearInterval(newPageCheckInterval);
+            });
+          });
+
+          // Cleanup
+          context.on('close', () => {
+            clearInterval(checkInterval);
+            clearTimeout(timeout);
+            reject(new Error('Browser closed before authentication'));
+          });
+        });
+      };
+
+      await waitForAuthOnAnyPage();
 
       success('Authentication detected!');
 
