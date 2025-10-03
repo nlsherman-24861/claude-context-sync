@@ -183,7 +183,8 @@ describe('Sync Commands', () => {
 
       const result = await syncAll();
 
-      expect(result.errors.length).toBe(2);
+      // Only expect 1 error (global) since chat sync is now disabled in syncAll
+      expect(result.errors.length).toBe(1);
       expect(result.errors.some(e => e.target === 'global')).toBe(true);
       expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('error'));
     });
