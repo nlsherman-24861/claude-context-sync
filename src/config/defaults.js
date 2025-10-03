@@ -28,7 +28,6 @@ export const DEFAULT_CONFIG = {
     }
   },
   technical: {
-    preferred_languages: [],
     frameworks: [],
     tools: [],
     platforms: []

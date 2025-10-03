@@ -2,425 +2,205 @@
 
 **Single source of truth for your Claude preferences across all interfaces.**
 
-Tired of maintaining duplicate context in Claude Chat preferences, global CLAUDE.md, and per-project CLAUDE.md files? This tool treats your preferences as structured data and intelligently compiles them for each target environment.
+Maintain your Claude preferences in structured YAML and export them to different formats for Claude Chat, Claude Code, and project-specific CLAUDE.md files.
 
 ## The Problem
 
 You interact with Claude through multiple interfaces:
 
 - **Claude Chat** (claude.ai) - web/mobile chat with preferences field
-- **Claude Code** (CLI) - global `~/.config/claudecode/CLAUDE.md`
+- **Claude Code** (CLI) - global `~/.claude/CLAUDE.md`
 - **Project-specific** - `.github/CLAUDE.md` in each repository
 
 Each needs similar-but-different context about you, your working style, and preferences. Keeping them in sync manually is tedious and error-prone.
 
-## The Solution
-
-```bash
-# One canonical source
-vim ~/.config/claude/preferences.yaml
-
-# Sync everywhere
-claude-context-sync sync --all
-
-# Behind the scenes:
-# ✅ Updates Claude Chat preferences (automated via Playwright)
-# ✅ Updates global CLAUDE.md for Claude Code
-# ✅ Updates project CLAUDE.md files (via overlay)
-# ✅ All from a single source of truth
-```
-
 ## Features
 
-### 🎯 Single Source of Truth
+### ✅ Currently Implemented
 
-- Maintain preferences in structured YAML format
-- Define scope for each preference (chat, global, project)
-- Version control your preferences like code
+- ✅ **YAML Configuration**: Structured preferences with validation
+- ✅ **Format Export**: Export to `claude-md` (CLAUDE.md) and `chat` formats
+- ✅ **File Sync**: Update global and project CLAUDE.md files
+- ✅ **Backup System**: Automatic backups before sync operations
+- ✅ **Repository Discovery**: Find repos with `.claude-sync` markers
+- ✅ **Validation**: YAML structure and schema validation
+- ✅ **Markdown Linting**: Generated output passes markdownlint
+- ✅ **Cross-platform Wrappers**: Install unified command wrappers
+- ✅ **219 Tests Passing**: Comprehensive test coverage
 
-### 🤖 Automated Sync
+### 🚧 Roadmap
 
-- **Claude Chat**: Headless browser automation (Playwright)
-- **Global CLAUDE.md**: Direct file updates
-- **Project CLAUDE.md**: Intelligent overlay on auto-detected context
-
-### 🔒 Secure Session Management
-
-- One-time browser authentication capture
-- Reusable session tokens stored locally
-- Works in headless/CI environments after initial setup
-
-### 🚀 CI/CD Ready
-
-- Fully headless operation
-- GitHub Actions integration
-- Automatic sync on preference changes
-
-### 🎨 Format Optimization
-
-- Chat format: Natural prose for conversational AI
-- CLAUDE.md format: Structured markdown for code tools
-- Project format: Minimal overlay on project-specific context
+- [ ] Playwright-based Claude Chat sync (automated browser updates)
+- [ ] Session management for headless operation
+- [ ] Interactive diff viewer
+- [ ] Profile management (multiple personas)
 
 ## Quick Start
 
 ```bash
-# Install
-npm install -g claude-context-sync
+# Validate your preferences
+claude-context-sync validate
 
-# Initial setup (one-time, requires GUI)
-claude-context-sync init
-claude-context-sync setup --authenticate
+# Export to CLAUDE.md format
+claude-context-sync export claude-md
 
-# Edit your canonical preferences
-code ~/.config/claude/preferences.yaml
-
-# Sync to all targets
-claude-context-sync sync --all
-
-# Or sync individually
-claude-context-sync sync --target chat
-claude-context-sync sync --target global
-claude-context-sync sync --target project --path ~/my-repo
-```
-
-## Installation
-
-### Prerequisites
-
-- Node.js 18+
-- npm or pnpm
-
-### Global Install
-
-```bash
-npm install -g claude-context-sync
-```
-
-### Local Development
-
-```bash
-git clone https://github.com/nlsherman-24861/claude-context-sync.git
-cd claude-context-sync
-npm install
-npm link
-```
-
-## Configuration
-
-### Canonical Preferences Format
-
-`~/.config/claude/preferences.yaml`:
-
-```yaml
-# Personal context (chat, global)
-personal:
-  name: "Your Name"
-  background: "15-20 years software engineering experience"
-  interests: 
-    - "sci-fi"
-    - "psychology"
-    - "technical debates"
-
-# Working style (chat, global, project)
-working_style:
-  communication:
-    - "High-level summaries with structured outlines"
-    - "Concise bullets for action items"
-    - "Multiple solution paths when uncertain"
-  
-  feedback:
-    - "Positive reinforcement without pandering"
-    - "Constructive redirection over dwelling on failures"
-    - "Never pushy or overly motivating"
-
-# Technical approach (global, project)
-technical_approach:
-  philosophy:
-    - "Prefer understanding root causes over quick fixes"
-    - "Pragmatic AI optimist - leverage strengths, aware of limits"
-    - "Balance automation with maintainability"
-  
-  coding_style:
-    - "Clean, maintainable code"
-    - "Strong typing where possible"
-    - "Comprehensive testing"
-
-# Personality (chat, global)
-personality:
-  name: "JAX"  # Optional: customize your assistant's persona
-  traits:
-    - "Friendly with dry humor and good-natured snark"
-    - "Gen-X/early millennial sensibilities"
-    - "Motivating without being pushy"
-    - "Shares interests in sci-fi and psychology"
-  
-  relationship: "Pseudo-anthropomorphic assistant with intimate context"
-```
-
-### Scope Rules
-
-Each section can be tagged with target scopes:
-
-- `chat`: Appears in Claude Chat preferences (natural prose)
-- `global`: Appears in global CLAUDE.md (structured)
-- `project`: Appears in project CLAUDE.md (minimal overlay)
-
-## Commands
-
-### `init`
-
-Initialize configuration structure and create template preferences file.
-
-```bash
-claude-context-sync init
-```
-
-### `setup --authenticate`
-
-Capture authenticated browser session (one-time setup, requires GUI).
-
-```bash
-claude-context-sync setup --authenticate
-```
-
-This opens a browser window, lets you log in to Claude, and saves the session for future headless use.
-
-### `sync`
-
-Synchronize preferences to target(s).
-
-```bash
-# Sync everything
-claude-context-sync sync --all
-
-# Sync to Claude Chat
-claude-context-sync sync --target chat
+# Export to chat format
+claude-context-sync export chat
 
 # Sync to global CLAUDE.md
 claude-context-sync sync --target global
+```
 
-# Sync to specific project
-claude-context-sync sync --target project --path ~/my-repo
+## Preference Sections
 
-# Dry run (preview changes)
-claude-context-sync sync --target chat --dry-run
+The `default-preferences.yaml` supports comprehensive preference definitions organized into sections that cover your background, working style, technical preferences, and agent collaboration patterns.
+
+### Key Highlights
+
+### Testing Standards
+
+- Tests MUST always pass for new OR changed code
+- Clean THEN build BEFORE each test run
+- No reduced test coverage after changes
+
+### Context Management
+
+- Show snippets and summaries when making changes
+- Strategize multi-step processes to limit round trips
+- Intelligent semantic compaction near context limits
+
+### Agent Collaboration
+
+- `@claude` mention patterns for GitHub Actions
+- Automatic PR creation when agents complete work
+- Bot behavior and infinite loop prevention
+- Repository configuration via `.github/CLAUDE.md`
+
+### Best Practices
+
+- Thorough escaping for CLI args, regex, sed operations
+- Cross-platform compatibility (Windows/macOS/Linux)
+- File path handling, line endings, shell differences
+
+### File Operations
+
+- Windows: `explorer "file:///C:/path/to/file.txt"` (exit code 1 is normal)
+- macOS: `open "<filepath>"`
+- Linux: `xdg-open "<filepath>"` or `${EDITOR:-vi} "<filepath>"`
+
+## Commands
+
+### `validate`
+
+```bash
+claude-context-sync validate
+claude-context-sync validate -c /path/to/preferences.yaml
 ```
 
 ### `export`
 
-Export preferences in specific format without syncing.
-
 ```bash
-# Export for Claude Chat (prose format)
-claude-context-sync export --format chat
+# List available formats
+claude-context-sync export --list-formats
 
-# Export for CLAUDE.md (structured format)
-claude-context-sync export --format claude-md
+# Export to CLAUDE.md format
+claude-context-sync export claude-md -o output.md
 
-# Save to file
-claude-context-sync export --format chat > chat-preferences.txt
+# Export to chat format
+claude-context-sync export chat
 ```
 
-### `diff`
-
-Show differences between canonical preferences and current targets.
+### `sync`
 
 ```bash
-# Check all targets
-claude-context-sync diff
+# Sync to global CLAUDE.md
+claude-context-sync sync --target global
 
-# Check specific target
-claude-context-sync diff --target global
+# Sync to all discovered repos
+claude-context-sync sync --target all
+
+# Dry run
+claude-context-sync sync --target global --dry-run
 ```
 
-### `validate`
-
-Validate preferences YAML syntax and structure.
+### `discover` & `sync-repos`
 
 ```bash
-claude-context-sync validate
+# Find repos with .claude-sync markers
+claude-context-sync discover
+
+# Sync to all discovered repos
+claude-context-sync sync-repos --dry-run
 ```
 
-## Advanced Usage
-
-### GitHub Actions Integration
-
-```yaml
-name: Sync Claude Preferences
-
-on:
-  push:
-    paths:
-      - '.config/claude/preferences.yaml'
-
-jobs:
-  sync:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v3
-      
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      
-      - name: Install claude-context-sync
-        run: npm install -g claude-context-sync
-      
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-      
-      - name: Restore Claude session
-        run: |
-          mkdir -p ~/.config/claude
-          echo "${{ secrets.CLAUDE_SESSION_JSON }}" > ~/.config/claude/session.json
-      
-      - name: Sync to Claude Chat
-        run: claude-context-sync sync --target chat
-```
-
-### Integration with claude-actions-setup
-
-If you use [claude-actions-setup](https://github.com/nlsherman-24861/claude-actions-setup), you can automatically enrich project CLAUDE.md files:
+### `backups` & `restore`
 
 ```bash
-# Run claude-actions-setup
+# List backups
+claude-context-sync backups --target global
+
+# Restore from backup
+claude-context-sync restore --target global --backup 1
+```
+
+## Agent Collaboration with GitHub Actions
+
+If using [claude-actions-setup](https://github.com/nlsherman-24861/claude-actions-setup), the preferences include specific patterns:
+
+### `@claude` Mention Patterns
+
+```bash
+# In GitHub issues/PRs:
+@claude implement this feature based on the issue description
+@claude fix the TypeError in the user dashboard component
+@claude review this PR and suggest improvements
+```
+
+### Workflow Expectations
+
+- Agent automatically creates PRs when completing work on issues
+- Follows project standards defined in `.github/CLAUDE.md`
+- Respects existing code patterns, test frameworks, linting rules
+- Comments from `github-actions[bot]` user
+- User commonly refers to these remote instances as "the agent"
+
+### Terminology
+
+The preferences document that user colloquially refers to remote Claude Code instances (triggered by `@claude` mentions in GitHub Actions) as "agent" or "the agent".
+
+## Configuration File Location
+
+Default config paths (checked in order):
+
+1. `$CLAUDE_CONTEXT_CONFIG` (environment variable)
+2. `~/.config/claude/preferences.yaml`
+3. `~/.claude/preferences.yaml`
+4. `./default-preferences.yaml` (project root)
+
+## Integration with claude-actions-setup
+
+Works seamlessly with [claude-actions-setup](https://github.com/nlsherman-24861/claude-actions-setup):
+
+```bash
+# 1. Set up GitHub Actions integration
 npx @nlsherman/claude-actions-setup --target-path ~/my-repo
 
-# Then overlay your personal preferences
+# 2. Sync your personal preferences
 claude-context-sync sync --target project --path ~/my-repo
 ```
 
-The tool will intelligently merge:
-
-- **Auto-detected context** (tech stack, build commands, etc.)
-- **Your preferences** (working style, communication, etc.)
-
-### Session Management
+## Testing
 
 ```bash
-# Check session validity
-claude-context-sync session --check
+# Run all tests (219 tests)
+npm test
 
-# Refresh expired session
-claude-context-sync setup --refresh-session
+# Run with coverage
+npm run test:coverage
 
-# View session info
-claude-context-sync session --info
+# Run markdown linting
+npm run lint:md
 ```
-
-## How It Works
-
-### Architecture
-
-```
-┌─────────────────────────────────────┐
-│   preferences.yaml                  │
-│   (Single Source of Truth)          │
-└─────────────────┬───────────────────┘
-                  │
-                  │ parse & scope
-                  │
-         ┌────────┴─────────┐
-         │   Transformer    │
-         │   Engine         │
-         └────┬───┬────┬────┘
-              │   │    │
-    ┌─────────┘   │    └──────────┐
-    │             │               │
-┌───▼────┐   ┌───▼────┐   ┌──────▼─────┐
-│ Chat   │   │ Global │   │  Project   │
-│ Format │   │ Format │   │  Format    │
-└───┬────┘   └───┬────┘   └──────┬─────┘
-    │            │               │
-┌───▼────────┐ ┌─▼──────────┐ ┌─▼─────────┐
-│ Playwright │ │ File Write │ │ File Merge│
-│ Automation │ │            │ │           │
-└────────────┘ └────────────┘ └───────────┘
-```
-
-### Playwright Session Flow
-
-1. **Initial Setup** (headed, one-time):
-   - Launch browser with GUI
-   - User logs in to claude.ai
-   - Capture cookies/localStorage
-   - Save to `~/.config/claude/session.json`
-
-2. **Subsequent Updates** (headless, automated):
-   - Load saved session
-   - Navigate to preferences page
-   - Update preferences field via DOM
-   - Click save button
-   - Verify success
-   - Close browser
-
-3. **Session Refresh** (when expired):
-   - Detect expired session
-   - Re-run headed authentication
-   - Update stored session
-
-## Troubleshooting
-
-### Session Expired
-
-```bash
-# Error: Session invalid or expired
-claude-context-sync setup --refresh-session
-```
-
-### Sync Failed
-
-```bash
-# Check what would happen without executing
-claude-context-sync sync --target chat --dry-run
-
-# Verbose logging
-claude-context-sync sync --target chat --verbose
-```
-
-### Playwright Issues
-
-```bash
-# Reinstall browsers
-npx playwright install --with-deps chromium
-
-# Test browser automation
-claude-context-sync test --browser
-```
-
-### Validation Errors
-
-```bash
-# Check YAML syntax
-claude-context-sync validate --verbose
-```
-
-## Roadmap
-
-- [x] Core CLI structure
-- [ ] YAML parser and validator
-- [ ] Format transformers (chat, global, project)
-- [ ] Playwright session capture
-- [ ] Headless preference updates
-- [ ] File sync for global/project CLAUDE.md
-- [ ] Diff engine
-- [ ] GitHub Actions templates
-- [ ] Interactive init wizard
-- [ ] TOML/JSON format support
-- [ ] Profile management (multiple personas)
-- [ ] Session auto-refresh
-
-## Contributing
-
-Contributions welcome! Areas of interest:
-
-- Additional format outputs
-- Alternative authentication methods
-- Session persistence strategies
-- UI for preference management
-- Template library
 
 ## Related Projects
 
@@ -429,14 +209,10 @@ Contributions welcome! Areas of interest:
 
 ## License
 
-MIT License - use freely in your projects.
-
-## Support
-
-- **Issues**: https://github.com/nlsherman-24861/claude-context-sync/issues
-- **Discussions**: https://github.com/nlsherman-24861/claude-context-sync/discussions
+MIT
 
 ---
 
-**Created**: October 2025  
-**Status**: Active Development
+**Tests**: 219 passing ✓  
+**Status**: Active Development  
+**Created**: October 2025
