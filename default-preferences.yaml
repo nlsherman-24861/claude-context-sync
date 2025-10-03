@@ -509,6 +509,24 @@ project_defaults:
     - "- CI/CD template setup based on detected build tools"
     - "- Consistent project structure across repositories"
     - "- Immediate agent collaboration capability via @claude mentions"
+    - ""
+    - "Bulk repository marking and discovery:"
+    - "- Use `mark --bulk --user <username>` to clone and mark all private repos"
+    - "- Exclude repos with `--exclude pattern1 pattern2` (supports globs: test-*,
+      *-backup)"
+    - "- Create ~/.repos/.claude-sync-workspace for persistent excludes"
+    - "- Use `discover --source github --user <username>` for API-based discovery
+      (no cloning)"
+    - "- Use `discover --source filesystem` for local filesystem scan (default)"
+    - "- Discovered repos with auto_update: true sync automatically via `sync
+      --target all`"
+    - ""
+    - "Repository sync options:"
+    - "- `sync --target all` syncs global CLAUDE.md + auto-update repos"
+    - "- `sync --target global` syncs only ~/.claude/CLAUDE.md"
+    - "- `sync-repos` runs configurator updates across discovered repos"
+    - "- Per-repo status shown: ✓ success, ⚠ skipped, ✗ failed"
+    - "- Use `--dry-run` flag to preview changes before applying"
   timeboxing_and_completion:
     philosophy:
       - Balance between "good enough" and "perfect now" - lean toward "perfect

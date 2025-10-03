@@ -23,7 +23,8 @@ Each needs similar-but-different context about you, your working style, and pref
 - ✅ **File Sync**: Update global and project CLAUDE.md files
 - ✅ **Backup System**: Automatic backups before sync operations
 - ✅ **Bulk Repository Marking**: Clone and mark all private/public repos with one command
-- ✅ **Repository Discovery**: Find repos with `.claude-sync` markers
+- ✅ **Repository Exclusion**: Exclude repos by pattern (CLI flag + workspace config)
+- ✅ **Repository Discovery**: Filesystem scan + GitHub API modes
 - ✅ **Validation**: YAML structure and schema validation
 - ✅ **Markdown Linting**: Generated output passes markdownlint
 - ✅ **Cross-platform Wrappers**: Install unified command wrappers
@@ -147,22 +148,42 @@ claude-context-sync mark /path/to/repo
 # Clones repos to ~/repos and adds .claude-sync markers
 claude-context-sync mark --bulk --user nlsherman-24861 --filter private
 
+# Exclude specific repos with glob patterns
+claude-context-sync mark --bulk --user nlsherman-24861 --exclude thread-* archived-*
+
 # Options for bulk marking:
 # --filter: private, public, or all (default: private)
 # --repos-dir: Custom directory for cloned repos (default: ~/repos)
+# --exclude: Exclude repos matching patterns (supports glob: *, test-*, *-backup)
 # --dry-run: Preview without making changes
 # --force: Overwrite existing markers
+
+# Persistent excludes via workspace config file
+# Create ~/repos/.claude-sync-workspace with:
+# exclude:
+#   - archived-*
+#   - test-*
+#   - "*-backup"
 ```
 
 ### `discover` & `sync-repos`
 
-**Discovery is dynamic** - scans filesystem directories (not GitHub API) for `.claude-sync` markers.
+**Two discovery modes:**
 
-Default scan paths: `~/projects`, `~/work`, `~/repos`
+1. **Filesystem** (default) - Scans local directories for `.claude-sync` markers
+   - Default scan paths: `~/projects`, `~/work`, `~/repos`
+   - Fast, works offline
+
+2. **GitHub API** - Checks remote repos via API without cloning
+   - Fresh, real-time discovery
+   - Useful for checking which repos have markers pushed to GitHub
 
 ```bash
-# Find repos with .claude-sync markers (scans default paths)
+# Filesystem discovery (default)
 claude-context-sync discover
+
+# GitHub API discovery (no local clones needed)
+claude-context-sync discover --source github --user nlsherman-24861 --filter private
 
 # Sync configurator updates to all discovered repos with auto_update: true
 claude-context-sync sync-repos --dry-run
