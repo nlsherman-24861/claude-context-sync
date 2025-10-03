@@ -162,11 +162,20 @@ program
 program
   .command('discover')
   .description('Discover repositories with .claude-sync markers')
-  .option('--scan <paths...>', 'Paths to scan for repositories')
+  .option('--scan <paths...>', 'Paths to scan for repositories (filesystem source)')
+  .option('--source <type>', 'Discovery source: filesystem or github', 'filesystem')
+  .option('--user <username>', 'GitHub username (required for --source github)')
+  .option('--filter <type>', 'Filter repos: private, public, or all (github source)', 'all')
   .action(async (options) => {
     try {
       const { discoverRepos } = await import('../src/commands/sync-repos.js');
-      await discoverRepos({ scan: options.scan || [], verbose: program.opts().verbose });
+      await discoverRepos({
+        scan: options.scan || [],
+        source: options.source,
+        user: options.user,
+        filter: options.filter,
+        verbose: program.opts().verbose
+      });
     } catch (e) {
       printError(e);
       process.exit(1);

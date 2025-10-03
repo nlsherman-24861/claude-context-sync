@@ -4,7 +4,7 @@
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { mkdir, writeFile, access } from 'fs/promises';
+import { mkdir, writeFile, access, readFile } from 'fs/promises';
 import { join } from 'path';
 import { homedir } from 'os';
 import { info, success, warn, error as logError } from '../utils/logger.js';
@@ -156,6 +156,40 @@ async function markRepo(repoName, repoUrl, reposDir, config = {}, options = {}) 
 }
 
 /**
+ * Load workspace config with exclude patterns
+ */
+async function loadWorkspaceConfig(reposDir) {
+  const workspaceConfigPath = join(reposDir, '.claude-sync-workspace');
+
+  try {
+    await access(workspaceConfigPath);
+    const content = await readFile(workspaceConfigPath, 'utf-8');
+    return yaml.load(content);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Check if repo should be excluded
+ */
+function shouldExcludeRepo(repoName, excludePatterns) {
+  if (!excludePatterns || excludePatterns.length === 0) {
+    return false;
+  }
+
+  for (const pattern of excludePatterns) {
+    // Simple glob-like matching: * matches anything
+    const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+    if (regex.test(repoName)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * Bulk mark command
  */
 export async function bulkMarkCmd(options = {}) {
@@ -165,7 +199,8 @@ export async function bulkMarkCmd(options = {}) {
     reposDir = getDefaultReposDir(),
     config = {},
     dryRun = false,
-    force = false
+    force = false,
+    exclude = []
   } = options;
 
   if (!user) {

@@ -1,6 +1,10 @@
 import { readdirSync, statSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { parse as parseYaml } from 'yaml';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 /**
  * Discovers repositories with .claude-sync markers
@@ -172,5 +176,87 @@ export class RepoDiscovery {
    */
   getInteractiveRepos(repos) {
     return repos.filter(repo => repo.config.auto_update !== true);
+  }
+
+  /**
+   * Discover repositories from GitHub API
+   */
+  async discoverFromGitHub(username, options = {}) {
+    const { filter = 'all' } = options;
+    const repos = [];
+
+    try {
+      // List repos from GitHub
+      const ghRepos = await this._listGitHubRepos(username, filter);
+
+      // Check each repo for .claude-sync marker via API
+      for (const repo of ghRepos) {
+        const marker = await this._fetchMarkerFromGitHub(username, repo.name);
+
+        if (marker) {
+          repos.push({
+            path: null, // No local path
+            remote: repo.url,
+            name: repo.name,
+            config: marker,
+            source: 'github',
+            isPrivate: repo.isPrivate
+          });
+        }
+      }
+
+      return repos;
+    } catch (error) {
+      throw new Error(`GitHub discovery failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * List repositories from GitHub
+   */
+  async _listGitHubRepos(username, filter = 'all') {
+    let visibilityFilter = '';
+
+    if (filter === 'private') {
+      visibilityFilter = '--source --visibility private';
+    } else if (filter === 'public') {
+      visibilityFilter = '--source --visibility public';
+    } else {
+      visibilityFilter = '--source';
+    }
+
+    try {
+      const { stdout } = await execAsync(
+        `gh repo list ${username} ${visibilityFilter} --limit 100 --json name,url,isPrivate`
+      );
+
+      return JSON.parse(stdout);
+    } catch (error) {
+      throw new Error(`Failed to list repos: ${error.message}`);
+    }
+  }
+
+  /**
+   * Fetch .claude-sync marker file from GitHub via API
+   */
+  async _fetchMarkerFromGitHub(owner, repo) {
+    try {
+      const { stdout } = await execAsync(
+        `gh api repos/${owner}/${repo}/contents/.claude-sync --jq .content`
+      );
+
+      // GitHub returns base64-encoded content
+      const content = Buffer.from(stdout.trim(), 'base64').toString('utf-8');
+      const config = parseYaml(content);
+
+      if (config && config.sync !== false) {
+        return this._normalizeConfig(config);
+      }
+
+      return null;
+    } catch (error) {
+      // File doesn't exist or other error
+      return null;
+    }
   }
 }

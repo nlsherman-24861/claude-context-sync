@@ -8,38 +8,70 @@ import { join } from 'path';
  * Discover repositories with .claude-sync markers
  */
 export async function discoverRepos(options = {}) {
-  const { scan = [], verbose = false } = options;
+  const {
+    scan = [],
+    verbose = false,
+    source = 'filesystem',
+    user = null,
+    filter = 'all'
+  } = options;
 
   try {
-    // Default scan paths if none provided
-    const scanPaths = scan.length > 0 ? scan : [
-      join(homedir(), 'projects'),
-      join(homedir(), 'work'),
-      join(homedir(), 'repos')
-    ];
-
-    info('Scanning for repositories with .claude-sync markers...');
-    if (verbose) {
-      info(`Scan paths: ${scanPaths.join(', ')}`);
-    }
-
     const discovery = new RepoDiscovery();
-    const repos = await discovery.discover(scanPaths, { maxDepth: 3 });
+    let repos = [];
 
-    if (repos.length === 0) {
-      warn('No repositories found with .claude-sync markers');
-      info('To mark a repository for auto-sync, create a .claude-sync file in its root:');
-      console.log('');
-      console.log('  sync: true');
-      console.log('  auto_update: true');
-      console.log('  configurator: claude-actions-setup');
-      return [];
+    if (source === 'github') {
+      // GitHub API discovery
+      if (!user) {
+        throw new Error('GitHub username required for --source github (use --user <username>)');
+      }
+
+      info(`Discovering repositories from GitHub for user: ${user}`);
+      info(`Filter: ${filter}\n`);
+
+      repos = await discovery.discoverFromGitHub(user, { filter });
+
+      if (repos.length === 0) {
+        warn('No repositories found with .claude-sync markers on GitHub');
+        info('Repositories need a .claude-sync file in their root to be discovered.');
+        info('Use "mark --bulk" to clone and mark repos locally.');
+        return [];
+      }
+    } else {
+      // Filesystem discovery
+      const scanPaths = scan.length > 0 ? scan : [
+        join(homedir(), 'projects'),
+        join(homedir(), 'work'),
+        join(homedir(), 'repos')
+      ];
+
+      info('Scanning for repositories with .claude-sync markers...');
+      if (verbose) {
+        info(`Scan paths: ${scanPaths.join(', ')}`);
+      }
+
+      repos = await discovery.discover(scanPaths, { maxDepth: 3 });
+
+      if (repos.length === 0) {
+        warn('No repositories found with .claude-sync markers');
+        info('To mark a repository for auto-sync, create a .claude-sync file in its root:');
+        console.log('');
+        console.log('  sync: true');
+        console.log('  auto_update: true');
+        console.log('  configurator: claude-actions-setup');
+        return [];
+      }
     }
 
     success(`Found ${repos.length} repository(ies) with .claude-sync markers:\n`);
 
     repos.forEach((repo, i) => {
-      console.log(`${i + 1}. ${repo.path}`);
+      if (source === 'github') {
+        console.log(`${i + 1}. ${repo.name} ${repo.isPrivate ? '(private)' : '(public)'}`);
+        console.log(`   Remote: ${repo.remote}`);
+      } else {
+        console.log(`${i + 1}. ${repo.path}`);
+      }
       console.log(`   Configurator: ${repo.config.configurator}`);
       console.log(`   Auto-update: ${repo.config.auto_update ? 'Yes' : 'No'}`);
       console.log(`   Create PR: ${repo.config.create_pr ? 'Yes' : 'No'}`);
