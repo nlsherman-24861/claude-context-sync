@@ -28,7 +28,7 @@ Each needs similar-but-different context about you, your working style, and pref
 - ✅ **Validation**: YAML structure and schema validation
 - ✅ **Markdown Linting**: Generated output passes markdownlint
 - ✅ **Cross-platform Wrappers**: Install unified command wrappers
-- ✅ **219 Tests Passing**: Comprehensive test coverage
+- ✅ **226 Tests Passing**: Comprehensive test coverage
 
 ### 🚧 Experimental (Chat Sync)
 
@@ -301,7 +301,7 @@ claude-context-sync sync --target project --path ~/my-repo
 ## Testing
 
 ```bash
-# Run all tests (219 tests)
+# Run all tests (226 tests)
 npm test
 
 # Run with coverage
@@ -310,6 +310,16 @@ npm run test:coverage
 # Run markdown linting
 npm run lint:md
 ```
+
+## Documentation
+
+Detailed documentation is available in the `docs/` directory:
+
+- **[Auto-Sync Repositories](docs/AUTO_SYNC_REPOS.md)** - Bulk repository marking and sync workflows
+- **[Compression Algorithms](docs/COMPRESSION_ALGORITHMS.md)** - Token optimization strategies for different output formats
+- **[Git Authentication](docs/GIT_AUTH.md)** - GitHub credential management and authentication setup
+- **[Schema Reference](docs/SCHEMA.md)** - Complete YAML preference structure and validation
+- **[Wrapper Scripts](docs/WRAPPER_SCRIPTS.md)** - Cross-platform command wrapper installation
 
 ## Related Projects
 
@@ -322,6 +332,6 @@ MIT
 
 ---
 
-**Tests**: 219 passing ✓  
+**Tests**: 226 passing ✓  
 **Status**: Active Development  
 **Created**: October 2025

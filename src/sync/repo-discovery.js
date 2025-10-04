@@ -127,16 +127,16 @@ export class RepoDiscovery {
       try {
         const config = parseYaml(content);
         return this._normalizeConfig(config);
-      } catch (yamlError) {
+      } catch (_yamlError) {
         // Try parsing as JSON
         try {
           const config = JSON.parse(content);
           return this._normalizeConfig(config);
-        } catch (jsonError) {
+        } catch (_jsonError) {
           return null;
         }
       }
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }
@@ -245,7 +245,7 @@ export class RepoDiscovery {
       }
 
       return null;
-    } catch (error) {
+    } catch (_error) {
       // File doesn't exist or other error
       return null;
     }

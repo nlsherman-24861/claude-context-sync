@@ -186,7 +186,7 @@ export class RepoSync {
    * Extract preserved sections from existing CLAUDE.md file
    * Looks for HTML comment markers indicating project-specific content
    */
-  _extractPreservedSections(content, sectionNames) {
+  _extractPreservedSections(content, _sectionNames) {
     // Look for the PROJECT-SPECIFIC marker comment
     const startMarker = '<!-- PROJECT-SPECIFIC PREFERENCES';
     const startIndex = content.indexOf(startMarker);
@@ -212,7 +212,7 @@ export class RepoSync {
         stdio: 'pipe'
       });
       return gitStatus.trim().length > 0;
-    } catch (error) {
+    } catch (_error) {
       // Not a git repo or git not available
       return false;
     }

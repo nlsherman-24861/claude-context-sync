@@ -114,7 +114,7 @@ export function preserveComments(originalContent, newData) {
     doc.contents = newData;
     
     return doc.toString();
-  } catch (error) {
+  } catch (_error) {
     // Fallback to regular stringify if comment preservation fails
     return stringifyYaml(newData);
   }

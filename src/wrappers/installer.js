@@ -11,7 +11,7 @@ import {
   getPowerShellProfile,
   isWindows
 } from '../utils/platform.js';
-import { info, success, warn, error } from '../utils/logger.js';
+import { info, success, warn } from '../utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

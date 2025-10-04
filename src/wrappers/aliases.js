@@ -3,7 +3,7 @@
  * Provides the simplified interface mentioned in the issue requirements
  */
 
-import { info, success } from '../utils/logger.js';
+import { info } from '../utils/logger.js';
 
 /**
  * Add unified command aliases to the CLI
@@ -143,7 +143,7 @@ export function setupCommandAliases(program) {
   const syncCommand = program.commands.find(cmd => cmd.name() === 'sync');
   if (syncCommand) {
     // Clone the sync command but with shorter names
-    const allCommand = program
+    program
       .command('all')
       .description('Sync everything (alias for sync --all)')
       .action(async () => {

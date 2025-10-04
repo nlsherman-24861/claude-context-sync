@@ -76,7 +76,7 @@ export function discoverProjectLayers(baseConfigPath) {
       .sort(); // Alphabetical order
 
     return layers;
-  } catch (error) {
+  } catch (_error) {
     // Directory doesn't exist or can't be read - this is fine, layers are optional
     return [];
   }

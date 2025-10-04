@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import { join } from 'path';
 import { homedir } from 'os';
 import { writeJson, readJson, fileExists, ensureDir, chmod } from '../utils/fs.js';
-import { info, success, warn, error as logError } from '../utils/logger.js';
+import { info, success, warn } from '../utils/logger.js';
 
 /**
  * Manages Claude Chat browser sessions for automation
@@ -62,7 +62,7 @@ export class SessionManager {
                 clearTimeout(timeout);
                 resolve(pageToCheck);
               }).catch(() => {}); // Ignore individual check failures
-            } catch (e) {
+            } catch (_e) {
               // Keep trying
             }
           };

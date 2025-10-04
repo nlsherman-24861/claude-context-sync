@@ -38,3 +38,8 @@ build/
 *.original
 *.patch
 /.claude-backups/
+
+# Generated output files (use examples/sample-outputs/ for examples)
+*-output.md
+*-output.txt
+*-output.json

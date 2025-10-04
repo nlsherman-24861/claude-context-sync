@@ -107,7 +107,6 @@ export class FileSync {
   mergeContent(existing, newUserPreferences) {
     // Look for project context marker
     const projectMarker = '# PROJECT CONTEXT';
-    const separatorMarker = '---\n\n# PROJECT CONTEXT';
 
     if (existing.includes(projectMarker)) {
       // Find where project context starts

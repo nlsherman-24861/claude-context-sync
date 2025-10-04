@@ -14,7 +14,7 @@ export function getPackageVersion() {
     const packageJsonPath = join(__dirname, '..', '..', 'package.json');
     const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
     return packageJson.version || 'unknown';
-  } catch (error) {
+  } catch (_error) {
     return 'unknown';
   }
 }
@@ -25,7 +25,7 @@ export function getPackageVersion() {
 export function getGitCommit() {
   try {
     return execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
-  } catch (error) {
+  } catch (_error) {
     return 'unknown';
   }
 }
@@ -44,7 +44,7 @@ export function getGitRepoUrl() {
     }
     // Already https URL, just remove .git suffix
     return remoteUrl.replace(/\.git$/, '');
-  } catch (error) {
+  } catch (_error) {
     return 'https://github.com/nlsherman-24861/claude-context-sync';
   }
 }

@@ -2,12 +2,11 @@ import { info, success, error, warn } from '../utils/logger.js';
 import { loadConfig } from '../config/index.js';
 import { createTransformer } from '../transformers/index.js';
 import { FileSync } from '../sync/file-sync.js';
-import { PreferenceUpdater } from '../browser/preference-updater.js';
 
 /**
  * Sync preferences to Claude Chat via headless browser
  */
-export async function syncChat(options = {}) {
+export async function syncChat(_options = {}) {
   warn('Claude Chat automated sync is disabled');
   info('');
   info('Reason: Automated sync via Playwright/session capture is overly complex');
