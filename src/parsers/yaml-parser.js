@@ -65,7 +65,8 @@ export function validateBasicStructure(data) {
   }
   
   // Check for required top-level sections
-  const requiredSections = ['personal', 'technical', 'project_defaults'];
+  // Note: 'personal' section is legacy, replaced by structured sections (professional_background, personality, etc.)
+  const requiredSections = ['technical', 'project_defaults'];
   for (const section of requiredSections) {
     if (!data[section]) {
       errors.push(`Missing required section: ${section}`);
@@ -73,13 +74,17 @@ export function validateBasicStructure(data) {
       errors.push(`Section '${section}' must be an object`);
     }
   }
-  
-  // Validate personal section structure
-  if (data.personal && typeof data.personal === 'object') {
-    const personalRequired = ['name', 'role'];
-    for (const field of personalRequired) {
-      if (!data.personal[field]) {
-        errors.push(`Missing required field: personal.${field}`);
+
+  // Validate personal section structure (legacy - optional)
+  if (data.personal) {
+    if (typeof data.personal !== 'object') {
+      errors.push(`Section 'personal' must be an object`);
+    } else {
+      const personalRequired = ['name', 'role'];
+      for (const field of personalRequired) {
+        if (!data.personal[field]) {
+          errors.push(`Missing required field: personal.${field}`);
+        }
       }
     }
   }

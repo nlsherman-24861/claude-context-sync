@@ -61,7 +61,7 @@ describe('Export Integration Tests', () => {
       expect(output).toContain('15-20 years practical software engineering');
       expect(output).toContain('Sci-fi and Psychology');
       expect(output).toContain('The user prefers high-level summaries');
-      expect(output).toContain('Think of yourself as "JAX"');
+      expect(output).toContain('Your name is "JAX"');
       
       // Verify natural prose format
       expect(output).not.toContain('##'); // No markdown headers
@@ -79,18 +79,20 @@ describe('Export Integration Tests', () => {
       // Transform
       const output = await transformer.transform();
       
-      // Verify structured markdown
+      // Verify structured markdown with perspective sections
       expect(output).toContain('# Claude Code Preferences');
-      expect(output).toContain('## Professional Background');
-      expect(output).toContain('## Personal Interests');
-      expect(output).toContain('## Working Style');
-      expect(output).toContain('## Technical Approach');
-      expect(output).toContain('## Personality (Optional)');
-      
+      expect(output).toContain('## Claude Persona');
+      expect(output).toContain('## User Context');
+      expect(output).toContain('### Professional Background');
+      expect(output).toContain('### Personal Interests');
+      expect(output).toContain('## User Preferences');
+      expect(output).toContain('### Working Style');
+      expect(output).toContain('### Technical Approach');
+
       // Verify content
       expect(output).toContain('- **Experience**: 15-20 years practical software engineering');
       expect(output).toContain('- High-level summaries with structured outlines');
-      expect(output).toContain('**Assistant Persona**: JAX');
+      expect(output).toContain('**Name**: JAX');
     });
   });
 

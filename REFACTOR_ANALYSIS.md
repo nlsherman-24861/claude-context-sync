@@ -3,11 +3,13 @@
 ## Issues Found
 
 ### 1. `creative_pursuits` - COMPLETELY HARDCODED
+
 **Problem**: Only handles `.music`, hardcoded "makes music under"
 **Location**: All three transformers
 **Impact**: Cannot handle writing, visual arts, dance, photography, etc.
 
 **Occurrences**:
+
 - `hybrid-format.js:85-110` - `if (sections.creative_pursuits?.music)`
 - `chat-format.js:112-149` - `if (pursuits.music)`
 - `claude-md-format.js:101-151` - `if (pursuits.music)`
@@ -15,11 +17,13 @@
 **Fix**: Iterate over `Object.entries(creative_pursuits)`, use generic language
 
 ### 2. `professional_background` - PARTIALLY HARDCODED
+
 **Problem**: Hardcoded "competent engineering buddy", "software engineer"
 **Location**: hybrid-format.js, chat-format.js
 **Impact**: Assumes all users are engineers
 
 **Occurrences**:
+
 - `hybrid-format.js:67` - `"The user is a competent engineering buddy with"`
 - `chat-format.js:95` - `"The user is a software engineer with"`
 - `hybrid-format.js:67` - Fallback: `|| '15-20 years practical software engineering'`
@@ -27,6 +31,7 @@
 **Fix**: Use generic language like "The user has ${experience}" without profession assumption
 
 ### 3. Schema Missing `creative_pursuits` Definition
+
 **Problem**: Section mentioned but never defined in SCHEMA.md
 **Location**: docs/SCHEMA.md
 **Impact**: No contract for what fields are valid/expected
@@ -65,10 +70,12 @@ for (const [pursuitType, pursuitData] of Object.entries(pursuits)) {
 ## Test Coverage Gaps
 
 Current tests only verify:
+
 - ✓ Music creative pursuits (JAX's actual data)
 - ✓ Software engineering background (JAX's actual data)
 
 Missing tests for:
+
 - ✗ Writing creative pursuits
 - ✗ Visual arts creative pursuits
 - ✗ Non-engineering professional backgrounds

@@ -28,6 +28,13 @@ export class HybridFormatTransformer extends BaseTransformer {
       output += `Your name is ${personaName}.\n\n`;
     }
 
+    // CLAUDE PERSONA SECTION - Claude's personality traits
+    const personalityContent = this._formatPersonalityBullets(sections);
+    if (personalityContent) {
+      output += '[Your personality traits:]\n';
+      output += personalityContent;
+    }
+
     // USER CONTEXT SECTION - Who the user is
     output += '[About your user:]\n';
     output += this._formatIdentityProse(sections);
@@ -44,10 +51,6 @@ export class HybridFormatTransformer extends BaseTransformer {
 
     // BULLET SECTIONS - MCP & Environment
     output += this._formatMCPBullets(sections);
-
-    // CLAUDE PERSONA SECTION - Claude's personality traits
-    output += '\n[Your personality traits:]\n';
-    output += this._formatPersonalityProse(sections);
 
     // PROJECT-SPECIFIC SECTION - Critical project context
     if (sections.project_specific) {
@@ -307,7 +310,43 @@ export class HybridFormatTransformer extends BaseTransformer {
   }
 
   /**
-   * Format personality as prose closer
+   * Format personality as bullet list
+   */
+  _formatPersonalityBullets(sections) {
+    let output = '';
+
+    if (sections.personality) {
+      const p = sections.personality;
+
+      // Add archetype/description as first bullet if present
+      if (p.archetype) {
+        output += `- ${p.archetype}\n`;
+      } else if (p.description) {
+        output += `- ${p.description}\n`;
+      }
+
+      // Add traits as individual bullets
+      if (p.traits) {
+        const traits = Array.isArray(p.traits)
+          ? p.traits
+          : Object.values(p.traits).flat();
+        traits.forEach(trait => {
+          output += `- ${trait}\n`;
+        });
+      }
+    }
+
+    // Add from project defaults if present
+    if (sections.project_defaults?.ai_philosophy) {
+      output += `- ${sections.project_defaults.ai_philosophy}\n`;
+    }
+
+    if (output) output += '\n';
+    return output;
+  }
+
+  /**
+   * Format personality as prose closer (LEGACY - kept for compatibility)
    */
   _formatPersonalityProse(sections) {
     let prose = '';
@@ -315,6 +354,14 @@ export class HybridFormatTransformer extends BaseTransformer {
     if (sections.personality) {
       const p = sections.personality;
 
+      // Add archetype/description if present
+      if (p.archetype) {
+        prose += `${p.archetype}. `;
+      } else if (p.description) {
+        prose += `${p.description}. `;
+      }
+
+      // Add traits
       if (p.traits) {
         const traits = Array.isArray(p.traits)
           ? p.traits

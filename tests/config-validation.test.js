@@ -26,47 +26,46 @@ describe('Preferences Validation', () => {
   });
 
   describe('Required structure', () => {
-    it('should require personal.name field', () => {
+    it('should require personal.name field when personal section exists', () => {
       const config = {
         personal: { role: 'Developer' },
         technical: {},
         project_defaults: {}
       };
-      
+
       const validation = validateBasicStructure(config);
       expect(validation.valid).toBe(false);
       expect(validation.errors).toContain('Missing required field: personal.name');
     });
 
-    it('should require personal.role field', () => {
+    it('should require personal.role field when personal section exists', () => {
       const config = {
         personal: { name: 'Test' },
         technical: {},
         project_defaults: {}
       };
-      
+
       const validation = validateBasicStructure(config);
       expect(validation.valid).toBe(false);
       expect(validation.errors).toContain('Missing required field: personal.role');
     });
 
-    it('should require personal section', () => {
+    it('should allow missing personal section (legacy - now optional)', () => {
       const config = {
         technical: {},
         project_defaults: {}
       };
-      
+
       const validation = validateBasicStructure(config);
-      expect(validation.valid).toBe(false);
-      expect(validation.errors).toContain('Missing required section: personal');
+      expect(validation.valid).toBe(true);
+      expect(validation.errors).toEqual([]);
     });
 
     it('should require technical section', () => {
       const config = {
-        personal: { name: 'Test', role: 'Dev' },
         project_defaults: {}
       };
-      
+
       const validation = validateBasicStructure(config);
       expect(validation.valid).toBe(false);
       expect(validation.errors).toContain('Missing required section: technical');
@@ -74,22 +73,32 @@ describe('Preferences Validation', () => {
 
     it('should require project_defaults section', () => {
       const config = {
-        personal: { name: 'Test', role: 'Dev' },
         technical: {}
       };
-      
+
       const validation = validateBasicStructure(config);
       expect(validation.valid).toBe(false);
       expect(validation.errors).toContain('Missing required section: project_defaults');
     });
 
-    it('should accept valid minimal config', () => {
+    it('should accept valid minimal config without personal section', () => {
+      const config = {
+        technical: {},
+        project_defaults: {}
+      };
+
+      const validation = validateBasicStructure(config);
+      expect(validation.valid).toBe(true);
+      expect(validation.errors).toEqual([]);
+    });
+
+    it('should accept valid config with personal section', () => {
       const config = {
         personal: { name: 'Test', role: 'Developer' },
         technical: {},
         project_defaults: {}
       };
-      
+
       const validation = validateBasicStructure(config);
       expect(validation.valid).toBe(true);
       expect(validation.errors).toEqual([]);

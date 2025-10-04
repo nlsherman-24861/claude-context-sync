@@ -12,16 +12,12 @@ export class ChatFormatTransformer extends BaseTransformer {
     // Add generation metadata as HTML comment
     let output = generateMetadata({ format: 'chat' }) + '\n\n';
 
-    // Add framing context to clarify perspective and pronouns
-    const personaName = sections.personality?.construct_name ||
-                       sections.personality?.name ||
-                       sections.personal?.name;
-
-    if (personaName) {
-      output += `Your name is ${personaName}. `;
+    // Personality (Claude's persona) - establish who Claude is first
+    if (sections.personality) {
+      output += this._formatPersonality(sections.personality);
     }
 
-    // Professional background
+    // Professional background (user context)
     if (sections.professional_background) {
       output += this._formatProfessionalBackground(sections.professional_background);
     }
@@ -40,13 +36,7 @@ export class ChatFormatTransformer extends BaseTransformer {
       output += this._formatWorkingStyle(sections.working_style);
     }
 
-    // Personality (Claude's traits)
-    if (sections.personality) {
-      output += '\n[Your personality traits:] ';
-      output += this._formatPersonality(sections.personality);
-    }
-
-    // Legacy field support
+    // Legacy field support (deprecated - use personality section instead)
     if (sections.personal) {
       output += this._formatLegacyPersonal(sections.personal);
     }
@@ -253,18 +243,21 @@ n
 
   _formatPersonality(personality) {
     let text = '';
-    
+
+    // Framing: clarify this describes Claude's persona
     if (personality.construct_name) {
-      text += `Think of yourself as "${personality.construct_name}"`;
-      
-      if (personality.description) {
+      text += `Your name is "${personality.construct_name}"`;
+
+      if (personality.archetype) {
+        text += ` - ${personality.archetype}`;
+      } else if (personality.description) {
         text += ` - ${personality.description}`;
       }
       text += '. ';
     }
 
     if (personality.traits && Array.isArray(personality.traits)) {
-      text += `Your traits include: ${this._formatList(personality.traits, { lowercase: true })}. `;
+      text += `Your personality traits: ${this._formatList(personality.traits, { lowercase: true })}. `;
     }
 
     return text ? text + '\n\n' : '';

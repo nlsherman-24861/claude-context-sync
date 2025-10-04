@@ -12,38 +12,57 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
     let output = generateMetadata({ format: 'claude-md' }) + '\n\n';
     output += '# Claude Code Preferences\n\n';
 
-    // Professional background
-    if (sections.professional_background) {
-      output += this._formatProfessionalBackground(sections.professional_background);
-    }
-    // Creative pursuits
-    if (sections.creative_pursuits) {
-      output += this._formatCreativePursuits(sections.creative_pursuits);
-    }
-
-    // Personal interests
-    if (sections.personal_interests) {
-      output += this._formatPersonalInterests(sections.personal_interests);
-    }
-
-    // Working style
-    if (sections.working_style) {
-      output += this._formatWorkingStyle(sections.working_style);
-    }
-
-    // Technical approach
-    if (sections.technical_approach) {
-      output += this._formatTechnicalApproach(sections.technical_approach);
-    }
-
-    // Project conventions
-    if (sections.project_conventions) {
-      output += this._formatProjectConventions(sections.project_conventions);
-    }
-
-    // Personality (optional section)
+    // CLAUDE PERSONA SECTION - Who Claude should be
     if (sections.personality) {
       output += this._formatPersonality(sections.personality);
+    }
+
+    // USER CONTEXT SECTION - Facts about the user
+    let hasUserContext = false;
+    let userContextOutput = '';
+
+    if (sections.professional_background) {
+      userContextOutput += this._formatProfessionalBackground(sections.professional_background);
+      hasUserContext = true;
+    }
+
+    if (sections.creative_pursuits) {
+      userContextOutput += this._formatCreativePursuits(sections.creative_pursuits);
+      hasUserContext = true;
+    }
+
+    if (sections.personal_interests) {
+      userContextOutput += this._formatPersonalInterests(sections.personal_interests);
+      hasUserContext = true;
+    }
+
+    if (hasUserContext) {
+      output += '## User Context\n\n';
+      output += userContextOutput;
+    }
+
+    // USER PREFERENCES SECTION - How user wants Claude to behave
+    let hasUserPreferences = false;
+    let userPreferencesOutput = '';
+
+    if (sections.working_style) {
+      userPreferencesOutput += this._formatWorkingStyle(sections.working_style);
+      hasUserPreferences = true;
+    }
+
+    if (sections.technical_approach) {
+      userPreferencesOutput += this._formatTechnicalApproach(sections.technical_approach);
+      hasUserPreferences = true;
+    }
+
+    if (sections.project_conventions) {
+      userPreferencesOutput += this._formatProjectConventions(sections.project_conventions);
+      hasUserPreferences = true;
+    }
+
+    if (hasUserPreferences) {
+      output += '## User Preferences\n\n';
+      output += userPreferencesOutput;
     }
 
     // Legacy field support
@@ -78,7 +97,7 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
   }
 
   _formatProfessionalBackground(background) {
-    let section = '## Professional Background\n\n';
+    let section = '### Professional Background\n\n';
     
     if (background.experience) {
       section += `- **Experience**: ${background.experience}\n`;
@@ -99,13 +118,13 @@ export class ClaudeMdFormatTransformer extends BaseTransformer {
   }
 n
   _formatCreativePursuits(pursuits) {
-    let section = '## Creative Pursuits\n\n';
+    let section = '### Creative Pursuits\n\n';
 
     // Iterate over all pursuit types (music, writing, visual_arts, etc.)
     for (const [pursuitType, pursuitData] of Object.entries(pursuits)) {
       // Capitalize pursuit type for heading
       const pursuitLabel = pursuitType.charAt(0).toUpperCase() + pursuitType.slice(1).replace(/_/g, ' ');
-      section += `### ${pursuitLabel}\n\n`;
+      section += `#### ${pursuitLabel}\n\n`;
 
       // Identity field (artist_alias, pen_name, alias, etc.)
       const identityField = pursuitData.artist_alias || pursuitData.pen_name || pursuitData.alias;
@@ -168,10 +187,10 @@ n
 
 
   _formatPersonalInterests(interests) {
-    let section = '## Personal Interests\n\n';
-    
+    let section = '### Personal Interests\n\n';
+
     if (interests.primary && Array.isArray(interests.primary)) {
-      section += '### Primary Interests\n\n';
+      section += '#### Primary Interests\n\n';
       interests.primary.forEach(item => {
         section += `- ${item}\n`;
       });
@@ -179,7 +198,7 @@ n
     }
 
     if (interests.engagement_style && Array.isArray(interests.engagement_style)) {
-      section += '### Engagement Style\n\n';
+      section += '#### Engagement Style\n\n';
       interests.engagement_style.forEach(item => {
         section += `- ${item}\n`;
       });
@@ -194,10 +213,10 @@ n
   }
 
   _formatWorkingStyle(style) {
-    let section = '## Working Style\n\n';
+    let section = '### Working Style\n\n';
 
     if (style.communication && Array.isArray(style.communication)) {
-      section += '### Communication Preferences\n\n';
+      section += '#### Communication Preferences\n\n';
       style.communication.forEach(item => {
         section += `- ${item}\n`;
       });
@@ -205,7 +224,7 @@ n
     }
 
     if (style.context_management && Array.isArray(style.context_management)) {
-      section += '### Context Management\n\n';
+      section += '#### Context Management\n\n';
       style.context_management.forEach(item => {
         section += `- ${item}\n`;
       });
@@ -213,7 +232,7 @@ n
     }
 
     if (style.feedback && Array.isArray(style.feedback)) {
-      section += '### Feedback Style\n\n';
+      section += '#### Feedback Style\n\n';
       style.feedback.forEach(item => {
         section += `- ${item}\n`;
       });
@@ -221,7 +240,7 @@ n
     }
 
     if (style.learning && Array.isArray(style.learning)) {
-      section += '### Learning Approach\n\n';
+      section += '#### Learning Approach\n\n';
       style.learning.forEach(item => {
         section += `- ${item}\n`;
       });
@@ -232,10 +251,10 @@ n
   }
 
   _formatTechnicalApproach(technical) {
-    let section = '## Technical Approach\n\n';
+    let section = '### Technical Approach\n\n';
 
     if (technical.philosophy && Array.isArray(technical.philosophy)) {
-      section += '### Philosophy\n\n';
+      section += '#### Philosophy\n\n';
       technical.philosophy.forEach(item => {
         section += `- ${item}\n`;
       });
@@ -243,7 +262,7 @@ n
     }
 
     if (technical.coding_style && Array.isArray(technical.coding_style)) {
-      section += '### Coding Style\n\n';
+      section += '#### Coding Style\n\n';
       technical.coding_style.forEach(item => {
         section += `- ${item}\n`;
       });
@@ -251,7 +270,7 @@ n
     }
 
     if (technical.workflow) {
-      section += '### Workflow\n\n';
+      section += '#### Workflow\n\n';
       section += this._formatWorkflowSection(technical.workflow);
     }
 
@@ -262,7 +281,7 @@ n
     let workflowContent = '';
     for (const [key, value] of Object.entries(workflow)) {
       if (Array.isArray(value)) {
-        workflowContent += `#### ${this._formatSectionTitle(key)}\n\n`;
+        workflowContent += `##### ${this._formatSectionTitle(key)}\n\n`;
         value.forEach(item => {
           workflowContent += `- ${item}\n`;
         });
@@ -273,11 +292,11 @@ n
   }
 
   _formatProjectConventions(conventions) {
-    let section = '## Project Conventions\n\n';
+    let section = '### Project Conventions\n\n';
 
     for (const [key, value] of Object.entries(conventions)) {
       if (Array.isArray(value)) {
-        section += `### ${this._formatSectionTitle(key)}\n\n`;
+        section += `#### ${this._formatSectionTitle(key)}\n\n`;
         value.forEach(item => {
           section += `- ${item}\n`;
         });
@@ -289,13 +308,17 @@ n
   }
 
   _formatPersonality(personality) {
-    let section = '## Personality (Optional)\n\n';
-    
-    if (personality.construct_name) {
-      section += `**Assistant Persona**: ${personality.construct_name}\n\n`;
-    }
+    let section = '## Claude Persona\n\n';
 
-    if (personality.description) {
+    if (personality.construct_name) {
+      section += `**Name**: ${personality.construct_name}\n\n`;
+
+      if (personality.archetype) {
+        section += `**Archetype**: ${personality.archetype}\n\n`;
+      } else if (personality.description) {
+        section += `**Description**: ${personality.description}\n\n`;
+      }
+    } else if (personality.description) {
       section += `**Description**: ${personality.description}\n\n`;
     }
 

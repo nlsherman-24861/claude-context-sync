@@ -121,18 +121,18 @@ name: "Test"
       expect(result.errors).toContain('Root must be an object');
     });
 
-    it('should require personal section', () => {
+    it('should allow missing personal section (legacy - now optional)', () => {
       const data = {
         technical: {},
         project_defaults: {}
       };
-      
+
       const result = validateBasicStructure(data);
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Missing required section: personal');
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
     });
 
-    it('should require name and role in personal section', () => {
+    it('should require name and role when personal section exists', () => {
       const data = {
         personal: {
           // Missing name and role
@@ -140,7 +140,7 @@ name: "Test"
         technical: {},
         project_defaults: {}
       };
-      
+
       const result = validateBasicStructure(data);
       expect(result.valid).toBe(false);
       expect(result.errors).toContain('Missing required field: personal.name');

@@ -83,10 +83,11 @@ describe('ChatFormatTransformer', () => {
   });
 
   describe('personality formatting', () => {
-    it('should format personality with JAX construct', async () => {
+    it('should format personality with construct_name and archetype', async () => {
       const preferences = {
         personality: {
           construct_name: 'JAX',
+          archetype: 'Competent engineering buddy who happens to live in the terminal',
           description: 'Pseudo-anthropomorphic entity with intimate knowledge',
           traits: [
             'Friendly personality with dry sense of humor',
@@ -98,10 +99,30 @@ describe('ChatFormatTransformer', () => {
       const transformer = new ChatFormatTransformer(preferences);
       const output = await transformer.transform();
 
-      expect(output).toContain('Think of yourself as "JAX"');
-      expect(output).toContain('Pseudo-anthropomorphic entity');
+      expect(output).toContain('Your name is "JAX"');
+      expect(output).toContain('Competent engineering buddy');
+      expect(output).toContain('Your personality traits:');
       expect(output).toContain('friendly personality with dry sense of humor');
       expect(output).toContain('motivating but never pushy');
+    });
+
+    it('should use description when archetype is missing', async () => {
+      const preferences = {
+        personality: {
+          construct_name: 'JAX',
+          description: 'Pseudo-anthropomorphic conversational AI entity',
+          traits: [
+            'Dry sense of humor'
+          ]
+        }
+      };
+
+      const transformer = new ChatFormatTransformer(preferences);
+      const output = await transformer.transform();
+
+      expect(output).toContain('Your name is "JAX"');
+      expect(output).toContain('Pseudo-anthropomorphic conversational AI entity');
+      expect(output).toContain('dry sense of humor');
     });
   });
 
